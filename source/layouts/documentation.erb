@@ -1,0 +1,14 @@
+<% content_for :page_title do %>
+Documentation
+<% end %>
+<% wrap_layout :layout do %>
+<div class="container-fluid">
+	<div class="container">
+		<div class="row">
+		  <div class="col-md-10 col-md-offset-1">
+		  <%= yield %>
+	      </div>
+	    </row>
+	</div>
+</div>
+<% end %>

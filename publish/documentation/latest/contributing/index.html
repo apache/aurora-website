@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+	  
+        <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_white_bkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+	<ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>	
+  	  <div class="container-fluid">
+  	  	<div class="container content">
+          <h2 id="get-the-source-code">Get the Source Code</h2>
+
+<p>First things first, you&rsquo;ll need the source! The Aurora source is available from Apache git:</p>
+<pre class="highlight text">git clone https://git-wip-us.apache.org/repos/asf/incubator-aurora
+</pre>
+<h2 id="find-something-to-do">Find Something to Do</h2>
+
+<p>There are issues in <a href="https://issues.apache.org/jira/browse/AURORA">Jira</a> with the
+<a href="https://issues.apache.org/jira/browse/AURORA-189?jql=project%20%3D%20AURORA%20AND%20resolution%20%3D%20Unresolved%20AND%20labels%20%3D%20newbie%20ORDER%20BY%20priority%20DESC">&ldquo;newbie&rdquo; tag</a>
+that are good starting places for new Aurora contributors; pick one of these and dive in! Once
+you&rsquo;ve got a patch, the next step is to post a review.</p>
+
+<h2 id="getting-your-reviewboard-account">Getting your ReviewBoard Account</h2>
+
+<p>Go to <a href="https://reviews.apache.org">https://reviews.apache.org</a> and create an account.</p>
+
+<h2 id="setting-up-your-reviewboard-environment">Setting up your ReviewBoard Environment</h2>
+
+<p>Run <code>./rbt status</code>. The first time this runs it will bootstrap and you will be asked to login.
+Subsequent runs will cache your login credentials.</p>
+
+<h2 id="submitting-a-patch-for-review">Submitting a Patch for Review</h2>
+
+<p>Post a review with <code>rbt</code>, fill out the fields in your browser and hit Publish.</p>
+<pre class="highlight text">./rbt post -o
+</pre>
+<p>Once you&rsquo;ve done this, you probably want to mark the associated Jira issue as Reviewable.</p>
+
+<h2 id="updating-an-existing-review">Updating an Existing Review</h2>
+
+<p>Incorporate review feedback, make some more commits, update your existing review, fill out the
+fields in your browser and hit Publish.</p>
+<pre class="highlight text">./rbt post -o -r &lt;RB_ID&gt;
+</pre>
+<h2 id="merging-your-own-review-(committers)">Merging Your Own Review (Committers)</h2>
+
+<p>Once you have shipits from the right committers, merge your changes in a single commit and mark
+the review as submitted. The typical workflow is:</p>
+<pre class="highlight text">git checkout master
+git pull origin master
+./rbt patch -c &lt;RB_ID&gt;  # Verify the automatically-generated commit message looks sane,
+                        # editing if necessary.
+git show master         # Verify everything looks sane
+git push origin master
+./rbt close &lt;RB_ID&gt;
+</pre>
+<p>Note that even if you&rsquo;re developing using feature branches you will not use <code>git merge</code> - each
+commit will be an atomic change accompanied by a ReviewBoard entry.</p>
+
+<h2 id="merging-someone-else&#39;s-review">Merging Someone Else&rsquo;s Review</h2>
+
+<p>Sometimes you&rsquo;ll need to merge someone else&rsquo;s RB. The typical workflow for this is</p>
+<pre class="highlight text">git checkout master
+git pull origin master
+./rbt patch -c &lt;RB_ID&gt;
+git show master  # Verify everything looks sane, author is correct
+git push origin master
+</pre>
+<h2 id="cleaning-up">Cleaning Up</h2>
+
+<p>Your patch has landed, congratulations! The last thing you&rsquo;ll want to do before moving on to your
+next fix is to clean up your Jira and Reviewboard. The former of which should be marked as
+&ldquo;Resolved&rdquo; while the latter should be marked as &ldquo;Submitted&rdquo;.</p>
+
+  		</div>
+  	  </div>
+	  
+      	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+		    <p class="disclaimer">Apache Aurora is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Apache Incubator. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.</p>
+			<p class="disclaimer">Copyright 2014 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+	</body>
+</html>

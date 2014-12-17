@@ -1,0 +1,78 @@
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Apache Aurora Blog</title>
+  <id>http://aurora.incubator.apache.org/blog</id>
+  <link href="http://aurora.incubator.apache.org/blog" />
+  <link href="http://aurora.incubator.apache.org/blog/feed.xml" rel="self"/>
+  <updated>2014-12-08T00:00:00Z</updated>
+  
+  <entry>
+    <id>http://aurora.incubator.apache.org/blog/aurora-0-6-0-incubating-released/</id>
+    <link href="/blog/aurora-0-6-0-incubating-released/" />
+    <title>
+      Aurora 0.6.0-incubating Released
+    </title>
+    <updated>2014-12-08T00:00:00Z</updated>
+    <author>
+      <name>Bill Farner</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.6.0-incubating, is now available for download. This version marks the second Aurora release since becoming part of the &lt;a href=&quot;http://incubator.apache.org&quot;&gt;Apache Incubator&lt;/a&gt;, and includes the following features and improvements:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Introduced highly-available, scheduler-driven job updates in beta (&lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-610&quot;&gt;AURORA-610&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Improvements to the Aurora web UI, including visualization of job updates&lt;/li&gt;
+&lt;li&gt;Added automatic service registration in ZooKeeper (&lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-587&quot;&gt;AURORA-587&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Updates to Aurora client version two, deprecation of v1 coming in future release&lt;/li&gt;
+&lt;li&gt;Lots of new  &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/&quot;&gt;documentation&lt;/a&gt;. Documentation now includes pages for &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/deploying-aurora-scheduler/&quot;&gt;deploying the Aurora scheduler&lt;/a&gt;, &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/cron-jobs/&quot;&gt;cron jobs&lt;/a&gt;, &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/sla/&quot;&gt;SLA measurement&lt;/a&gt;, &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/storage/&quot;&gt;storage&lt;/a&gt;, and &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/storage-config/&quot;&gt;storage configuration and measurement&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release &lt;a href=&quot;https://git-wip-us.apache.org/repos/asf?p=incubator-aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=0.6.0-rc2&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;highly-available,-scheduler-driven-updates&quot;&gt;Highly-available, scheduler-driven updates&lt;/h2&gt;
+
+&lt;p&gt;Rolling updates of services is a crucial feature in Aurora. As such, we
+want to take great care when changing its behavior. Previously, Aurora operated
+by delegating this functionality to the client (or any API client, for that
+matter). In this version, the scheduler can take over the 
+responsibility of application update orchestration. Further details were discussed on the &lt;a href=&quot;http://mail-archives.apache.org/mod_mbox/incubator-aurora-dev/201407.mbox/%3CCAGRA8uMxwVDokp_iHXhNru2gd-x_nM%2BDYAurpfAO6wuX7%3DnHFw%40mail.gmail.com%3E&quot;&gt;Aurora mailing list&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;aurora-web-ui-improvements&quot;&gt;Aurora Web UI Improvements&lt;/h2&gt;
+
+&lt;p&gt;Since the scheduler can now orchestrate job updates, it has awareness of the progress and outcome of updates.  This means you can see a progress bar for in-flight updates, and the history of updates for your jobs.  Additionally, the performance of the UI was improved, especially for large roles and jobs &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-458&quot;&gt;AURORA-458&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;service-announcement-and-management&quot;&gt;Service Announcement and Management&lt;/h2&gt;
+
+&lt;p&gt;Job configurations can now supply an &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/configuration-reference/#announcer-objects&quot;&gt;&lt;code&gt;announce&lt;/code&gt; parameter&lt;/a&gt;, which is meant to be a way to opt-in for registration in a service discovery system. This has been implemented in the Aurora executor, and will automatically announce tasks via ZooKeeper.&lt;/p&gt;
+
+&lt;h2 id=&quot;aurora-client-improvements&quot;&gt;Aurora Client Improvements&lt;/h2&gt;
+
+&lt;p&gt;Progress was made in features to &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/clientv2/&quot;&gt;v2&lt;/a&gt; of the &lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/client-commands/&quot;&gt;Aurora client&lt;/a&gt;. We will support version 1 and version 2 for 0.6.0, with version 1 to be removed in 0.7.0.&lt;/p&gt;
+
+&lt;h2 id=&quot;improved-project-documentation&quot;&gt;Improved Project Documentation&lt;/h2&gt;
+
+&lt;p&gt;New documentation pages including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/deploying-aurora-scheduler/&quot;&gt;Deploying the Aurora scheduler&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/cron-jobs/&quot;&gt;Cron jobs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/sla/&quot;&gt;SLA measurement&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/storage/&quot;&gt;Storage&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/storage-config/&quot;&gt;Storage configuration and measurement&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.incubator.apache.org/documentation/latest/monitoring/&quot;&gt;Monitoring&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues, please let us know on the &lt;a href=&quot;https://aurora.apache.org/community&quot;&gt;user mailing list and IRC&lt;/a&gt;. The community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 16 contributors who made 0.6.0-incubating possible:&lt;/p&gt;
+
+&lt;p&gt;Bill Farner, Maxim Khutornenko, Kevin Sweeney, Mark Chu-Carroll, Joshua Cohen, Zameer Manji, David McLaughlin, Brian Wickman, Joe Smith, Jake Farrell, Matthew Jeffryes, Dominic Hamon, Bjoern Metzdorf, Joseph Glanville, David Robinson, David Pan.&lt;/p&gt;
+
+	</content>
+  </entry>
+  
+</feed>

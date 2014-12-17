@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+	  
+        <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_white_bkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+	<ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>	
+  	  <div class="container-fluid">
+  	  	<div class="container content">
+          <h2 id="setting-up-your-email-account">Setting up your email account</h2>
+
+<p>Once your Apache ID has been set up you can configure your account and add ssh keys and setup an
+email forwarding address at</p>
+
+<p><a href="http://id.apache.org">http://id.apache.org</a></p>
+
+<p>Additional instructions for setting up your new committer email can be found at</p>
+
+<p><a href="http://www.apache.org/dev/user-email.html">http://www.apache.org/dev/user-email.html</a></p>
+
+<p>The recommended setup is to configure all services (mailing lists, JIRA, ReviewBoard) to send
+emails to your @apache.org email address.</p>
+
+<h2 id="creating-a-gpg-key-for-releases">Creating a gpg key for releases</h2>
+
+<p>In order to create a release candidate you will need a gpg key published to an external key server
+and that key will need to be added to our KEYS file as well.</p>
+
+<ol>
+<li><p>Create a key:</p>
+<pre class="highlight text">       gpg --gen-key
+</pre></li>
+<li><p>Add your gpg key to the Apache Aurora KEYS file:</p>
+<pre class="highlight text">       git clone https://git-wip-us.apache.org/repos/asf/incubator-aurora.git
+       (gpg --list-sigs &lt;KEY ID&gt; &amp;&amp; gpg --armor --export &lt;KEY ID&gt;) &gt;&gt; KEYS
+       git add KEYS &amp;&amp; git commit -m &quot;Adding gpg key for &lt;APACHE ID&gt;&quot;
+       ./rbt post -o -g
+</pre></li>
+<li><p>Publish the key to an external key server:</p>
+<pre class="highlight text">       gpg --keyserver pgp.mit.edu --send-keys &lt;KEY ID&gt;
+</pre></li>
+<li><p>Update the changes to the KEYS file to the Apache Aurora svn dist locations listed below:</p>
+<pre class="highlight text">       https://dist.apache.org/repos/dist/dev/incubator/aurora/KEYS
+       https://dist.apache.org/repos/dist/release/incubator/aurora/KEYS
+</pre></li>
+<li><p>Add your key to git config for use with the release scripts:</p>
+<pre class="highlight text">       git config --global user.signingkey &lt;KEY ID&gt;
+</pre></li>
+</ol>
+
+<h2 id="creating-a-release">Creating a release</h2>
+
+<p>The following will guide you through the steps to create a release candidate, vote, and finally an
+official Apache Aurora release. Before starting your gpg key should be in the KEYS file and you
+must have access to commit to the dist.a.o repositories.</p>
+
+<ol>
+<li><p>Ensure that all issues resolved for this release candidate are tagged with the correct Fix
+Version in Jira, the changelog script will use this to generate the CHANGELOG in step #2.</p></li>
+<li><p>Create a release candidate. This will automatically update the CHANGELOG and commit it, create a
+branch and update the current version within the trunk. To create a minor version update and publish
+it run</p>
+<pre class="highlight text">       ./build-support/release/release-candidate -l m -p
+</pre></li>
+<li><p>Update, if necessary, the draft email created from the <code>release-candidate</code> script in step #2 and
+send the [VOTE] email to the dev@ and private@ mailing lists. You can verify the release signature
+and checksums by running</p>
+<pre class="highlight text">        ./build-support/release/verify-release-candidate
+</pre></li>
+<li><p>Wait for the vote to complete. If the vote fails address any issues and go back to step #1 and
+run again, this time you will use the -r flag to increment the release candidate version. This will
+automatically clean up the release candidate rc0 branch and source distribution.</p>
+<pre class="highlight text">       ./build-support/release/release-candidate -l m -r 1 -p
+</pre></li>
+<li><p>Once the vote has successfully passed create the release</p>
+<pre class="highlight text">       ./build-support/release/release
+</pre></li>
+<li><p>Update the draft email created fom the <code>release</code> script in step #5 to include the Apache ID&rsquo;s for
+all binding votes and send the [RESULT][VOTE] email to the dev@ and private@ mailing lists.</p></li>
+</ol>
+
+  		</div>
+  	  </div>
+	  
+      	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+		    <p class="disclaimer">Apache Aurora is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Apache Incubator. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.</p>
+			<p class="disclaimer">Copyright 2014 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+	</body>
+</html>

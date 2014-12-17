@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+	  
+        <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_white_bkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+	<ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>	
+  	  <div class="container-fluid">
+  	  	<div class="container content">
+          <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			
+			<span class="author_contact">
+			  <p><strong>Bill Farner</strong></p>
+			  <p><a href="http://twitter.com/wfarner">@wfarner</a></p>
+			</span>
+		</span>
+		<p><em>Posted December  8, 2014</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="apachemesos">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>Aurora 0.6.0-incubating Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.6.0-incubating, is now available for download. This version marks the second Aurora release since becoming part of the <a href="http://incubator.apache.org">Apache Incubator</a>, and includes the following features and improvements:</p>
+
+<ul>
+<li>Introduced highly-available, scheduler-driven job updates in beta (<a href="https://issues.apache.org/jira/browse/AURORA-610">AURORA-610</a>)</li>
+<li>Improvements to the Aurora web UI, including visualization of job updates</li>
+<li>Added automatic service registration in ZooKeeper (<a href="https://issues.apache.org/jira/browse/AURORA-587">AURORA-587</a>)</li>
+<li>Updates to Aurora client version two, deprecation of v1 coming in future release</li>
+<li>Lots of new  <a href="http://aurora.incubator.apache.org/documentation/latest/">documentation</a>. Documentation now includes pages for <a href="http://aurora.incubator.apache.org/documentation/latest/deploying-aurora-scheduler/">deploying the Aurora scheduler</a>, <a href="http://aurora.incubator.apache.org/documentation/latest/cron-jobs/">cron jobs</a>, <a href="http://aurora.incubator.apache.org/documentation/latest/sla/">SLA measurement</a>, <a href="http://aurora.incubator.apache.org/documentation/latest/storage/">storage</a>, and <a href="http://aurora.incubator.apache.org/documentation/latest/storage-config/">storage configuration and measurement</a>.</li>
+</ul>
+
+<p>Full release notes are available in the release <a href="https://git-wip-us.apache.org/repos/asf?p=incubator-aurora.git&amp;f=CHANGELOG&amp;hb=0.6.0-rc2">CHANGELOG</a>.</p>
+
+<h2 id="highly-available,-scheduler-driven-updates">Highly-available, scheduler-driven updates</h2>
+
+<p>Rolling updates of services is a crucial feature in Aurora. As such, we
+want to take great care when changing its behavior. Previously, Aurora operated
+by delegating this functionality to the client (or any API client, for that
+matter). In this version, the scheduler can take over the 
+responsibility of application update orchestration. Further details were discussed on the <a href="http://mail-archives.apache.org/mod_mbox/incubator-aurora-dev/201407.mbox/%3CCAGRA8uMxwVDokp_iHXhNru2gd-x_nM%2BDYAurpfAO6wuX7%3DnHFw%40mail.gmail.com%3E">Aurora mailing list</a>.</p>
+
+<h2 id="aurora-web-ui-improvements">Aurora Web UI Improvements</h2>
+
+<p>Since the scheduler can now orchestrate job updates, it has awareness of the progress and outcome of updates.  This means you can see a progress bar for in-flight updates, and the history of updates for your jobs.  Additionally, the performance of the UI was improved, especially for large roles and jobs <a href="https://issues.apache.org/jira/browse/AURORA-458">AURORA-458</a>.</p>
+
+<h2 id="service-announcement-and-management">Service Announcement and Management</h2>
+
+<p>Job configurations can now supply an <a href="http://aurora.incubator.apache.org/documentation/latest/configuration-reference/#announcer-objects"><code>announce</code> parameter</a>, which is meant to be a way to opt-in for registration in a service discovery system. This has been implemented in the Aurora executor, and will automatically announce tasks via ZooKeeper.</p>
+
+<h2 id="aurora-client-improvements">Aurora Client Improvements</h2>
+
+<p>Progress was made in features to <a href="http://aurora.incubator.apache.org/documentation/latest/clientv2/">v2</a> of the <a href="http://aurora.incubator.apache.org/documentation/latest/client-commands/">Aurora client</a>. We will support version 1 and version 2 for 0.6.0, with version 1 to be removed in 0.7.0.</p>
+
+<h2 id="improved-project-documentation">Improved Project Documentation</h2>
+
+<p>New documentation pages including:</p>
+
+<ul>
+<li><a href="http://aurora.incubator.apache.org/documentation/latest/deploying-aurora-scheduler/">Deploying the Aurora scheduler</a></li>
+<li><a href="http://aurora.incubator.apache.org/documentation/latest/cron-jobs/">Cron jobs</a></li>
+<li><a href="http://aurora.incubator.apache.org/documentation/latest/sla/">SLA measurement</a></li>
+<li><a href="http://aurora.incubator.apache.org/documentation/latest/storage/">Storage</a></li>
+<li><a href="http://aurora.incubator.apache.org/documentation/latest/storage-config/">Storage configuration and measurement</a></li>
+<li><a href="http://aurora.incubator.apache.org/documentation/latest/monitoring/">Monitoring</a></li>
+</ul>
+
+<h2 id="getting-involved">Getting Involved</h2>
+
+<p>We encourage you to try out this release and let us know what you think. If you run into any issues, please let us know on the <a href="https://aurora.apache.org/community">user mailing list and IRC</a>. The community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 16 contributors who made 0.6.0-incubating possible:</p>
+
+<p>Bill Farner, Maxim Khutornenko, Kevin Sweeney, Mark Chu-Carroll, Joshua Cohen, Zameer Manji, David McLaughlin, Brian Wickman, Joe Smith, Jake Farrell, Matthew Jeffryes, Dominic Hamon, Bjoern Metzdorf, Joseph Glanville, David Robinson, David Pan.</p>
+
+</div>
+</div>
+
+  		</div>
+  	  </div>
+	  
+      	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+		    <p class="disclaimer">Apache Aurora is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Apache Incubator. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.</p>
+			<p class="disclaimer">Copyright 2014 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+	</body>
+</html>
