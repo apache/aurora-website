@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/security/'"
+        value="0.10.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    selected="selected">
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<p>Aurora integrates with <a href="http://shiro.apache.org/">Apache Shiro</a> to provide security
+controls for its API. In addition to providing some useful features out of the box, Shiro
+also allows Aurora cluster administrators to adapt the security system to their organization’s
+existing infrastructure.</p>
+
+<ul>
+<li><a href="#enabling-security">Enabling Security</a></li>
+<li><a href="#authentication">Authentication</a>
+
+<ul>
+<li><a href="#http-basic-authentication">HTTP Basic Authentication</a>
+
+<ul>
+<li><a href="#server-configuration">Server Configuration</a></li>
+<li><a href="#client-configuration">Client Configuration</a></li>
+</ul></li>
+<li><a href="#http-spnego-authentication-kerberos">HTTP SPNEGO Authentication (Kerberos)</a>
+
+<ul>
+<li><a href="#server-configuration-1">Server Configuration</a></li>
+<li><a href="#client-configuration-1">Client Configuration</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#authorization">Authorization</a>
+
+<ul>
+<li><a href="#using-an-ini-file-to-define-security-controls">Using an INI file to define security controls</a>
+
+<ul>
+<li><a href="#caveats">Caveats</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#implementing-a-custom-realm">Implementing a Custom Realm</a>
+
+<ul>
+<li><a href="#packaging-a-realm-module">Packaging a realm module</a></li>
+</ul></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+
+<h1 id="enabling-security">Enabling Security</h1>
+
+<p>There are two major components of security:
+<a href="http://en.wikipedia.org/wiki/Authentication#Authorization">authentication and authorization</a>.  A
+cluster administrator may choose the approach used for each, and may also implement custom
+mechanisms for either.  Later sections describe the options available.</p>
+
+<h1 id="authentication">Authentication</h1>
+
+<p>The scheduler must be configured with instructions for how to process authentication
+credentials at a minimum.  There are currently two built-in authentication schemes -
+<a href="http://en.wikipedia.org/wiki/Basic_access_authentication">HTTP Basic Authentication</a>, and
+<a href="http://en.wikipedia.org/wiki/SPNEGO">SPNEGO</a> (Kerberos).</p>
+
+<h2 id="http-basic-authentication">HTTP Basic Authentication</h2>
+
+<p>Basic Authentication is a very quick way to add <em>some</em> security.  It is supported
+by all major browsers and HTTP client libraries with minimal work.  However,
+before relying on Basic Authentication you should be aware of the <a href="http://tools.ietf.org/html/rfc2617#section-4">security
+considerations</a>.</p>
+
+<h3 id="server-configuration">Server Configuration</h3>
+
+<p>At a minimum you need to set 4 command-line flags on the scheduler:</p>
+<pre class="highlight plaintext"><code>-http_authentication_mechanism=BASIC
+-shiro_realm_modules=INI_AUTHNZ
+-shiro_ini_path=path/to/security.ini
+</code></pre>
+
+<p>And create a security.ini file like so:</p>
+<pre class="highlight plaintext"><code>[users]
+sally = apple, admin
+
+[roles]
+admin = *
+</code></pre>
+
+<p>The details of the security.ini file are explained below. Note that this file contains plaintext,
+unhashed passwords.</p>
+
+<h3 id="client-configuration">Client Configuration</h3>
+
+<p>To configure the client for HTTP Basic authentication, add an entry to ~/.netrc with your credentials</p>
+<pre class="highlight plaintext"><code>% cat ~/.netrc
+# ...
+
+machine aurora.example.com
+login sally
+password apple
+
+# ...
+</code></pre>
+
+<p>No changes are required to <code>clusters.json</code>.</p>
+
+<h2 id="http-spnego-authentication-kerberos">HTTP SPNEGO Authentication (Kerberos)</h2>
+
+<h3 id="server-configuration">Server Configuration</h3>
+
+<p>At a minimum you need to set 6 command-line flags on the scheduler:</p>
+<pre class="highlight plaintext"><code>-http_authentication_mechanism=NEGOTIATE
+-shiro_realm_modules=KERBEROS5_AUTHN,INI_AUTHNZ
+-kerberos_server_principal=HTTP/aurora.example.com@EXAMPLE.COM
+-kerberos_server_keytab=path/to/aurora.example.com.keytab
+-shiro_ini_path=path/to/security.ini
+</code></pre>
+
+<p>And create a security.ini file like so:</p>
+<pre class="highlight plaintext"><code>% cat path/to/security.ini
+[users]
+sally = _, admin
+
+[roles]
+admin = *
+</code></pre>
+
+<p>What&rsquo;s going on here? First, Aurora must be configured to request Kerberos credentials when presented with an
+unauthenticated request. This is achieved by setting</p>
+<pre class="highlight plaintext"><code>-http_authentication_mechanism=NEGOTIATE
+</code></pre>
+
+<p>Next, a Realm module must be configured to <strong>authenticate</strong> the current request using the Kerberos
+credentials that were requested. Aurora ships with a realm module that can do this</p>
+<pre class="highlight plaintext"><code>-shiro_realm_modules=KERBEROS5_AUTHN[,...]
+</code></pre>
+
+<p>The Kerberos5Realm requires a keytab file and a server principal name. The principal name will usually
+be in the form <code>HTTP/aurora.example.com@EXAMPLE.COM</code>.</p>
+<pre class="highlight plaintext"><code>-kerberos_server_principal=HTTP/aurora.example.com@EXAMPLE.COM
+-kerberos_server_keytab=path/to/aurora.example.com.keytab
+</code></pre>
+
+<p>The Kerberos5 realm module is authentication-only. For scheduler security to work you must also
+enable a realm module that provides an Authorizer implementation. For example, to do this using the
+IniShiroRealmModule:</p>
+<pre class="highlight plaintext"><code>-shiro_realm_modules=KERBEROS5_AUTHN,INI_AUTHNZ
+</code></pre>
+
+<p>You can then configure authorization using a security.ini file as described below
+(the password field is ignored). You must configure the realm module with the path to this file:</p>
+<pre class="highlight plaintext"><code>-shiro_ini_path=path/to/security.ini
+</code></pre>
+
+<h3 id="client-configuration">Client Configuration</h3>
+
+<p>To use Kerberos on the client-side you must build Kerberos-enabled client binaries. Do this with</p>
+<pre class="highlight plaintext"><code>./pants binary src/main/python/apache/aurora/kerberos:kaurora
+./pants binary src/main/python/apache/aurora/kerberos:kaurora_admin
+</code></pre>
+
+<p>You must also configure each cluster where you&rsquo;ve enabled Kerberos on the scheduler
+to use Kerberos authentication. Do this by setting <code>auth_mechanism</code> to <code>KERBEROS</code>
+in <code>clusters.json</code>.</p>
+<pre class="highlight plaintext"><code>% cat ~/.aurora/clusters.json
+{
+    "devcluser": {
+        "auth_mechanism": "KERBEROS",
+        ...
+    },
+    ...
+}
+</code></pre>
+
+<h1 id="authorization">Authorization</h1>
+
+<p>Given a means to authenticate the entity a client claims they are, we need to define what privileges they have.</p>
+
+<h2 id="using-an-ini-file-to-define-security-controls">Using an INI file to define security controls</h2>
+
+<p>The simplest security configuration for Aurora is an INI file on the scheduler.  For small
+clusters, or clusters where the users and access controls change relatively infrequently, this is
+likely the preferred approach.  However you may want to avoid this approach if access permissions
+are rapidly changing, or if your access control information already exists in another system.</p>
+
+<p>You can enable INI-based configuration with following scheduler command line arguments:</p>
+<pre class="highlight plaintext"><code>-http_authentication_mechanism=BASIC
+-shiro_ini_path=path/to/security.ini
+</code></pre>
+
+<p><em>note</em> As the argument name reveals, this is using Shiro’s
+<a href="http://shiro.apache.org/configuration.html#Configuration-INIConfiguration">IniRealm</a> behind
+the scenes.</p>
+
+<p>The INI file will contain two sections - users and roles.  Here’s an example for what might
+be in security.ini:</p>
+<pre class="highlight plaintext"><code>[users]
+sally = apple, admin
+jim = 123456, accounting
+becky = letmein, webapp
+larry = 654321,accounting
+steve = password
+
+[roles]
+admin = *
+accounting = thrift.AuroraAdmin:setQuota
+webapp = thrift.AuroraSchedulerManager:*:webapp
+</code></pre>
+
+<p>The users section defines user user credentials and the role(s) they are members of.  These lines
+are of the format <code>&lt;user&gt; = &lt;password&gt;[, &lt;role&gt;...]</code>.  As you probably noticed, the passwords are
+in plaintext and as a result read access to this file should be restricted.</p>
+
+<p>In this configuration, each user has different privileges for actions in the cluster because
+of the roles they are a part of:</p>
+
+<ul>
+<li>admin is granted all privileges</li>
+<li>accounting may adjust the amount of resource quota for any role</li>
+<li>webapp represents a collection of jobs that represents a service, and its members may create and modify any jobs owned by it</li>
+</ul>
+
+<h3 id="caveats">Caveats</h3>
+
+<p>You might find documentation on the Internet suggesting there are additional sections in <code>shiro.ini</code>,
+like <code>[main]</code> and <code>[urls]</code>. These are not supported by Aurora as it uses a different mechanism to configure
+those parts of Shiro. Think of Aurora&rsquo;s <code>security.ini</code> as a subset with only <code>[users]</code> and <code>[roles]</code> sections.</p>
+
+<h1 id="implementing-a-custom-realm">Implementing a Custom Realm</h1>
+
+<p>Since Aurora’s security is backed by <a href="https://shiro.apache.org">Apache Shiro</a>, you can implement a
+custom <a href="http://shiro.apache.org/realm.html">Realm</a> to define organization-specific security behavior.</p>
+
+<p>In addition to using Shiro&rsquo;s standard APIs to implement a Realm you can link against Aurora to
+access the type-safe Permissions Aurora uses. See the Javadoc for <code>org.apache.aurora.scheduler.spi</code>
+for more information.</p>
+
+<h2 id="packaging-a-realm-module">Packaging a realm module</h2>
+
+<p>Package your custom Realm(s) with a Guice module that exposes a <code>Set&lt;Realm&gt;</code> multibinding.</p>
+<pre class="highlight java"><code><span style="color: #000000;font-weight: bold">package</span> <span style="background-color: #f8f8f8">com</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">example</span><span style="color: #000000;font-weight: bold">;</span>
+
+<span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">com.google.inject.AbstractModule</span><span style="color: #000000;font-weight: bold">;</span>
+<span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">com.google.inject.multibindings.Multibinder</span><span style="color: #000000;font-weight: bold">;</span>
+<span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">org.apache.shiro.realm.Realm</span><span style="color: #000000;font-weight: bold">;</span>
+
+<span style="color: #000000;font-weight: bold">public</span> <span style="color: #000000;font-weight: bold">class</span> <span style="color: #445588;font-weight: bold">MyRealmModule</span> <span style="color: #000000;font-weight: bold">extends</span> <span style="background-color: #f8f8f8">AbstractModule</span> <span style="color: #000000;font-weight: bold">{</span>
+  <span style="color: #3c5d5d;font-weight: bold">@Override</span>
+  <span style="color: #000000;font-weight: bold">public</span> <span style="color: #445588;font-weight: bold">void</span> <span style="background-color: #f8f8f8">configure</span><span style="color: #000000;font-weight: bold">()</span> <span style="color: #000000;font-weight: bold">{</span>
+    <span style="background-color: #f8f8f8">Realm</span> <span style="background-color: #f8f8f8">myRealm</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #000000;font-weight: bold">new</span> <span style="background-color: #f8f8f8">MyRealm</span><span style="color: #000000;font-weight: bold">();</span>
+
+    <span style="background-color: #f8f8f8">Multibinder</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">newSetBinder</span><span style="color: #000000;font-weight: bold">(</span><span style="background-color: #f8f8f8">binder</span><span style="color: #000000;font-weight: bold">(),</span> <span style="background-color: #f8f8f8">Realm</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">class</span><span style="color: #000000;font-weight: bold">).</span><span style="color: #008080">addBinding</span><span style="color: #000000;font-weight: bold">().</span><span style="color: #008080">toInstance</span><span style="color: #000000;font-weight: bold">(</span><span style="background-color: #f8f8f8">myRealm</span><span style="color: #000000;font-weight: bold">);</span>
+  <span style="color: #000000;font-weight: bold">}</span>
+
+  <span style="color: #000000;font-weight: bold">static</span> <span style="color: #000000;font-weight: bold">class</span> <span style="color: #445588;font-weight: bold">MyRealm</span> <span style="color: #000000;font-weight: bold">implements</span> <span style="background-color: #f8f8f8">Realm</span> <span style="color: #000000;font-weight: bold">{</span>
+    <span style="color: #999988;font-style: italic">// Realm implementation.</span>
+  <span style="color: #000000;font-weight: bold">}</span>
+<span style="color: #000000;font-weight: bold">}</span>
+</code></pre>
+
+<p>To use your module in the scheduler, include it as a realm module based on its fully-qualified
+class name:</p>
+<pre class="highlight plaintext"><code>-shiro_realm_modules=KERBEROS5_AUTHN,INI_AUTHNZ,com.example.MyRealmModule
+</code></pre>
+
+<h1 id="known-issues">Known Issues</h1>
+
+<p>While the APIs and SPIs we ship with are stable as of 0.8.0, we are aware of several incremental
+improvements. Please follow, vote, or send patches.</p>
+
+<p>Relevant tickets:
+* <a href="https://issues.apache.org/jira/browse/AURORA-343">AURORA-343</a>: HTTPS support
+* <a href="https://issues.apache.org/jira/browse/AURORA-1248">AURORA-1248</a>: Client retries 4xx errors
+* <a href="https://issues.apache.org/jira/browse/AURORA-1279">AURORA-1279</a>: Remove kerberos-specific build targets
+* <a href="https://issues.apache.org/jira/browse/AURORA-1291">AURORA-1293</a>: Consider defining a JSON format in place of INI
+* <a href="https://issues.apache.org/jira/browse/AURORA-1179">AURORA-1179</a>: Supported hashed passwords in security.ini
+* <a href="https://issues.apache.org/jira/browse/AURORA-1295">AURORA-1295</a>: Support security for the ReadOnlyScheduler service</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

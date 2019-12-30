@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Joshua Cohen</strong></p>
+			    <p><a href="http://twitter.com/heyjoshua">@heyjoshua</a></p>
+			</span>
+		</span>
+		<p><em>Posted September 28, 2016</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.16.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.16.0, is now available for
+<a href="http://aurora.apache.org/downloads/">download</a>. Here are some highlights in this release:</p>
+
+<ul>
+<li>Upgraded Mesos to 1.0.0. Note: as part of this upgrade we have switched from depending on
+the mesos.native egg for Thermos in favor of the stripped down mesos.executor egg. This means
+users launching Docker tasks with the Mesos DockerContainerizer are no longer required to use
+images that include all of Mesos&rsquo;s dependencies.</li>
+<li>Scheduler command line behavior has been modified to warn users of the deprecation of <code>production</code>
+attribute in <code>Job</code> thrift struct. The scheduler is queried for tier configurations and the user&rsquo;s
+choice of <code>tier</code> and <code>production</code> attributes is revised, if necessary. If <code>tier</code> is already set,
+the <code>production</code> attribute might be adjusted to match the <code>tier</code> selection. Otherwise, <code>tier</code> is
+selected based on the value of <code>production</code> attribute. If a matching tier is not found, the
+<code>default</code> tier from tier configuration file (<code>tiers.json</code>) is used.</li>
+<li>The <code>/offers</code> endpoint has been modified to display attributes of resource offers as received
+from Mesos. This has affected rendering of some of the existing attributes. Furthermore, it now
+dumps additional offer attributes including <a href="http://mesos.apache.org/documentation/latest/reservation/">reservations</a>
+and <a href="http://mesos.apache.org/documentation/latest/persistent-volume/">persistent volumes</a>.</li>
+<li>The scheduler API now accepts both thrift JSON and binary thrift. If a request is sent without a
+<code>Content-Type</code> header, or a <code>Content-Type</code> header of <code>application/x-thrift</code> or <code>application/json</code>
+or <code>application/vnd.apache.thrift.json</code> the request is treated as thrift JSON. If a request is
+sent with a <code>Content-Type</code> header of <code>application/vnd.apache.thrift.binary</code> the request is treated
+as binary thrift. If the <code>Accept</code> header of the request is <code>application/vnd.apache.thrift.binary</code>
+then the response will be binary thrift. Any other value for <code>Accept</code> will result in thrift JSON.</li>
+<li>Scheduler is now able to launch jobs using more than one executor at a time. To use this feature
+the <code>-custom_executor_config</code> flag must point to a JSON file which contains at least one valid
+executor configuration as detailed in the <a href="docs/features/custom-executors.md">configuration</a>
+documentation.</li>
+<li>Add rollback API to the scheduler and new client command to support rolling back
+active update jobs to their initial state.</li>
+<li><a name="zk_use_curator_upgrade"></a> The scheduler flag <code>-zk_use_curator</code> now defaults to <code>true</code>
+and care should be taken when upgrading from a configuration that does not pass the flag. The
+scheduler upgrade should be performed by bringing all schedulers down, and then bringing upgraded
+schedulers up. A rolling upgrade would result in no leading scheduler for the duration of the
+roll which could be confusing to monitor and debug.</li>
+<li>A new command <code>aurora_admin reconcile_tasks</code> is now available on the Aurora admin client that can trigger
+implicit and explicit task reconciliations.</li>
+<li>Add a new MTTS (Median Time To Starting) metric in addition to MTTA and MTTR.</li>
+<li>In addition to CPU resources, RAM resources can now be treated as revocable via the scheduler
+commandline flag <code>-enable_revocable_ram</code>.</li>
+<li>Introduce UpdateMetadata fields in JobUpdateRequest to allow clients to store metadata on update.</li>
+<li>Changed cronSchedule field inside of JobConfiguration schema to be optional for compatibility with Go.</li>
+<li>Update default value of command line option <code>-framework_name</code> to &lsquo;Aurora&rsquo;.</li>
+<li>Tasks launched with filesystem images and the Mesos unified containerizer are now fully isolated from
+the host&rsquo;s filesystem. As such they are no longer required to include any of the executor&rsquo;s
+dependencies (e.g. Python 2.7) within the task&rsquo;s filesystem.</li>
+</ul>
+
+<p>Deprecations and removals:</p>
+
+<ul>
+<li>The job configuration flag <code>production</code> is now deprecated. To achieve the same scheduling behavior
+that <code>production=true</code> used to provide, users should elect a <code>tier</code> for the job with attributes
+<code>preemptible=false</code> and <code>revocable=false</code>. For example, the <code>preferred</code> tier in the default tier
+configuration file (<code>tiers.json</code>) matches the above criteria.</li>
+<li>The <code>ExecutorInfo.source</code> field is deprecated and has been replaced with a label named <code>source</code>.
+It will be removed from Mesos in a future release.</li>
+<li>The scheduler flag <code>-zk_use_curator</code> has been deprecated. If you have never set the flag and are
+upgrading you should take care as described in the <a href="#zk_use_curator_upgrade">note</a> above.</li>
+<li>The <code>key</code> argument of <code>getJobUpdateDetails</code> has been deprecated. Use the <code>query</code> argument instead.</li>
+<li>The &ndash;release-threshold option on <code>aurora job restart</code> has been removed.</li>
+</ul>
+
+<p>Full release notes are available in the release
+<a href="https://gitbox.apache.org/repos/asf?p=aurora.git&amp;f=CHANGELOG&amp;hb=rel/0.16.0">CHANGELOG</a>.</p>
+
+<h2 id="getting-involved">Getting Involved</h2>
+
+<p>We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the <a href="https://aurora.apache.org/community/">user mailing list and IRC</a>.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 16 contributors who made Apache Aurora 0.16.0 possible:</p>
+
+<ul>
+<li>David McLaughlin</li>
+<li>David Robinson</li>
+<li>Dmitriy Shirchenko</li>
+<li>Igor Morozov</li>
+<li>John Sirois</li>
+<li>Joshua Cohen</li>
+<li>Kai Huang</li>
+<li>Karthik Anantha Padmanabhan</li>
+<li>Maxim Khutornenko</li>
+<li>Mehrdad Nurolahzade</li>
+<li>Renan DelValle</li>
+<li>Santhosh Kumar Shanmugham</li>
+<li>Stephan Erb</li>
+<li>Tarun Gogineni</li>
+<li>Zameer Manji</li>
+<li>Zhitao Li</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

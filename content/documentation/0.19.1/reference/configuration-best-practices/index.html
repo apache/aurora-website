@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/reference/configuration-best-practices/'"
+        value="0.19.1">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    selected="selected">
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="aurora-configuration-best-practices">Aurora Configuration Best Practices</h1>
+
+<h2 id="use-as-few-aurora-files-as-possible">Use As Few .aurora Files As Possible</h2>
+
+<p>When creating your <code>.aurora</code> configuration, try to keep all versions of
+a particular job within the same <code>.aurora</code> file. For example, if you
+have separate jobs for <code>cluster1</code>, <code>cluster1</code> staging, <code>cluster1</code>
+testing, and<code>cluster2</code>, keep them as close together as possible.</p>
+
+<p>Constructs shared across multiple jobs owned by your team (e.g.
+team-level defaults or structural templates) can be split into separate
+<code>.aurora</code>files and included via the <code>include</code> directive.</p>
+
+<h2 id="avoid-boilerplate">Avoid Boilerplate</h2>
+
+<p>If you see repetition or find yourself copy and pasting any parts of
+your configuration, it&rsquo;s likely an opportunity for templating. Take the
+example below:</p>
+
+<p><code>redundant.aurora</code> contains:</p>
+<pre class="highlight plaintext"><code>download = Process(
+  name = 'download',
+  cmdline = 'wget http://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2',
+  max_failures = 5,
+  min_duration = 1)
+
+unpack = Process(
+  name = 'unpack',
+  cmdline = 'rm -rf Python-2.7.3 &amp;&amp; tar xzf Python-2.7.3.tar.bz2',
+  max_failures = 5,
+  min_duration = 1)
+
+build = Process(
+  name = 'build',
+  cmdline = 'pushd Python-2.7.3 &amp;&amp; ./configure &amp;&amp; make &amp;&amp; popd',
+  max_failures = 1)
+
+email = Process(
+  name = 'email',
+  cmdline = 'echo Success | mail feynman@tmc.com',
+  max_failures = 5,
+  min_duration = 1)
+
+build_python = Task(
+  name = 'build_python',
+  processes = [download, unpack, build, email],
+  constraints = [Constraint(order = ['download', 'unpack', 'build', 'email'])])
+</code></pre>
+
+<p>As you&rsquo;ll notice, there&rsquo;s a lot of repetition in the <code>Process</code>
+definitions. For example, almost every process sets a <code>max_failures</code>
+limit to 5 and a <code>min_duration</code> to 1. This is an opportunity for factoring
+into a common process template.</p>
+
+<p>Furthermore, the Python version is repeated everywhere. This can be
+bound via structural templating as described in the <a href="../configuration-templating/#AdvancedBinding">Advanced Binding</a>
+section.</p>
+
+<p><code>less_redundant.aurora</code> contains:</p>
+<pre class="highlight plaintext"><code>class Python(Struct):
+  version = Required(String)
+  base = Default(String, 'Python-{{version}}')
+  package = Default(String, '{{base}}.tar.bz2')
+
+ReliableProcess = Process(
+  max_failures = 5,
+  min_duration = 1)
+
+download = ReliableProcess(
+  name = 'download',
+  cmdline = 'wget http://www.python.org/ftp/python/{{python.version}}/{{python.package}}')
+
+unpack = ReliableProcess(
+  name = 'unpack',
+  cmdline = 'rm -rf {{python.base}} &amp;&amp; tar xzf {{python.package}}')
+
+build = ReliableProcess(
+  name = 'build',
+  cmdline = 'pushd {{python.base}} &amp;&amp; ./configure &amp;&amp; make &amp;&amp; popd',
+  max_failures = 1)
+
+email = ReliableProcess(
+  name = 'email',
+  cmdline = 'echo Success | mail {{role}}@foocorp.com')
+
+build_python = SequentialTask(
+  name = 'build_python',
+  processes = [download, unpack, build, email]).bind(python = Python(version = "2.7.3"))
+</code></pre>
+
+<h2 id="thermos-uses-bash-but-thermos-is-not-bash">Thermos Uses bash, But Thermos Is Not bash</h2>
+
+<h4 id="bad">Bad</h4>
+
+<p>Many tiny Processes makes for harder to manage configurations.</p>
+<pre class="highlight plaintext"><code>copy = Process(
+  name = 'copy',
+  cmdline = 'rcp user@my_machine:my_application .'
+ )
+
+ unpack = Process(
+   name = 'unpack',
+   cmdline = 'unzip app.zip'
+ )
+
+ remove = Process(
+   name = 'remove',
+   cmdline = 'rm -f app.zip'
+ )
+
+ run = Process(
+   name = 'app',
+   cmdline = 'java -jar app.jar'
+ )
+
+ run_task = Task(
+   processes = [copy, unpack, remove, run],
+   constraints = order(copy, unpack, remove, run)
+ )
+</code></pre>
+
+<h4 id="good">Good</h4>
+
+<p>Each <code>cmdline</code> runs in a bash subshell, so you have the full power of
+bash. Chaining commands with <code>&amp;&amp;</code> or <code>||</code> is almost always the right
+thing to do.</p>
+
+<p>Also for Tasks that are simply a list of processes that run one after
+another, consider using the <code>SequentialTask</code> helper which applies a
+linear ordering constraint for you.</p>
+<pre class="highlight plaintext"><code>stage = Process(
+  name = 'stage',
+  cmdline = 'rcp user@my_machine:my_application . &amp;&amp; unzip app.zip &amp;&amp; rm -f app.zip')
+
+run = Process(name = 'app', cmdline = 'java -jar app.jar')
+
+run_task = SequentialTask(processes = [stage, run])
+</code></pre>
+
+<h2 id="rarely-use-functions-in-your-configurations">Rarely Use Functions In Your Configurations</h2>
+
+<p>90% of the time you define a function in a <code>.aurora</code> file, you&rsquo;re
+probably Doing It Wrong&trade;.</p>
+
+<h4 id="bad">Bad</h4>
+<pre class="highlight plaintext"><code>def get_my_task(name, user, cpu, ram, disk):
+  return Task(
+    name = name,
+    user = user,
+    processes = [STAGE_PROCESS, RUN_PROCESS],
+    constraints = order(STAGE_PROCESS, RUN_PROCESS),
+    resources = Resources(cpu = cpu, ram = ram, disk = disk)
+ )
+
+ task_one = get_my_task('task_one', 'feynman', 1.0, 32*MB, 1*GB)
+ task_two = get_my_task('task_two', 'feynman', 2.0, 64*MB, 1*GB)
+</code></pre>
+
+<h4 id="good">Good</h4>
+
+<p>This one is more idiomatic. Forced keyword arguments prevents accidents,
+e.g. constructing a task with &ldquo;32*MB&rdquo; when you mean 32MB of ram and not
+disk. Less proliferation of task-construction techniques means
+easier-to-read, quicker-to-understand, and a more composable
+configuration.</p>
+<pre class="highlight plaintext"><code>TASK_TEMPLATE = SequentialTask(
+  user = 'wickman',
+  processes = [STAGE_PROCESS, RUN_PROCESS],
+)
+
+task_one = TASK_TEMPLATE(
+  name = 'task_one',
+  resources = Resources(cpu = 1.0, ram = 32*MB, disk = 1*GB) )
+
+task_two = TASK_TEMPLATE(
+  name = 'task_two',
+  resources = Resources(cpu = 2.0, ram = 64*MB, disk = 1*GB)
+)
+</code></pre>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

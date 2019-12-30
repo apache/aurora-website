@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/configuration-tutorial/'"
+        value="0.11.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    selected="selected">
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="aurora-configuration-tutorial">Aurora Configuration Tutorial</h1>
+
+<p>How to write Aurora configuration files, including feature descriptions
+and best practices. When writing a configuration file, make use of
+<code>aurora job inspect</code>. It takes the same job key and configuration file
+arguments as <code>aurora job create</code> or <code>aurora update start</code>. It first ensures the
+configuration parses, then outputs it in human-readable form.</p>
+
+<p>You should read this after going through the general <a href="/documentation/0.11.0/tutorial/">Aurora Tutorial</a>.</p>
+
+<ul>
+<li><a href="#aurora-configuration-tutorial">Aurora Configuration Tutorial</a>
+
+<ul>
+<li><a href="#the-basics">The Basics</a>
+
+<ul>
+<li><a href="#use-bottom-to-top-object-ordering">Use Bottom-To-Top Object Ordering</a></li>
+</ul></li>
+<li><a href="#an-example-configuration-file">An Example Configuration File</a></li>
+<li><a href="#defining-process-objects">Defining Process Objects</a></li>
+<li><a href="#getting-your-code-into-the-sandbox">Getting Your Code Into The Sandbox</a></li>
+<li><a href="#defining-task-objects">Defining Task Objects</a>
+
+<ul>
+<li><a href="#sequentialtask-running-processes-in-parallel-or-sequentially">SequentialTask: Running Processes in Parallel or Sequentially</a></li>
+<li><a href="#simpletask">SimpleTask</a></li>
+<li><a href="#combining-tasks">Combining tasks</a></li>
+</ul></li>
+<li><a href="#defining-job-objects">Defining Job Objects</a></li>
+<li><a href="#the-jobs-list">The jobs List</a></li>
+<li><a href="#templating">Templating</a>
+
+<ul>
+<li><a href="#templating-1-binding-in-pystachio">Templating 1: Binding in Pystachio</a></li>
+<li><a href="#structurals-in-pystachio--aurora">Structurals in Pystachio / Aurora</a>
+
+<ul>
+<li><a href="#mustaches-within-structurals">Mustaches Within Structurals</a></li>
+</ul></li>
+<li><a href="#templating-2-structurals-are-factories">Templating 2: Structurals Are Factories</a>
+
+<ul>
+<li><a href="#a-second-way-of-templating">A Second Way of Templating</a></li>
+</ul></li>
+<li><a href="#advanced-binding">Advanced Binding</a>
+
+<ul>
+<li><a href="#bind-syntax">Bind Syntax</a></li>
+<li><a href="#binding-complex-objects">Binding Complex Objects</a>
+
+<ul>
+<li><a href="#lists"></a></li>
+<li><a href="#maps"></a></li>
+<li><a href="#structurals"></a></li>
+</ul></li>
+</ul></li>
+<li><a href="#structural-binding">Structural Binding</a></li>
+</ul></li>
+<li><a href="#configuration-file-writing-tips-and-best-practices">Configuration File Writing Tips And Best Practices</a>
+
+<ul>
+<li><a href="#use-as-few-aurora-files-as-possible">Use As Few .aurora Files As Possible</a></li>
+<li><a href="#avoid-boilerplate">Avoid Boilerplate</a></li>
+<li><a href="#thermos-uses-bash-but-thermos-is-not-bash">Thermos Uses bash, But Thermos Is Not bash</a>
+
+<ul>
+<li><a href="#bad">Bad</a></li>
+<li><a href="#good">Good</a></li>
+</ul></li>
+<li><a href="#rarely-use-functions-in-your-configurations">Rarely Use Functions In Your Configurations</a>
+
+<ul>
+<li><a href="#bad-1">Bad</a></li>
+<li><a href="#good-1">Good</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h2 id="the-basics">The Basics</h2>
+
+<p>To run a job on Aurora, you must specify a configuration file that tells
+Aurora what it needs to know to schedule the job, what Mesos needs to
+run the tasks the job is made up of, and what Thermos needs to run the
+processes that make up the tasks. This file must have
+a<code>.aurora</code> suffix.</p>
+
+<p>A configuration file defines a collection of objects, along with parameter
+values for their attributes. An Aurora configuration file contains the
+following three types of objects:</p>
+
+<ul>
+<li>Job</li>
+<li>Task</li>
+<li>Process</li>
+</ul>
+
+<p>A configuration also specifies a list of <code>Job</code> objects assigned
+to the variable <code>jobs</code>.</p>
+
+<ul>
+<li>jobs (list of defined Jobs to run)</li>
+</ul>
+
+<p>The <code>.aurora</code> file format is just Python. However, <code>Job</code>, <code>Task</code>,
+<code>Process</code>, and other classes are defined by a type-checked dictionary
+templating library called <em>Pystachio</em>, a powerful tool for
+configuration specification and reuse. Pystachio objects are tailored
+via {{}} surrounded templates.</p>
+
+<p>When writing your <code>.aurora</code> file, you may use any Pystachio datatypes, as
+well as any objects shown in the <a href="/documentation/0.11.0/configuration-reference/"><em>Aurora+Thermos Configuration
+Reference</em></a>, without <code>import</code> statements - the
+Aurora config loader injects them automatically. Other than that, an <code>.aurora</code>
+file works like any other Python script.</p>
+
+<p><a href="/documentation/0.11.0/configuration-reference/"><em>Aurora+Thermos Configuration Reference</em></a>
+has a full reference of all Aurora/Thermos defined Pystachio objects.</p>
+
+<h3 id="use-bottom-to-top-object-ordering">Use Bottom-To-Top Object Ordering</h3>
+
+<p>A well-structured configuration starts with structural templates (if
+any). Structural templates encapsulate in their attributes all the
+differences between Jobs in the configuration that are not directly
+manipulated at the <code>Job</code> level, but typically at the <code>Process</code> or <code>Task</code>
+level. For example, if certain processes are invoked with slightly
+different settings or input.</p>
+
+<p>After structural templates, define, in order, <code>Process</code>es, <code>Task</code>s, and
+<code>Job</code>s.</p>
+
+<p>Structural template names should be <em>UpperCamelCased</em> and their
+instantiations are typically <em>UPPER_SNAKE_CASED</em>. <code>Process</code>, <code>Task</code>,
+and <code>Job</code> names are typically <em>lower_snake_cased</em>. Indentation is typically 2
+spaces.</p>
+
+<h2 id="an-example-configuration-file">An Example Configuration File</h2>
+
+<p>The following is a typical configuration file. Don&rsquo;t worry if there are
+parts you don&rsquo;t understand yet, but you may want to refer back to this
+as you read about its individual parts. Note that names surrounded by
+curly braces {{}} are template variables, which the system replaces with
+bound values for the variables.</p>
+<pre class="highlight plaintext"><code># --- templates here ---
+class Profile(Struct):
+  package_version = Default(String, 'live')
+  java_binary = Default(String, '/usr/lib/jvm/java-1.7.0-openjdk/bin/java')
+  extra_jvm_options = Default(String, '')
+  parent_environment = Default(String, 'prod')
+  parent_serverset = Default(String,
+                             '/foocorp/service/bird/{{parent_environment}}/bird')
+
+# --- processes here ---
+main = Process(
+  name = 'application',
+  cmdline = '{{profile.java_binary}} -server -Xmx1792m '
+            '{{profile.extra_jvm_options}} '
+            '-jar application.jar '
+            '-upstreamService {{profile.parent_serverset}}'
+)
+
+# --- tasks ---
+base_task = SequentialTask(
+  name = 'application',
+  processes = [
+    Process(
+      name = 'fetch',
+      cmdline = 'curl -O
+              https://packages.foocorp.com/{{profile.package_version}}/application.jar'),
+  ]
+)
+
+    # not always necessary but often useful to have separate task
+    # resource classes
+    staging_task = base_task(resources =
+                     Resources(cpu = 1.0,
+                               ram = 2048*MB,
+                               disk = 1*GB))
+production_task = base_task(resources =
+                        Resources(cpu = 4.0,
+                                  ram = 2560*MB,
+                                  disk = 10*GB))
+
+# --- job template ---
+job_template = Job(
+  name = 'application',
+  role = 'myteam',
+  contact = 'myteam-team@foocorp.com',
+  instances = 20,
+  service = True,
+  task = production_task
+)
+
+# -- profile instantiations (if any) ---
+PRODUCTION = Profile()
+STAGING = Profile(
+  extra_jvm_options = '-Xloggc:gc.log',
+  parent_environment = 'staging'
+)
+
+# -- job instantiations --
+jobs = [
+      job_template(cluster = 'cluster1', environment = 'prod')
+               .bind(profile = PRODUCTION),
+
+      job_template(cluster = 'cluster2', environment = 'prod')
+                .bind(profile = PRODUCTION),
+
+      job_template(cluster = 'cluster1',
+                    environment = 'staging',
+        service = False,
+        task = staging_task,
+        instances = 2)
+        .bind(profile = STAGING),
+]
+</code></pre>
+
+<h2 id="defining-process-objects">Defining Process Objects</h2>
+
+<p>Processes are handled by the Thermos system. A process is a single
+executable step run as a part of an Aurora task, which consists of a
+bash-executable statement.</p>
+
+<p>The key (and required) <code>Process</code> attributes are:</p>
+
+<ul>
+<li>  <code>name</code>: Any string which is a valid Unix filename (no slashes,
+NULLs, or leading periods). The <code>name</code> value must be unique relative
+to other Processes in a <code>Task</code>.</li>
+<li>  <code>cmdline</code>: A command line run in a bash subshell, so you can use
+bash scripts. Nothing is supplied for command-line arguments,
+so <code>$*</code> is unspecified.</li>
+</ul>
+
+<p>Many tiny processes make managing configurations more difficult. For
+example, the following is a bad way to define processes.</p>
+<pre class="highlight plaintext"><code>copy = Process(
+  name = 'copy',
+  cmdline = 'curl -O https://packages.foocorp.com/app.zip'
+)
+unpack = Process(
+  name = 'unpack',
+  cmdline = 'unzip app.zip'
+)
+remove = Process(
+  name = 'remove',
+  cmdline = 'rm -f app.zip'
+)
+run = Process(
+  name = 'app',
+  cmdline = 'java -jar app.jar'
+)
+run_task = Task(
+  processes = [copy, unpack, remove, run],
+  constraints = order(copy, unpack, remove, run)
+)
+</code></pre>
+
+<p>Since <code>cmdline</code> runs in a bash subshell, you can chain commands
+with <code>&amp;&amp;</code> or <code>||</code>.</p>
+
+<p>When defining a <code>Task</code> that is just a list of Processes run in a
+particular order, use <code>SequentialTask</code>, as described in the <a href="#Task"><em>Defining</em>
+<code>Task</code> <em>Objects</em></a> section. The following simplifies and combines the
+above multiple <code>Process</code> definitions into just two.</p>
+<pre class="highlight plaintext"><code>stage = Process(
+  name = 'stage',
+  cmdline = 'curl -O https://packages.foocorp.com/app.zip &amp;&amp; '
+            'unzip app.zip &amp;&amp; rm -f app.zip')
+
+run = Process(name = 'app', cmdline = 'java -jar app.jar')
+
+run_task = SequentialTask(processes = [stage, run])
+</code></pre>
+
+<p><code>Process</code> also has optional attributes to customize its behaviour. Details can be found in the <a href="/documentation/0.11.0/configuration-reference/#process-objects"><em>Aurora+Thermos Configuration Reference</em></a>.</p>
+
+<h2 id="getting-your-code-into-the-sandbox">Getting Your Code Into The Sandbox</h2>
+
+<p>When using Aurora, you need to get your executable code into its &ldquo;sandbox&rdquo;, specifically
+the Task sandbox where the code executes for the Processes that make up that Task.</p>
+
+<p>Each Task has a sandbox created when the Task starts and garbage
+collected when it finishes. All of a Task&rsquo;s processes run in its
+sandbox, so processes can share state by using a shared current
+working directory.</p>
+
+<p>Typically, you save this code somewhere. You then need to define a Process
+in your <code>.aurora</code> configuration file that fetches the code from that somewhere
+to where the slave can see it. For a public cloud, that can be anywhere public on
+the Internet, such as S3. For a private cloud internal storage, you need to put in
+on an accessible HDFS cluster or similar storage.</p>
+
+<p>The template for this Process is:</p>
+<pre class="highlight plaintext"><code>&lt;name&gt; = Process(
+  name = '&lt;name&gt;'
+  cmdline = '&lt;command to copy and extract code archive into current working directory&gt;'
+)
+</code></pre>
+
+<p>Note: Be sure the extracted code archive has an executable.</p>
+
+<h2 id="defining-task-objects">Defining Task Objects</h2>
+
+<p>Tasks are handled by Mesos. A task is a collection of processes that
+runs in a shared sandbox. It&rsquo;s the fundamental unit Aurora uses to
+schedule the datacenter; essentially what Aurora does is find places
+in the cluster to run tasks.</p>
+
+<p>The key (and required) parts of a Task are:</p>
+
+<ul>
+<li><p><code>name</code>: A string giving the Task&rsquo;s name. By default, if a Task is
+not given a name, it inherits the first name in its Process list.</p></li>
+<li><p><code>processes</code>: An unordered list of Process objects bound to the Task.
+The value of the optional <code>constraints</code> attribute affects the
+contents as a whole. Currently, the only constraint, <code>order</code>, determines if
+the processes run in parallel or sequentially.</p></li>
+<li><p><code>resources</code>: A <code>Resource</code> object defining the Task&rsquo;s resource
+    footprint. A <code>Resource</code> object has three attributes:
+    -   <code>cpu</code>: A Float, the fractional number of cores the Task
+    requires.
+    -   <code>ram</code>: An Integer, RAM bytes the Task requires.
+    -   <code>disk</code>: An integer, disk bytes the Task requires.</p></li>
+</ul>
+
+<p>A basic Task definition looks like:</p>
+<pre class="highlight plaintext"><code>Task(
+    name="hello_world",
+    processes=[Process(name = "hello_world", cmdline = "echo hello world")],
+    resources=Resources(cpu = 1.0,
+                        ram = 1*GB,
+                        disk = 1*GB))
+</code></pre>
+
+<p>A Task has optional attributes to customize its behaviour. Details can be found in the <a href="/documentation/0.11.0/configuration-reference/#task-object"><em>Aurora+Thermos Configuration Reference</em></a></p>
+
+<h3 id="sequentialtask-running-processes-in-parallel-or-sequentially">SequentialTask: Running Processes in Parallel or Sequentially</h3>
+
+<p>By default, a Task with several Processes runs them in parallel. There
+are two ways to run Processes sequentially:</p>
+
+<ul>
+<li><p>Include an <code>order</code> constraint in the Task definition&rsquo;s <code>constraints</code>
+attribute whose arguments specify the processes&rsquo; run order:</p>
+<pre class="highlight plaintext"><code>Task( ... processes=[process1, process2, process3],
+      constraints = order(process1, process2, process3), ...)
+</code></pre></li>
+<li><p>Use <code>SequentialTask</code> instead of <code>Task</code>; it automatically runs
+processes in the order specified in the <code>processes</code> attribute. No
+<code>constraint</code> parameter is needed:</p>
+<pre class="highlight plaintext"><code>SequentialTask( ... processes=[process1, process2, process3] ...)
+</code></pre></li>
+</ul>
+
+<h3 id="simpletask">SimpleTask</h3>
+
+<p>For quickly creating simple tasks, use the <code>SimpleTask</code> helper. It
+creates a basic task from a provided name and command line using a
+default set of resources. For example, in a .<code>aurora</code> configuration
+file:</p>
+<pre class="highlight plaintext"><code>SimpleTask(name="hello_world", command="echo hello world")
+</code></pre>
+
+<p>is equivalent to</p>
+<pre class="highlight plaintext"><code>Task(name="hello_world",
+     processes=[Process(name = "hello_world", cmdline = "echo hello world")],
+     resources=Resources(cpu = 1.0,
+                         ram = 1*GB,
+                         disk = 1*GB))
+</code></pre>
+
+<p>The simplest idiomatic Job configuration thus becomes:</p>
+<pre class="highlight plaintext"><code>import os
+hello_world_job = Job(
+  task=SimpleTask(name="hello_world", command="echo hello world"),
+  role=os.getenv('USER'),
+  cluster="cluster1")
+</code></pre>
+
+<p>When written to <code>hello_world.aurora</code>, you invoke it with a simple
+<code>aurora job create cluster1/$USER/test/hello_world hello_world.aurora</code>.</p>
+
+<h3 id="combining-tasks">Combining tasks</h3>
+
+<p><code>Tasks.concat</code>(synonym,<code>concat_tasks</code>) and
+<code>Tasks.combine</code>(synonym,<code>combine_tasks</code>) merge multiple Task definitions
+into a single Task. It may be easier to define complex Jobs
+as smaller constituent Tasks. But since a Job only includes a single
+Task, the subtasks must be combined before using them in a Job.
+Smaller Tasks can also be reused between Jobs, instead of having to
+repeat their definition for multiple Jobs.</p>
+
+<p>With both methods, the merged Task takes the first Task&rsquo;s name. The
+difference between the two is the result Task&rsquo;s process ordering.</p>
+
+<ul>
+<li><p><code>Tasks.combine</code> runs its subtasks&rsquo; processes in no particular order.
+The new Task&rsquo;s resource consumption is the sum of all its subtasks&rsquo;
+consumption.</p></li>
+<li><p><code>Tasks.concat</code> runs its subtasks in the order supplied, with each
+subtask&rsquo;s processes run serially between tasks. It is analogous to
+the <code>order</code> constraint helper, except at the Task level instead of
+the Process level. The new Task&rsquo;s resource consumption is the
+maximum value specified by any subtask for each Resource attribute
+(cpu, ram and disk).</p></li>
+</ul>
+
+<p>For example, given the following:</p>
+<pre class="highlight plaintext"><code>setup_task = Task(
+  ...
+  processes=[download_interpreter, update_zookeeper],
+  # It is important to note that {{Tasks.concat}} has
+  # no effect on the ordering of the processes within a task;
+  # hence the necessity of the {{order}} statement below
+  # (otherwise, the order in which {{download_interpreter}}
+  # and {{update_zookeeper}} run will be non-deterministic)
+  constraints=order(download_interpreter, update_zookeeper),
+  ...
+)
+
+run_task = SequentialTask(
+  ...
+  processes=[download_application, start_application],
+  ...
+)
+
+combined_task = Tasks.concat(setup_task, run_task)
+</code></pre>
+
+<p>The <code>Tasks.concat</code> command merges the two Tasks into a single Task and
+ensures all processes in <code>setup_task</code> run before the processes
+in <code>run_task</code>. Conceptually, the task is reduced to:</p>
+<pre class="highlight plaintext"><code>task = Task(
+  ...
+  processes=[download_interpreter, update_zookeeper,
+             download_application, start_application],
+  constraints=order(download_interpreter, update_zookeeper,
+                    download_application, start_application),
+  ...
+)
+</code></pre>
+
+<p>In the case of <code>Tasks.combine</code>, the two schedules run in parallel:</p>
+<pre class="highlight plaintext"><code>task = Task(
+  ...
+  processes=[download_interpreter, update_zookeeper,
+             download_application, start_application],
+  constraints=order(download_interpreter, update_zookeeper) +
+                    order(download_application, start_application),
+  ...
+)
+</code></pre>
+
+<p>In the latter case, each of the two sequences may operate in parallel.
+Of course, this may not be the intended behavior (for example, if
+the <code>start_application</code> Process implicitly relies
+upon <code>download_interpreter</code>). Make sure you understand the difference
+between using one or the other.</p>
+
+<h2 id="defining-job-objects">Defining Job Objects</h2>
+
+<p>A job is a group of identical tasks that Aurora can run in a Mesos cluster.</p>
+
+<p>A <code>Job</code> object is defined by the values of several attributes, some
+required and some optional. The required attributes are:</p>
+
+<ul>
+<li><p><code>task</code>: Task object to bind to this job. Note that a Job can
+only take a single Task.</p></li>
+<li><p><code>role</code>: Job&rsquo;s role account; in other words, the user account to run
+the job as on a Mesos cluster machine. A common value is
+<code>os.getenv(&#39;USER&#39;)</code>; using a Python command to get the user who
+submits the job request. The other common value is the service
+account that runs the job, e.g. <code>www-data</code>.</p></li>
+<li><p><code>environment</code>: Job&rsquo;s environment, typical values
+are <code>devel</code>, <code>test</code>, or <code>prod</code>.</p></li>
+<li><p><code>cluster</code>: Aurora cluster to schedule the job in, defined in
+<code>/etc/aurora/clusters.json</code> or <code>~/.clusters.json</code>. You can specify
+jobs where the only difference is the <code>cluster</code>, then at run time
+only run the Job whose job key includes your desired cluster&rsquo;s name.</p></li>
+</ul>
+
+<p>You usually see a <code>name</code> parameter. By default, <code>name</code> inherits its
+value from the Job&rsquo;s associated Task object, but you can override this
+default. For these four parameters, a Job definition might look like:</p>
+<pre class="highlight plaintext"><code>foo_job = Job( name = 'foo', cluster = 'cluster1',
+          role = os.getenv('USER'), environment = 'prod',
+          task = foo_task)
+</code></pre>
+
+<p>In addition to the required attributes, there are several optional
+attributes. Details can be found in the <a href="/documentation/0.11.0/configuration-reference/#job-objects">Aurora+Thermos Configuration Reference</a>.</p>
+
+<h2 id="the-jobs-list">The jobs List</h2>
+
+<p>At the end of your <code>.aurora</code> file, you need to specify a list of the
+file&rsquo;s defined Jobs. For example, the following exports the jobs <code>job1</code>,
+<code>job2</code>, and <code>job3</code>.</p>
+<pre class="highlight plaintext"><code>jobs = [job1, job2, job3]
+</code></pre>
+
+<p>This allows the aurora client to invoke commands on those jobs, such as
+starting, updating, or killing them.</p>
+
+<h2 id="templating">Templating</h2>
+
+<p>The <code>.aurora</code> file format is just Python. However, <code>Job</code>, <code>Task</code>,
+<code>Process</code>, and other classes are defined by a templating library called
+<em>Pystachio</em>, a powerful tool for configuration specification and reuse.</p>
+
+<p><a href="/documentation/0.11.0/configuration-reference/">Aurora+Thermos Configuration Reference</a>
+has a full reference of all Aurora/Thermos defined Pystachio objects.</p>
+
+<p>When writing your <code>.aurora</code> file, you may use any Pystachio datatypes, as
+well as any objects shown in the <em>Aurora+Thermos Configuration
+Reference</em> without <code>import</code> statements - the Aurora config loader
+injects them automatically. Other than that the <code>.aurora</code> format
+works like any other Python script.</p>
+
+<h3 id="templating-1-binding-in-pystachio">Templating 1: Binding in Pystachio</h3>
+
+<p>Pystachio uses the visually distinctive {{}} to indicate template
+variables. These are often called &ldquo;mustache variables&rdquo; after the
+similarly appearing variables in the Mustache templating system and
+because the curly braces resemble mustaches.</p>
+
+<p>If you are familiar with the Mustache system, templates in Pystachio
+have significant differences. They have no nesting, joining, or
+inheritance semantics. On the other hand, when evaluated, templates
+are evaluated iteratively, so this affords some level of indirection.</p>
+
+<p>Let&rsquo;s start with the simplest template; text with one
+variable, in this case <code>name</code>;</p>
+<pre class="highlight plaintext"><code>Hello {{name}}
+</code></pre>
+
+<p>If we evaluate this as is, we&rsquo;d get back:</p>
+<pre class="highlight plaintext"><code>Hello
+</code></pre>
+
+<p>If a template variable doesn&rsquo;t have a value, when evaluated it&rsquo;s
+replaced with nothing. If we add a binding to give it a value:</p>
+<pre class="highlight json"><code><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb"> </span><span style="color: #000080">"name"</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"Tom"</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">}</span><span style="color: #bbbbbb">
+</span></code></pre>
+
+<p>We&rsquo;d get back:</p>
+<pre class="highlight plaintext"><code>Hello Tom
+</code></pre>
+
+<p>Every Pystachio object has an associated <code>.bind</code> method that can bind
+values to {{}} variables. Bindings are not immediately evaluated.
+Instead, they are evaluated only when the interpolated value of the
+object is necessary, e.g. for performing equality or serializing a
+message over the wire.</p>
+
+<p>Objects with and without mustache templated variables behave
+differently:</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; Float(1.5)
+Float(1.5)
+
+&gt;&gt;&gt; Float('{{x}}.5')
+Float({{x}}.5)
+
+&gt;&gt;&gt; Float('{{x}}.5').bind(x = 1)
+Float(1.5)
+
+&gt;&gt;&gt; Float('{{x}}.5').bind(x = 1) == Float(1.5)
+True
+
+&gt;&gt;&gt; contextual_object = String('{{metavar{{number}}}}').bind(
+... metavar1 = "first", metavar2 = "second")
+
+&gt;&gt;&gt; contextual_object
+String({{metavar{{number}}}})
+
+&gt;&gt;&gt; contextual_object.bind(number = 1)
+String(first)
+
+&gt;&gt;&gt; contextual_object.bind(number = 2)
+String(second)
+</code></pre>
+
+<p>You usually bind simple key to value pairs, but you can also bind three
+other objects: lists, dictionaries, and structurals. These will be
+described in detail later.</p>
+
+<h3 id="structurals-in-pystachio-aurora">Structurals in Pystachio / Aurora</h3>
+
+<p>Most Aurora/Thermos users don&rsquo;t ever (knowingly) interact with <code>String</code>,
+<code>Float</code>, or <code>Integer</code> Pystashio objects directly. Instead they interact
+with derived structural (<code>Struct</code>) objects that are collections of
+fundamental and structural objects. The structural object components are
+called <em>attributes</em>. Aurora&rsquo;s most used structural objects are <code>Job</code>,
+<code>Task</code>, and <code>Process</code>:</p>
+<pre class="highlight plaintext"><code>class Process(Struct):
+  cmdline = Required(String)
+  name = Required(String)
+  max_failures = Default(Integer, 1)
+  daemon = Default(Boolean, False)
+  ephemeral = Default(Boolean, False)
+  min_duration = Default(Integer, 5)
+  final = Default(Boolean, False)
+</code></pre>
+
+<p>Construct default objects by following the object&rsquo;s type with (). If you
+want an attribute to have a value different from its default, include
+the attribute name and value inside the parentheses.</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; Process()
+Process(daemon=False, max_failures=1, ephemeral=False,
+  min_duration=5, final=False)
+</code></pre>
+
+<p>Attribute values can be template variables, which then receive specific
+values when creating the object.</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; Process(cmdline = 'echo {{message}}')
+Process(daemon=False, max_failures=1, ephemeral=False, min_duration=5,
+        cmdline=echo {{message}}, final=False)
+
+&gt;&gt;&gt; Process(cmdline = 'echo {{message}}').bind(message = 'hello world')
+Process(daemon=False, max_failures=1, ephemeral=False, min_duration=5,
+        cmdline=echo hello world, final=False)
+</code></pre>
+
+<p>A powerful binding property is that all of an object&rsquo;s children inherit its
+bindings:</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; List(Process)([
+... Process(name = '{{prefix}}_one'),
+... Process(name = '{{prefix}}_two')
+... ]).bind(prefix = 'hello')
+ProcessList(
+  Process(daemon=False, name=hello_one, max_failures=1, ephemeral=False, min_duration=5, final=False),
+  Process(daemon=False, name=hello_two, max_failures=1, ephemeral=False, min_duration=5, final=False)
+  )
+</code></pre>
+
+<p>Remember that an Aurora Job contains Tasks which contain Processes. A
+Job level binding is inherited by its Tasks and all their Processes.
+Similarly a Task level binding is available to that Task and its
+Processes but is <em>not</em> visible at the Job level (inheritance is a
+one-way street.)</p>
+
+<h4 id="mustaches-within-structurals">Mustaches Within Structurals</h4>
+
+<p>When you define a <code>Struct</code> schema, one powerful, but confusing, feature
+is that all of that structure&rsquo;s attributes are Mustache variables within
+the enclosing scope <em>once they have been populated</em>.</p>
+
+<p>For example, when <code>Process</code> is defined above, all its attributes such as
+{{<code>name</code>}}, {{<code>cmdline</code>}}, {{<code>max_failures</code>}} etc., are all immediately
+defined as Mustache variables, implicitly bound into the <code>Process</code>, and
+inherit all child objects once they are defined.</p>
+
+<p>Thus, you can do the following:</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; Process(name = "installer", cmdline = "echo {{name}} is running")
+Process(daemon=False, name=installer, max_failures=1, ephemeral=False, min_duration=5,
+        cmdline=echo installer is running, final=False)
+</code></pre>
+
+<p>WARNING: This binding only takes place in one direction. For example,
+the following does NOT work and does not set the <code>Process</code> <code>name</code>
+attribute&rsquo;s value.</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; Process().bind(name = "installer")
+Process(daemon=False, max_failures=1, ephemeral=False, min_duration=5, final=False)
+</code></pre>
+
+<p>The following is also not possible and results in an infinite loop that
+attempts to resolve <code>Process.name</code>.</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; Process(name = '{{name}}').bind(name = 'installer')
+</code></pre>
+
+<p>Do not confuse Structural attributes with bound Mustache variables.
+Attributes are implicitly converted to Mustache variables but not vice
+versa.</p>
+
+<h3 id="templating-2-structurals-are-factories">Templating 2: Structurals Are Factories</h3>
+
+<h4 id="a-second-way-of-templating">A Second Way of Templating</h4>
+
+<p>A second templating method is both as powerful as the aforementioned and
+often confused with it. This method is due to automatic conversion of
+Struct attributes to Mustache variables as described above.</p>
+
+<p>Suppose you create a Process object:</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; p = Process(name = "process_one", cmdline = "echo hello world")
+
+&gt;&gt;&gt; p
+Process(daemon=False, name=process_one, max_failures=1, ephemeral=False, min_duration=5,
+        cmdline=echo hello world, final=False)
+</code></pre>
+
+<p>This <code>Process</code> object, &ldquo;<code>p</code>&rdquo;, can be used wherever a <code>Process</code> object is
+needed. It can also be reused by changing the value(s) of its
+attribute(s). Here we change its <code>name</code> attribute from <code>process_one</code> to
+<code>process_two</code>.</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; p(name = "process_two")
+Process(daemon=False, name=process_two, max_failures=1, ephemeral=False, min_duration=5,
+        cmdline=echo hello world, final=False)
+</code></pre>
+
+<p>Template creation is a common use for this technique:</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; Daemon = Process(daemon = True)
+&gt;&gt;&gt; logrotate = Daemon(name = 'logrotate', cmdline = './logrotate conf/logrotate.conf')
+&gt;&gt;&gt; mysql = Daemon(name = 'mysql', cmdline = 'bin/mysqld --safe-mode')
+</code></pre>
+
+<h3 id="advanced-binding">Advanced Binding</h3>
+
+<p>As described above, <code>.bind()</code> binds simple strings or numbers to
+Mustache variables. In addition to Structural types formed by combining
+atomic types, Pystachio has two container types; <code>List</code> and <code>Map</code> which
+can also be bound via <code>.bind()</code>.</p>
+
+<h4 id="bind-syntax">Bind Syntax</h4>
+
+<p>The <code>bind()</code> function can take Python dictionaries or <code>kwargs</code>
+interchangeably (when &ldquo;<code>kwargs</code>&rdquo; is in a function definition, <code>kwargs</code>
+receives a Python dictionary containing all keyword arguments after the
+formal parameter list).</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; String('{{foo}}').bind(foo = 'bar') == String('{{foo}}').bind({'foo': 'bar'})
+True
+</code></pre>
+
+<p>Bindings done &ldquo;closer&rdquo; to the object in question take precedence:</p>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; p = Process(name = '{{context}}_process')
+&gt;&gt;&gt; t = Task().bind(context = 'global')
+&gt;&gt;&gt; t(processes = [p, p.bind(context = 'local')])
+Task(processes=ProcessList(
+  Process(daemon=False, name=global_process, max_failures=1, ephemeral=False, final=False,
+          min_duration=5),
+  Process(daemon=False, name=local_process, max_failures=1, ephemeral=False, final=False,
+          min_duration=5)
+))
+</code></pre>
+
+<h4 id="binding-complex-objects">Binding Complex Objects</h4>
+
+<h5 id="lists">Lists</h5>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; fibonacci = List(Integer)([1, 1, 2, 3, 5, 8, 13])
+&gt;&gt;&gt; String('{{fib[4]}}').bind(fib = fibonacci)
+String(5)
+</code></pre>
+
+<h5 id="maps">Maps</h5>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; first_names = Map(String, String)({'Kent': 'Clark', 'Wayne': 'Bruce', 'Prince': 'Diana'})
+&gt;&gt;&gt; String('{{first[Kent]}}').bind(first = first_names)
+String(Clark)
+</code></pre>
+
+<h5 id="structurals">Structurals</h5>
+<pre class="highlight plaintext"><code>&gt;&gt;&gt; String('{{p.cmdline}}').bind(p = Process(cmdline = "echo hello world"))
+String(echo hello world)
+</code></pre>
+
+<h3 id="structural-binding">Structural Binding</h3>
+
+<p>Use structural templates when binding more than two or three individual
+values at the Job or Task level. For fewer than two or three, standard
+key to string binding is sufficient.</p>
+
+<p>Structural binding is a very powerful pattern and is most useful in
+Aurora/Thermos for doing Structural configuration. For example, you can
+define a job profile. The following profile uses <code>HDFS</code>, the Hadoop
+Distributed File System, to designate a file&rsquo;s location. <code>HDFS</code> does
+not come with Aurora, so you&rsquo;ll need to either install it separately
+or change the way the dataset is designated.</p>
+<pre class="highlight plaintext"><code>class Profile(Struct):
+  version = Required(String)
+  environment = Required(String)
+  dataset = Default(String, hdfs://home/aurora/data/{{environment}}')
+
+PRODUCTION = Profile(version = 'live', environment = 'prod')
+DEVEL = Profile(version = 'latest',
+                environment = 'devel',
+                dataset = 'hdfs://home/aurora/data/test')
+TEST = Profile(version = 'latest', environment = 'test')
+
+JOB_TEMPLATE = Job(
+  name = 'application',
+  role = 'myteam',
+  cluster = 'cluster1',
+  environment = '{{profile.environment}}',
+  task = SequentialTask(
+    name = 'task',
+    resources = Resources(cpu = 2, ram = 4*GB, disk = 8*GB),
+    processes = [
+  Process(name = 'main', cmdline = 'java -jar application.jar -hdfsPath
+             {{profile.dataset}}')
+    ]
+   )
+ )
+
+jobs = [
+  JOB_TEMPLATE(instances = 100).bind(profile = PRODUCTION),
+  JOB_TEMPLATE.bind(profile = DEVEL),
+  JOB_TEMPLATE.bind(profile = TEST),
+ ]
+</code></pre>
+
+<p>In this case, a custom structural &ldquo;Profile&rdquo; is created to self-document
+the configuration to some degree. This also allows some schema
+&ldquo;type-checking&rdquo;, and for default self-substitution, e.g. in
+<code>Profile.dataset</code> above.</p>
+
+<p>So rather than a <code>.bind()</code> with a half-dozen substituted variables, you
+can bind a single object that has sensible defaults stored in a single
+place.</p>
+
+<h2 id="configuration-file-writing-tips-and-best-practices">Configuration File Writing Tips And Best Practices</h2>
+
+<h3 id="use-as-few-aurora-files-as-possible">Use As Few .aurora Files As Possible</h3>
+
+<p>When creating your <code>.aurora</code> configuration, try to keep all versions of
+a particular job within the same <code>.aurora</code> file. For example, if you
+have separate jobs for <code>cluster1</code>, <code>cluster1</code> staging, <code>cluster1</code>
+testing, and<code>cluster2</code>, keep them as close together as possible.</p>
+
+<p>Constructs shared across multiple jobs owned by your team (e.g.
+team-level defaults or structural templates) can be split into separate
+<code>.aurora</code>files and included via the <code>include</code> directive.</p>
+
+<h3 id="avoid-boilerplate">Avoid Boilerplate</h3>
+
+<p>If you see repetition or find yourself copy and pasting any parts of
+your configuration, it&rsquo;s likely an opportunity for templating. Take the
+example below:</p>
+
+<p><code>redundant.aurora</code> contains:</p>
+<pre class="highlight plaintext"><code>download = Process(
+  name = 'download',
+  cmdline = 'wget http://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2',
+  max_failures = 5,
+  min_duration = 1)
+
+unpack = Process(
+  name = 'unpack',
+  cmdline = 'rm -rf Python-2.7.3 &amp;&amp; tar xzf Python-2.7.3.tar.bz2',
+  max_failures = 5,
+  min_duration = 1)
+
+build = Process(
+  name = 'build',
+  cmdline = 'pushd Python-2.7.3 &amp;&amp; ./configure &amp;&amp; make &amp;&amp; popd',
+  max_failures = 1)
+
+email = Process(
+  name = 'email',
+  cmdline = 'echo Success | mail feynman@tmc.com',
+  max_failures = 5,
+  min_duration = 1)
+
+build_python = Task(
+  name = 'build_python',
+  processes = [download, unpack, build, email],
+  constraints = [Constraint(order = ['download', 'unpack', 'build', 'email'])])
+</code></pre>
+
+<p>As you&rsquo;ll notice, there&rsquo;s a lot of repetition in the <code>Process</code>
+definitions. For example, almost every process sets a <code>max_failures</code>
+limit to 5 and a <code>min_duration</code> to 1. This is an opportunity for factoring
+into a common process template.</p>
+
+<p>Furthermore, the Python version is repeated everywhere. This can be
+bound via structural templating as described in the <a href="#AdvancedBinding">Advanced Binding</a>
+section.</p>
+
+<p><code>less_redundant.aurora</code> contains:</p>
+<pre class="highlight plaintext"><code>class Python(Struct):
+  version = Required(String)
+  base = Default(String, 'Python-{{version}}')
+  package = Default(String, '{{base}}.tar.bz2')
+
+ReliableProcess = Process(
+  max_failures = 5,
+  min_duration = 1)
+
+download = ReliableProcess(
+  name = 'download',
+  cmdline = 'wget http://www.python.org/ftp/python/{{python.version}}/{{python.package}}')
+
+unpack = ReliableProcess(
+  name = 'unpack',
+  cmdline = 'rm -rf {{python.base}} &amp;&amp; tar xzf {{python.package}}')
+
+build = ReliableProcess(
+  name = 'build',
+  cmdline = 'pushd {{python.base}} &amp;&amp; ./configure &amp;&amp; make &amp;&amp; popd',
+  max_failures = 1)
+
+email = ReliableProcess(
+  name = 'email',
+  cmdline = 'echo Success | mail {{role}}@foocorp.com')
+
+build_python = SequentialTask(
+  name = 'build_python',
+  processes = [download, unpack, build, email]).bind(python = Python(version = "2.7.3"))
+</code></pre>
+
+<h3 id="thermos-uses-bash-but-thermos-is-not-bash">Thermos Uses bash, But Thermos Is Not bash</h3>
+
+<h4 id="bad">Bad</h4>
+
+<p>Many tiny Processes makes for harder to manage configurations.</p>
+<pre class="highlight plaintext"><code>copy = Process(
+  name = 'copy',
+  cmdline = 'rcp user@my_machine:my_application .'
+ )
+
+ unpack = Process(
+   name = 'unpack',
+   cmdline = 'unzip app.zip'
+ )
+
+ remove = Process(
+   name = 'remove',
+   cmdline = 'rm -f app.zip'
+ )
+
+ run = Process(
+   name = 'app',
+   cmdline = 'java -jar app.jar'
+ )
+
+ run_task = Task(
+   processes = [copy, unpack, remove, run],
+   constraints = order(copy, unpack, remove, run)
+ )
+</code></pre>
+
+<h4 id="good">Good</h4>
+
+<p>Each <code>cmdline</code> runs in a bash subshell, so you have the full power of
+bash. Chaining commands with <code>&amp;&amp;</code> or <code>||</code> is almost always the right
+thing to do.</p>
+
+<p>Also for Tasks that are simply a list of processes that run one after
+another, consider using the <code>SequentialTask</code> helper which applies a
+linear ordering constraint for you.</p>
+<pre class="highlight plaintext"><code>stage = Process(
+  name = 'stage',
+  cmdline = 'rcp user@my_machine:my_application . &amp;&amp; unzip app.zip &amp;&amp; rm -f app.zip')
+
+run = Process(name = 'app', cmdline = 'java -jar app.jar')
+
+run_task = SequentialTask(processes = [stage, run])
+</code></pre>
+
+<h3 id="rarely-use-functions-in-your-configurations">Rarely Use Functions In Your Configurations</h3>
+
+<p>90% of the time you define a function in a <code>.aurora</code> file, you&rsquo;re
+probably Doing It Wrong&trade;.</p>
+
+<h4 id="bad">Bad</h4>
+<pre class="highlight plaintext"><code>def get_my_task(name, user, cpu, ram, disk):
+  return Task(
+    name = name,
+    user = user,
+    processes = [STAGE_PROCESS, RUN_PROCESS],
+    constraints = order(STAGE_PROCESS, RUN_PROCESS),
+    resources = Resources(cpu = cpu, ram = ram, disk = disk)
+ )
+
+ task_one = get_my_task('task_one', 'feynman', 1.0, 32*MB, 1*GB)
+ task_two = get_my_task('task_two', 'feynman', 2.0, 64*MB, 1*GB)
+</code></pre>
+
+<h4 id="good">Good</h4>
+
+<p>This one is more idiomatic. Forced keyword arguments prevents accidents,
+e.g. constructing a task with &ldquo;32*MB&rdquo; when you mean 32MB of ram and not
+disk. Less proliferation of task-construction techniques means
+easier-to-read, quicker-to-understand, and a more composable
+configuration.</p>
+<pre class="highlight plaintext"><code>TASK_TEMPLATE = SequentialTask(
+  user = 'wickman',
+  processes = [STAGE_PROCESS, RUN_PROCESS],
+)
+
+task_one = TASK_TEMPLATE(
+  name = 'task_one',
+  resources = Resources(cpu = 1.0, ram = 32*MB, disk = 1*GB) )
+
+task_two = TASK_TEMPLATE(
+  name = 'task_two',
+  resources = Resources(cpu = 2.0, ram = 64*MB, disk = 1*GB)
+)
+</code></pre>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

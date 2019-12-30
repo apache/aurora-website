@@ -1,0 +1,29 @@
+<% content_for :page_title do %>
+Documentation
+<% end %>
+<% wrap_layout :layout do %>
+<div class="col-md-12 documentation">
+<%=
+  # Create a variable for the release being rendered.
+  url_match = /\/documentation\/([^\/]+)(\/.*)/.match(current_page.url)
+  rendering_release = url_match.captures[0]
+  doc_page = url_match.captures[1]
+  nil
+=%>
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '<%= doc_page =%>'"
+        value="<%= rendering_release =%>">
+  <% data.downloads.releases.each_with_index do |release, i| %>
+  <option value="<%= release.version %>"
+    <% if release.version == rendering_release %>selected="selected"<% end %>>
+    <%= release.version %>
+    <% if i == 0 %>
+      (latest)
+    <% end %>
+  </option>
+  <% end %>
+</select>
+</h5>
+<%= yield %>
+</div>
+<% end %>

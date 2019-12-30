@@ -1,0 +1,23 @@
+---
+title: Apache Aurora | Blog
+breadcrumb: Blog
+---
+<div class="row-fluid">
+  <div class="col-md-3">
+    <h4>Apache Aurora Blog</h4>
+    <p>The Aurora blog is a place for release announcements and for project committers to highlight
+       features of the software.</p>
+  </div>
+  <div class="col-md-9">
+  <% blog.articles.each do |post| %>
+  <article>
+    <h3>
+      <a href="<%= post.url %>"><%= post.title %></a>
+    </h3>
+    <em><time><%= post.date.strftime('%b %e %Y') %></time></em>
+    <%= post.summary %>
+    <a href="<%= post.url %>">Read more</a>
+  </article>
+  <% end %>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+body {
+	background: rgba(0,0,0,0.04);
+}
+.container.content {
+	background: #fff;
+}
+h1, h2, h3 {
+	color: #004a63;
+}
+span.glyphicon {
+    font-size: 6em;
+	padding-top: 25px;
+}
+.section-dark-flow {
+	background: #0A0A08;
+	color: #fff;
+	font-size: 1.3em;
+	text-shadow: .5px .5px 0px #1b5d3e;
+}
+.section-dark-flow h2 {
+	color: #fff;
+}
+.section-footer {
+	background: #eee;
+}
+.section-homepage-header {
+	background-image: url("/assets/img/aurora_image_1600.jpg");
+	background-size: cover;
+        height: 375px;
+	background-position: center bottom;
+}
+.section-homepage-header h1 {
+	color: #fff;
+	text-shadow: 1px 1px 3px #000;
+}
+.section-header {
+	background-image: url("/assets/img/aurora_image_1600.jpg");
+	background-size: cover;
+	color: #000;
+	background-color: #40c3b0;
+}
+.nav-bar a {
+	color: #fff;
+}
+.navbar li a:hover {
+	text-decoration-color: #40c3b0;
+	color: #fff;
+}
+.nav-bar li a:hover {
+	background: none;
+	text-decoration: underline;
+}
+.nav-bar li {
+	margin: 10px;
+	padding-top: 20px;
+}
+.buffer {
+	padding: 30px 0 30px 0;
+}
+.disclaimer {
+	font-size: .9em;
+	color: #AAA;
+}
+.documentation img {
+	max-width: 600px;
+}
+iframe {
+	border: none;
+}
+.author_contact {
+	display: inline-block;
+}
+.author_gravatar {
+	display: inline;
+	padding: 0 20px 20px 5px;
+}
+.share {
+	display: block;
+}
+code, pre {
+	color: #000;
+	border: none;
+}

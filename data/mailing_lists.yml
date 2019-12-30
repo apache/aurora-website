@@ -1,0 +1,19 @@
+lists:
+  - address: user
+    title: Users
+    description: "Discussion for users of Aurora."
+  - address: announcements
+    title: Announcements
+    description: Important announcements about the project, including releases.
+  - address: dev
+    title: Developers
+    description: Project developer discussions.  Come here if you want help contributing!
+  - address: issues
+    title: Issues
+    description: Feed of project JIRA changes.
+  - address: commits
+    title: Code commits
+    description: Feed of project source control commits.
+  - address: reviews
+    title: Code reviews
+    description: Feed of code reviews for patches.

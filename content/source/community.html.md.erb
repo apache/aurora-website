@@ -1,0 +1,42 @@
+# Community
+
+<div class="row-fluid">
+  <div class="col-md-4">
+    <h3>Contributing</h3>
+    <h4 name="reportbugs">Report or track a bug</h4>
+    <p>Bugs can be reported on our <a href="http://issues.apache.org/jira/browse/AURORA">JIRA</a>
+       or raise an issue on our <a href="https://github.com/apache/aurora/issues">GitHub</a> repository.</p>
+    <p>In order to create a new issue on JIRA you'll need register for an accountr. A GitHub account is
+       requried to raise issues on our repository.</p>
+
+    <h4 name="contribute">Submit a patch</h4>
+    <p>Please read our <a href="/documentation/latest/contributing/">contribution guide</a>
+       when submitting a patch. We welcome them!
+    </p>
+
+    <h3>Chat</h3>
+    <h4 name="slack">Slack</h4>
+    <p>Developers and users hang out in <code>#aurora</code> on <a href="https://mesos.slack.com/">
+       <code>mesos.slack.com</code></a>.</p>
+    <p>To request an invite for slack please click <a href="https://mesos-slackin.herokuapp.com/">here</a>.</p>
+    <p>All slack communication is publicly archived <a href="http://mesos.slackarchive.io/aurora/">here</a>.</p>
+  </div>
+  <div class="col-md-4">
+    <h3>Mailing lists</h3>
+    <p>
+    <% data.mailing_lists.lists.each do |list| %>
+      <strong><%= list.title %></strong><br />
+      <%= list.description %><br />
+      <a href="mailto:<%= list.address %>-subscribe@aurora.apache.org">Subscribe</a> |
+      <a href="mailto:<%= list.address %>-unsubscribe@aurora.apache.org">Unsubscribe</a> |
+      <a href="https://lists.apache.org/list.html?<%= list.address %>@aurora.apache.org">Archive</a>
+      <br /><br />
+    <% end %>
+    </p>
+  </div>
+  <div class="col-md-4">
+    <h3>Follow the Project</h3>
+    <a class="twitter-timeline" href="https://twitter.com/ApacheAurora">Tweets by ApacheAurora</a>
+    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+  </div>
+</div>

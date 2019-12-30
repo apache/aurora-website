@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/development/db-migration/'"
+        value="latest">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="db-migrations">DB Migrations</h1>
+
+<p>Changes to the DB schema should be made in the form of migrations. This ensures that all changes
+are applied correctly after a DB dump from a previous version is restored.</p>
+
+<p>DB migrations are managed through a system built on top of
+<a href="http://www.mybatis.org/migrations/">MyBatis Migrations</a>. The migrations are run automatically when
+a snapshot is restored, no manual interaction is required by cluster operators.</p>
+
+<h2 id="upgrades">Upgrades</h2>
+
+<p>When adding or altering tables or changing data, in addition to making to change in
+<a href="../../src/main/resources/org/apache/aurora/scheduler/storage/db/schema.sql">schema.sql</a>, a new
+migration class should be created under the org.apache.aurora.scheduler.storage.db.migration
+package. The class should implement the <a href="https://github.com/mybatis/migrations/blob/master/src/main/java/org/apache/ibatis/migration/MigrationScript.java">MigrationScript</a>
+interface (see <a href="https://github.com/apache/aurora/blob/rel/0.22.0/src/test/java/org/apache/aurora/scheduler/storage/db/testmigration/V001_TestMigration.java">V001_TestMigration</a>
+as an example). The upgrade and downgrade scripts are defined in this class. When restoring a
+snapshot the list of migrations on the classpath is compared to the list of applied changes in the
+DB. Any changes that have not yet been applied are executed and their downgrade script is stored
+alongside the changelog entry in the database to faciliate downgrades in the event of a rollback.</p>
+
+<h2 id="downgrades">Downgrades</h2>
+
+<p>If, while running migrations, a rollback is detected, i.e. a change exists in the DB changelog that
+does not exist on the classpath, the downgrade script associated with each affected change is
+applied.</p>
+
+<h2 id="baselines">Baselines</h2>
+
+<p>After enough time has passed (at least 1 official release), it should be safe to baseline migrations
+if desired. This can be accomplished by ensuring the changes from migrations have been applied to
+<a href="../../src/main/resources/org/apache/aurora/scheduler/storage/db/schema.sql">schema.sql</a> and then
+removing the corresponding migration classes and adding a migration to remove the changelog entries.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

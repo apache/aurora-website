@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/job-updates/'"
+        value="0.21.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    selected="selected">
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="aurora-job-updates">Aurora Job Updates</h1>
+
+<p><code>Job</code> configurations can be updated at any point in their lifecycle.
+Usually updates are done incrementally using a process called a <em>rolling
+upgrade</em>, in which Tasks are upgraded in small groups, one group at a
+time.  Updates are done using various Aurora Client commands.</p>
+
+<h2 id="rolling-job-updates">Rolling Job Updates</h2>
+
+<p>There are several sub-commands to manage job updates:</p>
+<pre class="highlight plaintext"><code>aurora update start &lt;job key&gt; &lt;configuration file&gt;
+aurora update info &lt;job key&gt;
+aurora update pause &lt;job key&gt;
+aurora update resume &lt;job key&gt;
+aurora update abort &lt;job key&gt;
+aurora update list &lt;cluster&gt;
+</code></pre>
+
+<p>When you <code>start</code> a job update, the command will return once it has sent the
+instructions to the scheduler.  At that point, you may view detailed
+progress for the update with the <code>info</code> subcommand, in addition to viewing
+graphical progress in the web browser.  You may also get a full listing of
+in-progress updates in a cluster with <code>list</code>.</p>
+
+<p>Once an update has been started, you can <code>pause</code> to keep the update but halt
+progress.  This can be useful for doing things like debug a  partially-updated
+job to determine whether you would like to proceed.  You can <code>resume</code> to
+proceed.</p>
+
+<p>You may <code>abort</code> a job update regardless of the state it is in. This will
+instruct the scheduler to completely abandon the job update and leave the job
+in the current (possibly partially-updated) state.</p>
+
+<p>For a configuration update, the Aurora Scheduler calculates required changes
+by examining the current job config state and the new desired job config.
+It then starts a <em>rolling batched update process</em> by going through every batch
+and performing these operations, in order:</p>
+
+<ul>
+<li>If an instance is not present in the scheduler but is present in
+the new config, then the instance is created.</li>
+<li>If an instance is present in both the scheduler and the new config, then
+the scheduler diffs both task configs. If it detects any changes, it
+performs an instance update by killing the old config instance and adds
+the new config instance.</li>
+<li>If an instance is present in the scheduler but isn&rsquo;t in the new config,
+then that instance is killed.</li>
+</ul>
+
+<p>The Aurora Scheduler continues through the instance list until all tasks are
+updated and in <code>RUNNING</code>. If the scheduler determines the update is not going
+well (based on the criteria specified in the UpdateConfig), it cancels the update.</p>
+
+<p>Update cancellation runs a procedure similar to the described above
+update sequence, but in reverse order. New instance configs are swapped
+with old instance configs and batch updates proceed backwards
+from the point where the update failed. E.g.; (0,1,2) (3,4,5) (6,7,
+8-FAIL) results in a rollback in order (8,7,6) (5,4,3) (2,1,0).</p>
+
+<p>For details on how to control a job update, please see the
+<a href="../../reference/configuration/#updateconfig-objects">UpdateConfig</a> configuration object.</p>
+
+<h2 id="coordinated-job-updates">Coordinated Job Updates</h2>
+
+<p>Some Aurora services may benefit from having more control over updates by explicitly
+acknowledging (&ldquo;heartbeating&rdquo;) job update progress. This may be helpful for mission-critical
+service updates where explicit job health monitoring is vital during the entire job update
+lifecycle. Such job updates would rely on an external service (or a custom client) periodically
+pulsing an active coordinated job update via a
+<a href="https://github.com/apache/aurora/blob/rel/0.21.0/api/src/main/thrift/org/apache/aurora/gen/api.thrift">pulseJobUpdate RPC</a>.</p>
+
+<p>A coordinated update is defined by setting a positive
+<a href="../../reference/configuration/#updateconfig-objects">pulse<em>interval</em>secs</a> value in job configuration
+file. If no pulses are received within specified interval the update will be blocked. A blocked
+update is unable to continue rolling forward (or rolling back) but retains its active status.
+It may only be unblocked by a fresh <code>pulseJobUpdate</code> call.</p>
+
+<p>NOTE: A coordinated update starts in <code>ROLL_FORWARD_AWAITING_PULSE</code> state and will not make any
+progress until the first pulse arrives. However, a paused update (<code>ROLL_FORWARD_PAUSED</code> or
+<code>ROLL_BACK_PAUSED</code>) is still considered active and upon resuming will immediately make progress
+provided the pulse interval has not expired.</p>
+
+<h2 id="sla-aware-updates">SLA-Aware Updates</h2>
+
+<p>Updates can take advantage of <a href="../../features/sla-requirements/">Custom SLA Requirements</a> and
+specify the <code>sla_aware=True</code> option within
+<a href="../../reference/configuration/#updateconfig-objects">UpdateConfig</a> to only update instances if
+the action will maintain the task&rsquo;s SLA requirements. This feature allows updates to avoid killing
+too many instances in the face of unexpected failures outside of the update range.</p>
+
+<p>See the <a href="../../reference/configuration/#using-the-sla-aware-option">Using the <code>sla_aware</code> option</a>
+for more information on how to use this feature.</p>
+
+<h2 id="canary-deployments">Canary Deployments</h2>
+
+<p>Canary deployments are a pattern for rolling out updates to a subset of job instances,
+in order to test different code versions alongside the actual production job.
+It is a risk-mitigation strategy for job owners and commonly used in a form where
+job instance 0 runs with a different configuration than the instances 1-N.</p>
+
+<p>For example, consider a job with 4 instances that each
+request 1 core of cpu, 1 GB of RAM, and 1 GB of disk space as specified
+in the configuration file <code>hello_world.aurora</code>. If you want to
+update it so it requests 2 GB of RAM instead of 1. You can create a new
+configuration file to do that called <code>new_hello_world.aurora</code> and
+issue</p>
+<pre class="highlight plaintext"><code>aurora update start &lt;job_key_value&gt;/0-1 new_hello_world.aurora
+</code></pre>
+
+<p>This results in instances 0 and 1 having 1 cpu, 2 GB of RAM, and 1 GB of disk space,
+while instances 2 and 3 have 1 cpu, 1 GB of RAM, and 1 GB of disk space. If instance 3
+dies and restarts, it restarts with 1 cpu, 1 GB RAM, and 1 GB disk space.</p>
+
+<p>So that means there are two simultaneous task configurations for the same job
+at the same time, just valid for different ranges of instances. While this isn&rsquo;t a recommended
+pattern, it is valid and supported by the Aurora scheduler.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

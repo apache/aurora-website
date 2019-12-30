@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/service-discovery/'"
+        value="0.21.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    selected="selected">
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="service-discovery">Service Discovery</h1>
+
+<p>It is possible for the Aurora executor to announce tasks into ServerSets for
+the purpose of service discovery.  ServerSets use the Zookeeper <a href="http://zookeeper.apache.org/doc/trunk/recipes.html#sc_outOfTheBox">group membership pattern</a>
+of which there are several reference implementations:</p>
+
+<ul>
+<li><a href="https://github.com/apache/mesos/blob/master/src/zookeeper/group.cpp">C++</a></li>
+<li><a href="https://github.com/twitter/commons/blob/master/src/java/com/twitter/common/zookeeper/ServerSetImpl.java#L221">Java</a></li>
+<li><a href="https://github.com/twitter/commons/blob/master/src/python/twitter/common/zookeeper/serverset/serverset.py#L51">Python</a></li>
+</ul>
+
+<p>These can also be used natively in Finagle using the <a href="https://github.com/twitter/finagle/blob/master/finagle-serversets/src/main/scala/com/twitter/finagle/zookeeper/ZookeeperServerSetCluster.scala">ZookeeperServerSetCluster</a>.</p>
+
+<p>For more information about how to configure announcing, see the <a href="../../reference/configuration/">Configuration Reference</a>.</p>
+
+<h2 id="using-mesos-discoveryinfo">Using Mesos DiscoveryInfo</h2>
+
+<p>Experimental support for populating DiscoveryInfo in Mesos is introduced in Aurora. This can be used to build
+custom service discovery system not using zookeeper. Please see <code>Service Discovery</code> section in
+<a href="http://mesos.apache.org/documentation/latest/app-framework-development-guide/">Mesos Framework Development guide</a> for
+explanation of the protobuf message in Mesos.</p>
+
+<p>To use this feature, please enable <code>--populate_discovery_info</code> flag on scheduler. All jobs started by scheduler
+afterwards will have their portmap populated to Mesos and discoverable in <code>/state</code> endpoint in Mesos master and agent.</p>
+
+<h3 id="using-mesos-dns">Using Mesos DNS</h3>
+
+<p>An example is using <a href="https://github.com/mesosphere/mesos-dns">Mesos-DNS</a>, which is able to generate multiple DNS
+records. With current implementation, the example job with key <code>devcluster/vagrant/test/http-example</code> generates at
+least the following:</p>
+
+<ol>
+<li>An A record for <code>http_example.test.vagrant.aurora.mesos</code> (which only includes IP address);</li>
+<li>A <a href="https://en.wikipedia.org/wiki/SRV_record">SRV record</a> for
+<code>_http_example.test.vagrant._tcp.aurora.mesos</code>, which includes IP address and every port. This should only
+be used if the service has one port.</li>
+<li>A SRV record <code>_{port-name}._http_example.test.vagrant._tcp.aurora.mesos</code> for each port name
+defined. This should be used when the service has multiple ports. To have this working properly it&rsquo;s needed to
+add <code>-populate_discovery_info</code> to scheduler&rsquo;s configuration.</li>
+</ol>
+
+<p>Things to note:</p>
+
+<ol>
+<li>The domain part (&ldquo;.mesos&rdquo; in above example) can be configured in <a href="http://mesosphere.github.io/mesos-dns/docs/configuration-parameters.html">Mesos DNS</a>;</li>
+<li>Right now, portmap and port aliases in announcer object are not reflected in DiscoveryInfo, therefore not visible in
+Mesos DNS records either. This is because they are only resolved in thermos executors.</li>
+</ol>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

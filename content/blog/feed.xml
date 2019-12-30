@@ -1,0 +1,1575 @@
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Apache Aurora Blog</title>
+  <id>http://aurora.apache.org/blog</id>
+  <link href="http://aurora.apache.org/blog" />
+  <link href="http://aurora.apache.org/blog/feed.xml" rel="self"/>
+  <updated>2019-12-12T00:00:00+00:00</updated>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-22-0-released/</id>
+    <link href="/blog/aurora-0-22-0-released/" />
+    <title>
+      0.22.0 Released
+    </title>
+    <updated>2019-12-12T00:00:00+00:00</updated>
+    <author>
+      <name>Renan DelValle</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.22.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Updated to Mesos 1.6.1.&lt;/li&gt;
+&lt;li&gt;New update strategy added: Variable Batch Update. With this strategy, a job may be updated in
+in batches of different sizes. For example, an update which modifies a total of 10 instances may
+be done in batch sizes of 2, 3, and 5. The number of updated instances must equal the size of the
+current group size in order to move to the next group size. If the number of updated instances is
+greater to the sum of all group sizes, the last group size will be used in perpetuity until all
+instances are updated.
+A new field has been added to &lt;code&gt;UpdateConfig&lt;/code&gt; called &lt;code&gt;update_strategy&lt;/code&gt;.
+Update strategy may take a &lt;code&gt;QueueUpdateStrategy&lt;/code&gt;, &lt;code&gt;BatchUpdateStrategy&lt;/code&gt;,
+or a &lt;code&gt;VariableBatchUpdateStrategy&lt;/code&gt; object. &lt;code&gt;QueueUpdateStrategy&lt;/code&gt; and &lt;code&gt;BatchUpdateStrategy&lt;/code&gt; take
+a single integer argument while &lt;code&gt;VariableBatchUpdateStrategy&lt;/code&gt; takes a list of positive integers
+as an argument.&lt;/li&gt;
+&lt;li&gt;Users may now set a value for the URI fetcher to rename a downloaded artifact to after it
+has been downloaded.&lt;/li&gt;
+&lt;li&gt;Auto pause feature added to VariableBatch strategy and Batch strategy. With this feature enabled,
+when an update is &lt;code&gt;ROLLING_FORWARD&lt;/code&gt;, the update will automatically pause itself right before
+a new batch is started. (This feature is being released as tested but in beta state. We are
+looking to collect feedback before we consider it fully stable.)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;loader.load()&lt;/code&gt; now uses memoization on the config file path so that we only load and process
+each config file once.&lt;/li&gt;
+&lt;li&gt;Instances run with custom executors will no longer show links to thermos observer.&lt;/li&gt;
+&lt;li&gt;Add observer command line option &lt;code&gt;--disable_task_resource_collection&lt;/code&gt; to disable the collection of
+CPU, memory, and disk metrics for observed tasks. This is useful in setups where metrics cannot be
+gathered reliable (e.g. when using PID namespaces) or when it is expensive due to hundreds of
+active tasks per host.&lt;/li&gt;
+&lt;li&gt;Added flag &lt;code&gt;-sla_aware_kill_non_prod&lt;/code&gt; which allows operators to enable SLA aware killing
+for non-production jobs. Jobs are considered non-production when they are preemptable and/or
+revocable.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Deprecations and removals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Deprecated use of Thrift fields &lt;code&gt;JobUpdateSettings.waitForBatchCompletion&lt;/code&gt; and
+&lt;code&gt;JobUpdateSettings.updateGroupSize&lt;/code&gt;. Please set the proper &lt;code&gt;JobUpdateSettings.updateStrategy&lt;/code&gt;
+instead. Note that these same constructs, as represented in the Aurora DSL, are still valid
+as they will be converted to the new field automatically by the client
+for backwards compatibility.&lt;/li&gt;
+&lt;li&gt;Backfill code for finding a matching tier to for a Job has been removed. Tier will now be set
+when a Job is received by the scheduler. If no tier is provided, the default tier defined in
+&lt;code&gt;-tier_config&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://github.com/apache/aurora/milestone/2?closed=1&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 8 contributors who made Apache Aurora 0.22.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Se Choi&lt;/li&gt;
+&lt;li&gt;Raúl Cuza&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Mauricio Garavaglia&lt;/li&gt;
+&lt;li&gt;Daniel Knightly&lt;/li&gt;
+&lt;li&gt;Philipp Sontag&lt;/li&gt;
+&lt;li&gt;Justin Venus&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-21-0-released/</id>
+    <link href="/blog/aurora-0-21-0-released/" />
+    <title>
+      0.21.0 Released
+    </title>
+    <updated>2018-09-10T00:00:00+00:00</updated>
+    <author>
+      <name>Renan DelValle</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.21.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Updated to Mesos 1.5.0.&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Introduce ability for tasks to specify custom SLA requirements via the new &lt;code&gt;SlaPolicy&lt;/code&gt; structs.
+There are 3 different SLA Policies that are currently supported - &lt;code&gt;CountSlaPolicy&lt;/code&gt;,
+&lt;code&gt;PercentageSlaPolicy&lt;/code&gt; and &lt;code&gt;CoordinatorSlaPolicy&lt;/code&gt;. SLA policies based on count and percentage
+express the required number of &lt;code&gt;RUNNING&lt;/code&gt; instances as either a count or percentage in addition to
+allowing the duration-window for which these requirements have to be satisfied. For applications
+that need more control over how SLA is determined, a custom SLA calculator can be configured a.k.a
+Coordinator. Any action that can affect SLA, will first check with the Coordinator before
+proceeding.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;IMPORTANT: The storage changes required for this feature will make scheduler
+snapshot backwards incompatible. Scheduler will be unable to read snapshot if rolled back to
+previous version. If rollback is absolutely necessary, perform the following steps:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Stop all host maintenance requests via &lt;code&gt;aurora_admin host_activate&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Ensure a new snapshot is created by running &lt;code&gt;aurora_admin scheduler_snapshot &amp;lt;cluster&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Rollback to previous version&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Note: The &lt;code&gt;Coordinator&lt;/code&gt; interface required for the &lt;code&gt;CoordinatorSlaPolicy&lt;/code&gt; is experimental at
+  this juncture and is bound to change in the future.
+- Introduced ability for updates to be &amp;lsquo;SLA-aware&amp;rsquo;, or only update instances if it is within SLA,
+  using the new &lt;code&gt;sla_aware&lt;/code&gt; field in &lt;code&gt;UpdateConfig&lt;/code&gt;. See the bullet point above for an explanation
+  of custom SLA requirements.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;NOTE&lt;/strong&gt;: SLA-aware updates will use the desired config&amp;rsquo;s SLA, not the existing config.&lt;/p&gt;
+
+&lt;p&gt;Three additional scheduler options have been added to support this feature:&lt;/p&gt;
+&lt;pre class=&quot;highlight plaintext&quot;&gt;&lt;code&gt;1. `max_update_action_batch_size (default: 300)`: the number of update actions to process in a
+batch.
+2. `sla_aware_kill_retry_min_delay (default: 1mins)`: the minimum amount of time to wait before
+retrying an SLA-aware kill (using a truncated binary backoff).
+3. `sla_aware_kill_retry_max_delay (default: 5mins)`: the maximum amount of time to wait before
+retrying an SLA-aware kill (using a truncated binary backoff).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Deprecations and removals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Deprecated the &lt;code&gt;aurora_admin host_drain&lt;/code&gt; command used for maintenance. With this release the SLA
+computations are moved to the scheduler and it is no longer required for the client to compute
+SLAs and watch the drains. The scheduler persists any host maintenance request and performs
+SLA-aware drain of the tasks, before marking the host as &lt;code&gt;DRAINED&lt;/code&gt;. So maintenance requests
+survive across scheduler fail-overs. Use the newly introduced &lt;code&gt;aurora_admin sla_host_drain&lt;/code&gt;
+to skip the SLA computations on the admin client.&lt;/li&gt;
+&lt;li&gt;Removed resource fields (&lt;code&gt;numCpus&lt;/code&gt;, &lt;code&gt;ramMb&lt;/code&gt;, &lt;code&gt;diskMb&lt;/code&gt;) from ResourceAggregate.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.21.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 9 contributors who made Apache Aurora 0.21.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Jing Chen&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Jordan Ly&lt;/li&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Sameer Parekh&lt;/li&gt;
+&lt;li&gt;Reza Motamedi&lt;/li&gt;
+&lt;li&gt;Ezequiel Torres Feyuk&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-20-0-released/</id>
+    <link href="/blog/aurora-0-20-0-released/" />
+    <title>
+      0.20.0 Released
+    </title>
+    <updated>2018-04-03T00:00:00+00:00</updated>
+    <author>
+      <name>Renan DelValle</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.20.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Updated to Mesos 1.4.0.&lt;/li&gt;
+&lt;li&gt;Added experimental support for the Mesos partition-aware APIs. The key idea is a new ScheduleStatus
+PARTITIONED that represents a task in an unknown state. Users of Aurora can have per-job policies
+of whether or not to reschedule and how long to wait for the partition to heal. Backwards
+compatibility with existing behavior (i.e. transition to LOST immediately on a partition) is
+maintained. The support is experimental due to bugs found in Mesos that would cause issues in
+a production cluster. For that reason, the functionality is behind a new flag &lt;code&gt;-partition_aware&lt;/code&gt;
+that is disabled by default. When Mesos support is improved and the new behavior is vetted in
+production clusters, we&amp;rsquo;ll enable this by default.&lt;/li&gt;
+&lt;li&gt;Added the ability to inject custom offer holding and scheduling logic via the &lt;code&gt;-offer_set_module&lt;/code&gt;
+scheduler flag. To take advantage of this feature, you will need to implement the &lt;code&gt;OfferSet&lt;/code&gt;
+interface.&lt;/li&gt;
+&lt;li&gt;Added &lt;code&gt;executor_config&lt;/code&gt; field to the Job object of the DSL which will populate
+&lt;code&gt;JobConfiguration.TaskConfig.ExecutorConfig&lt;/code&gt;. This allows for using custom executors defined
+through the &lt;code&gt;--custom_executor_config&lt;/code&gt; scheduler flag. See our
+&lt;a href=&quot;https://aurora.apache.org/documentation/0.20.0/features/custom-executors/&quot;&gt;custom-executors&lt;/a&gt; documentation for more information.&lt;/li&gt;
+&lt;li&gt;Added support in Thermos Observer for delegating disk usage monitoring to Mesos agent. The feature
+can be enabled via &lt;code&gt;--enable_mesos_disk_collector&lt;/code&gt; flag, in which case Observer will use the
+agent&amp;rsquo;s containers HTTP API to query the amount of used bytes for each container. Note that disk
+isolation should be enabled in Mesos agent. This feature is not compatible with authentication
+enabled agents.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Deprecations and removals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Removed the ability to recover from SQL-based backups and snapshots.  An 0.20.0 scheduler
+will not be able to recover backups or replicated log data created prior to 0.19.0.&lt;/li&gt;
+&lt;li&gt;Removed task level resource fields (&lt;code&gt;numCpus&lt;/code&gt;, &lt;code&gt;ramMb&lt;/code&gt;, &lt;code&gt;diskMb&lt;/code&gt;, &lt;code&gt;requestedPorts&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Removed the &lt;code&gt;-offer_order_modules&lt;/code&gt; scheduler flag related to custom injectable offer orderings,
+since this will now be subsumed under custom &lt;code&gt;OfferSet&lt;/code&gt; implementations (see the comment above):&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.20.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 12 contributors who made Apache Aurora 0.20.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Jing Chen&lt;/li&gt;
+&lt;li&gt;Franck Cuny&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Nicolás Donatucci&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Juan Manuel Fresia&lt;/li&gt;
+&lt;li&gt;Jordan Ly&lt;/li&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;Reza Motamedi&lt;/li&gt;
+&lt;li&gt;Ruben D. Porras&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-19-1-released/</id>
+    <link href="/blog/aurora-0-19-1-released/" />
+    <title>
+      0.19.1 Released
+    </title>
+    <updated>2018-02-11T00:00:00+00:00</updated>
+    <author>
+      <name>Renan DelValle</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.19.1, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.19.1&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-19-0-released/</id>
+    <link href="/blog/aurora-0-19-0-released/" />
+    <title>
+      0.19.0 Released
+    </title>
+    <updated>2017-11-10T00:00:00+00:00</updated>
+    <author>
+      <name>Bill Farner</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.19.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Added the ability to configure the executor&amp;rsquo;s stop timeout, which is the maximum amount of time
+the executor will wait during a graceful shutdown sequence before continuing the &amp;lsquo;Forceful
+Termination&amp;rsquo; process (see
+&lt;a href=&quot;http://aurora.apache.org/documentation/latest/reference/task-lifecycle/&quot;&gt;here&lt;/a&gt; for details).&lt;/li&gt;
+&lt;li&gt;Added the ability to configure the wait period after calling the graceful shutdown endpoint and
+the shutdown endpoint using the &lt;code&gt;graceful_shutdown_wait_secs&lt;/code&gt; and &lt;code&gt;shutdown_wait_secs&lt;/code&gt; fields in
+&lt;code&gt;HttpLifecycleConfig&lt;/code&gt; respectively. Previously, the executor would only wait 5 seconds between
+steps (adding up to a total of 10 seconds as there are 2 steps). The overall waiting period is
+bounded by the executor&amp;rsquo;s stop timeout, which can be configured using the executor&amp;rsquo;s
+&lt;code&gt;stop_timeout_in_secs&lt;/code&gt; flag.&lt;/li&gt;
+&lt;li&gt;Added the &lt;code&gt;thrift_method_interceptor_modules&lt;/code&gt; scheduler flag that lets cluster operators inject
+custom Thrift method interceptors.&lt;/li&gt;
+&lt;li&gt;Increase default ZooKeeper session timeout from 4 to 15 seconds.&lt;/li&gt;
+&lt;li&gt;Added option &lt;code&gt;-zk_connection_timeout&lt;/code&gt; to control the connection timeout of ZooKeeper connections.&lt;/li&gt;
+&lt;li&gt;Added scheduler command line argument &lt;code&gt;-hold_offers_forever&lt;/code&gt;, suitable for use in clusters where
+Aurora is the only framework.  This setting disables other options such as &lt;code&gt;-min_offer_hold_time&lt;/code&gt;,
+and allows the scheduler to more efficiently cache scheduling attempts.&lt;/li&gt;
+&lt;li&gt;The scheduler no longer uses an internal H2 database for storage.&lt;/li&gt;
+&lt;li&gt;There is a new Scheduler UI which, in addition to the facelift, provides the ability to inject your
+own custom UI components.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Deprecations and removals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Removed the deprecated command line argument &lt;code&gt;-zk_use_curator&lt;/code&gt;, removing the choice to use the
+legacy ZooKeeper client.&lt;/li&gt;
+&lt;li&gt;Removed the &lt;code&gt;rewriteConfigs&lt;/code&gt; thrift API call in the scheduler. This was a last-ditch mechanism
+to modify scheduler state on the fly. It was considered extremely risky to use since its
+inception, and is safer to abandon due to its lack of use and likelihood for code rot.&lt;/li&gt;
+&lt;li&gt;Removed the Job environment validation from the command line client. Validation was moved to the
+the scheduler side through the &lt;code&gt;allowed_job_environments&lt;/code&gt; option. By default allowing any of
+&lt;code&gt;devel&lt;/code&gt;, &lt;code&gt;test&lt;/code&gt;, &lt;code&gt;production&lt;/code&gt;, and any value matching the regular expression &lt;code&gt;staging[0-9]*&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Removed scheduler command line arguments related to the internal H2 database, which is no longer
+used:
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-use_beta_db_task_store&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-enable_db_metrics&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-slow_query_log_threshold&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-db_row_gc_interval&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-db_lock_timeout&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-db_max_active_connection_count&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-db_max_idle_connection_count&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-snapshot_hydrate_stores&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-enable_h2_console&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.19.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 14 contributors who made Apache Aurora 0.19.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;Derek Slager&lt;/li&gt;
+&lt;li&gt;Jordan Ly&lt;/li&gt;
+&lt;li&gt;Kai Huang&lt;/li&gt;
+&lt;li&gt;Keisuke Nishimoto&lt;/li&gt;
+&lt;li&gt;Mauricio Garavaglia&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Reza Motamedi&lt;/li&gt;
+&lt;li&gt;Robert Allen&lt;/li&gt;
+&lt;li&gt;Ruben D. Porras&lt;/li&gt;
+&lt;li&gt;Santhosh Kumar Shanmugham&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-18-1-released/</id>
+    <link href="/blog/aurora-0-18-1-released/" />
+    <title>
+      0.18.1 Released
+    </title>
+    <updated>2017-11-01T00:00:00+00:00</updated>
+    <author>
+      <name>Bill Farner</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.18.1, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. This is a patch release to
+update the Shiro library to version 1.2.5.&lt;/p&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.18.1&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-18-0-released/</id>
+    <link href="/blog/aurora-0-18-0-released/" />
+    <title>
+      0.18.0 Released
+    </title>
+    <updated>2017-06-20T00:00:00+00:00</updated>
+    <author>
+      <name>Santhosh Kumar Shanmugham</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.18.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release.&lt;/p&gt;
+
+&lt;p&gt;Major new features:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Added the &lt;code&gt;-mesos_driver&lt;/code&gt; flag to the scheduler with three possible options:
+&lt;code&gt;SCHEDULER_DRIVER&lt;/code&gt;, &lt;code&gt;V0_MESOS&lt;/code&gt;, &lt;code&gt;V1_MESOS&lt;/code&gt;. The first uses the original driver
+and the latter two use two new drivers from &lt;code&gt;libmesos&lt;/code&gt;. &lt;code&gt;V0_MESOS&lt;/code&gt; uses the
+&lt;code&gt;SCHEDULER_DRIVER&lt;/code&gt; under the hood and &lt;code&gt;V1_MESOS&lt;/code&gt; uses a new HTTP API aware
+driver. Users that want to use the HTTP API should use &lt;code&gt;V1_MESOS&lt;/code&gt;.
+Performance sensitive users should stick with the &lt;code&gt;SCHEDULER_DRIVER&lt;/code&gt; or
+&lt;code&gt;V0_MESOS&lt;/code&gt; drivers.&lt;/li&gt;
+&lt;li&gt;Add observer command line options to control the resource collection interval
+for observed tasks. See &lt;a href=&quot;docs/reference/observer-configuration.md&quot;&gt;here&lt;/a&gt; for details.&lt;/li&gt;
+&lt;li&gt;Added support for reserving agents during job updates, which can substantially reduce update times
+in clusters with high contention for resources. Disabled by default, but can be enabled with
+&lt;code&gt;enable_update_affinity&lt;/code&gt; option, and the reservation timeout can be controlled via
+&lt;code&gt;update_affinity_reservation_hold_time&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Add &lt;code&gt;task scp&lt;/code&gt; command to the CLI client for easy transferring of files to/from/between task
+instances. See &lt;a href=&quot;docs/reference/client-commands.md#scping-with-task-machines&quot;&gt;here&lt;/a&gt; for details.
+Currently only fully supported for Mesos containers (you can copy files from the Docker container
+sandbox but you cannot send files to it).&lt;/li&gt;
+&lt;li&gt;Added ability to inject your own scheduling logic, via a lazy Guice module binding. This is an
+alpha-level feature and not subject to backwards compatibility considerations. You can specify
+your custom modules using the &lt;code&gt;task_assigner_modules&lt;/code&gt; and &lt;code&gt;preemption_slot_finder_modules&lt;/code&gt; options.&lt;/li&gt;
+&lt;li&gt;Added support for resource bin-packing via the &lt;code&gt;-offer_order&lt;/code&gt; option. You can choose from &lt;code&gt;CPU&lt;/code&gt;,
+&lt;code&gt;MEMORY&lt;/code&gt;, &lt;code&gt;DISK&lt;/code&gt;, &lt;code&gt;RANDOM&lt;/code&gt; or &lt;code&gt;REVOCABLE_CPU&lt;/code&gt;. You can also compose secondary sorts by combining
+orders together: e.g. to bin-pack by CPU and MEMORY you could supply &lt;code&gt;CPU,MEMORY&lt;/code&gt;. The current
+default is &lt;code&gt;RANDOM&lt;/code&gt;, which has the strong advantage that users can (usually) relocate their tasks
+due to noisy neighbors or machine issues with a task restart. When you have deterministic
+bin-packing, they may always end up on the same agent. So be careful enabling this without proper
+monitoring and remediation of host failures.&lt;/li&gt;
+&lt;li&gt;Modified job update behavior to create new instances, then update existing instances, and then
+kill unwanted instances. Previously, a job update would modify each instance in the order of
+their instance ID.&lt;/li&gt;
+&lt;li&gt;Added ability to whitelist TaskStateChanges in the webhook configuration file. You can specify
+a list of desired TaskStateChanges(represented by their task statuses) to be sent to a configured
+endpoint.&lt;/li&gt;
+&lt;li&gt;Add message parameter to &lt;code&gt;killTasks&lt;/code&gt; RPC.&lt;/li&gt;
+&lt;li&gt;Add &lt;code&gt;prune_tasks&lt;/code&gt; endpoint to &lt;code&gt;aurora_admin&lt;/code&gt;. See &lt;code&gt;aurora_admin prune_tasks -h&lt;/code&gt; for usage information.&lt;/li&gt;
+&lt;li&gt;Add support for per-task volume mounts for Mesos containers to the Aurora config DSL.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Additional changes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Update to Mesos 1.2.0. Please upgrade Aurora to 0.18 before upgrading Mesos to 1.2.0 if you rely
+on Mesos filesystem images.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;NOTE: In this release, the Aurora client will need to be updated before the scheduler
+can be deployed.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.18.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 12 contributors who made Apache Aurora 0.18.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Abhishek Jain&lt;/li&gt;
+&lt;li&gt;Charles Raimbert&lt;/li&gt;
+&lt;li&gt;Cody Gibb&lt;/li&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;Kai Huang&lt;/li&gt;
+&lt;li&gt;Mehrdad Nurolahzade&lt;/li&gt;
+&lt;li&gt;Nicolás Donatucci&lt;/li&gt;
+&lt;li&gt;Reza Motamedi&lt;/li&gt;
+&lt;li&gt;Santhosh Kumar Shanmugham&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Takuya Kuwahara&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-17-0-released/</id>
+    <link href="/blog/aurora-0-17-0-released/" />
+    <title>
+      0.17.0 Released
+    </title>
+    <updated>2017-02-06T00:00:00+00:00</updated>
+    <author>
+      <name>Stephan Erb</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.17.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release.&lt;/p&gt;
+
+&lt;p&gt;Major new features:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Use the &lt;code&gt;RUNNING&lt;/code&gt; state of a task to indicate it is healthy and behaving as expected.
+A service will remain in &lt;code&gt;STARTING&lt;/code&gt; state until a configurable amount of consecutive health checks
+have passed. Job updates can therefore rely purely on health checks rather than &lt;code&gt;watch_secs&lt;/code&gt;
+timeout when deciding an individial instance update state, by setting &lt;code&gt;watch_secs&lt;/code&gt; to 0.&lt;/li&gt;
+&lt;li&gt;The Aurora Scheduler API supports volume mounts per task for the Mesos
+Containerizer if the scheduler is running with the &lt;code&gt;-allow_container_volumes&lt;/code&gt;
+flag.&lt;/li&gt;
+&lt;li&gt;Resolve docker tags to concrete identifiers for DockerContainerizer, so that job configuration
+is immutable across restarts. The feature introduces a new &lt;code&gt;{{docker.image[name][tag]}}&lt;/code&gt; binder that
+can be used in the Aurora job configuration to resolve a docker image specified by its &lt;code&gt;name:tag&lt;/code&gt;
+to a concrete identifier specified by its &lt;code&gt;registry/name@digest&lt;/code&gt;. It requires version 2 of the
+Docker Registry.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Performance improvements:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Scheduling performance has been improved by scheduling multiple tasks per scheduling round.&lt;/li&gt;
+&lt;li&gt;Preemption slot search logic is modified to improve its performance.
+
+&lt;ul&gt;
+&lt;li&gt;Multiple reservations are made per task group per round.&lt;/li&gt;
+&lt;li&gt;Multiple reservations are evaluated per round.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;The default logging output has been changed to remove line numbers and inner class information in
+exchange for faster logging.&lt;/li&gt;
+&lt;li&gt;The Aurora client is now using the Thrift binary protocol to communicate with the scheduler.&lt;/li&gt;
+&lt;li&gt;Added a new flag &lt;code&gt;--snapshot_hydrate_stores&lt;/code&gt; that controls which H2-backed stores to write fully
+hydrated into the Scheduler snapshot. Can lead to significantly lower snapshot times for large
+clusters if you set this flag to an empty list. Old behavior is preserved by default, but see
+org.apache.aurora.scheduler.storage.log.SnapshotStoreImpl for which stores we currently have
+duplicate writes for.&lt;/li&gt;
+&lt;li&gt;New scheduler metrics are added to facilitate monitoring and performance studies (AURORA-1832).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Additional changes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Upgraded Mesos to 1.1.0.&lt;/li&gt;
+&lt;li&gt;A task&amp;rsquo;s tier is now mapped to a label on the Mesos &lt;code&gt;TaskInfo&lt;/code&gt; proto.&lt;/li&gt;
+&lt;li&gt;Introduce a new &lt;code&gt;--ip&lt;/code&gt; option to bind the Thermos observer to a specific rather than all
+interfaces.&lt;/li&gt;
+&lt;li&gt;Fix error that prevents the scheduler from being launched with &lt;code&gt;-enable_revocable_ram&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;The executor will send SIGTERM to processes that self daemonize via double forking.&lt;/li&gt;
+&lt;li&gt;Support the deployment of the Aurora scheduler behind HTTPS-enabled reverse proxies: By launching
+scheduler via &lt;code&gt;-serverset_endpoint_name=https&lt;/code&gt; you can ensure the Aurora client will correctly
+discover HTTPS support via the ZooKeeper-based discovery mechanism.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.17.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 22 contributors who made Apache Aurora 0.17.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Andrew Jorgensen&lt;/li&gt;
+&lt;li&gt;Bing-Qian Luan&lt;/li&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;Dmitriy Shirchenko&lt;/li&gt;
+&lt;li&gt;Jake Smullin&lt;/li&gt;
+&lt;li&gt;Jing Chen&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Justin Pinkul&lt;/li&gt;
+&lt;li&gt;Kai Huang&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Mehrdad Nurolahzade&lt;/li&gt;
+&lt;li&gt;Nicolás Donatucci&lt;/li&gt;
+&lt;li&gt;Pierre Cheynier&lt;/li&gt;
+&lt;li&gt;Pradyumna Kaushik&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Reza Motamedi&lt;/li&gt;
+&lt;li&gt;Rogier Dikkes&lt;/li&gt;
+&lt;li&gt;Santhosh Kumar Shanmugham&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Steve Niemitz&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-16-0-released/</id>
+    <link href="/blog/aurora-0-16-0-released/" />
+    <title>
+      0.16.0 Released
+    </title>
+    <updated>2016-09-28T00:00:00+00:00</updated>
+    <author>
+      <name>Joshua Cohen</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.16.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Upgraded Mesos to 1.0.0. Note: as part of this upgrade we have switched from depending on
+the mesos.native egg for Thermos in favor of the stripped down mesos.executor egg. This means
+users launching Docker tasks with the Mesos DockerContainerizer are no longer required to use
+images that include all of Mesos&amp;rsquo;s dependencies.&lt;/li&gt;
+&lt;li&gt;Scheduler command line behavior has been modified to warn users of the deprecation of &lt;code&gt;production&lt;/code&gt;
+attribute in &lt;code&gt;Job&lt;/code&gt; thrift struct. The scheduler is queried for tier configurations and the user&amp;rsquo;s
+choice of &lt;code&gt;tier&lt;/code&gt; and &lt;code&gt;production&lt;/code&gt; attributes is revised, if necessary. If &lt;code&gt;tier&lt;/code&gt; is already set,
+the &lt;code&gt;production&lt;/code&gt; attribute might be adjusted to match the &lt;code&gt;tier&lt;/code&gt; selection. Otherwise, &lt;code&gt;tier&lt;/code&gt; is
+selected based on the value of &lt;code&gt;production&lt;/code&gt; attribute. If a matching tier is not found, the
+&lt;code&gt;default&lt;/code&gt; tier from tier configuration file (&lt;code&gt;tiers.json&lt;/code&gt;) is used.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;/offers&lt;/code&gt; endpoint has been modified to display attributes of resource offers as received
+from Mesos. This has affected rendering of some of the existing attributes. Furthermore, it now
+dumps additional offer attributes including &lt;a href=&quot;http://mesos.apache.org/documentation/latest/reservation/&quot;&gt;reservations&lt;/a&gt;
+and &lt;a href=&quot;http://mesos.apache.org/documentation/latest/persistent-volume/&quot;&gt;persistent volumes&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;The scheduler API now accepts both thrift JSON and binary thrift. If a request is sent without a
+&lt;code&gt;Content-Type&lt;/code&gt; header, or a &lt;code&gt;Content-Type&lt;/code&gt; header of &lt;code&gt;application/x-thrift&lt;/code&gt; or &lt;code&gt;application/json&lt;/code&gt;
+or &lt;code&gt;application/vnd.apache.thrift.json&lt;/code&gt; the request is treated as thrift JSON. If a request is
+sent with a &lt;code&gt;Content-Type&lt;/code&gt; header of &lt;code&gt;application/vnd.apache.thrift.binary&lt;/code&gt; the request is treated
+as binary thrift. If the &lt;code&gt;Accept&lt;/code&gt; header of the request is &lt;code&gt;application/vnd.apache.thrift.binary&lt;/code&gt;
+then the response will be binary thrift. Any other value for &lt;code&gt;Accept&lt;/code&gt; will result in thrift JSON.&lt;/li&gt;
+&lt;li&gt;Scheduler is now able to launch jobs using more than one executor at a time. To use this feature
+the &lt;code&gt;-custom_executor_config&lt;/code&gt; flag must point to a JSON file which contains at least one valid
+executor configuration as detailed in the &lt;a href=&quot;docs/features/custom-executors.md&quot;&gt;configuration&lt;/a&gt;
+documentation.&lt;/li&gt;
+&lt;li&gt;Add rollback API to the scheduler and new client command to support rolling back
+active update jobs to their initial state.&lt;/li&gt;
+&lt;li&gt;&lt;a name=&quot;zk_use_curator_upgrade&quot;&gt;&lt;/a&gt; The scheduler flag &lt;code&gt;-zk_use_curator&lt;/code&gt; now defaults to &lt;code&gt;true&lt;/code&gt;
+and care should be taken when upgrading from a configuration that does not pass the flag. The
+scheduler upgrade should be performed by bringing all schedulers down, and then bringing upgraded
+schedulers up. A rolling upgrade would result in no leading scheduler for the duration of the
+roll which could be confusing to monitor and debug.&lt;/li&gt;
+&lt;li&gt;A new command &lt;code&gt;aurora_admin reconcile_tasks&lt;/code&gt; is now available on the Aurora admin client that can trigger
+implicit and explicit task reconciliations.&lt;/li&gt;
+&lt;li&gt;Add a new MTTS (Median Time To Starting) metric in addition to MTTA and MTTR.&lt;/li&gt;
+&lt;li&gt;In addition to CPU resources, RAM resources can now be treated as revocable via the scheduler
+commandline flag &lt;code&gt;-enable_revocable_ram&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Introduce UpdateMetadata fields in JobUpdateRequest to allow clients to store metadata on update.&lt;/li&gt;
+&lt;li&gt;Changed cronSchedule field inside of JobConfiguration schema to be optional for compatibility with Go.&lt;/li&gt;
+&lt;li&gt;Update default value of command line option &lt;code&gt;-framework_name&lt;/code&gt; to &amp;lsquo;Aurora&amp;rsquo;.&lt;/li&gt;
+&lt;li&gt;Tasks launched with filesystem images and the Mesos unified containerizer are now fully isolated from
+the host&amp;rsquo;s filesystem. As such they are no longer required to include any of the executor&amp;rsquo;s
+dependencies (e.g. Python 2.7) within the task&amp;rsquo;s filesystem.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Deprecations and removals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The job configuration flag &lt;code&gt;production&lt;/code&gt; is now deprecated. To achieve the same scheduling behavior
+that &lt;code&gt;production=true&lt;/code&gt; used to provide, users should elect a &lt;code&gt;tier&lt;/code&gt; for the job with attributes
+&lt;code&gt;preemptible=false&lt;/code&gt; and &lt;code&gt;revocable=false&lt;/code&gt;. For example, the &lt;code&gt;preferred&lt;/code&gt; tier in the default tier
+configuration file (&lt;code&gt;tiers.json&lt;/code&gt;) matches the above criteria.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;ExecutorInfo.source&lt;/code&gt; field is deprecated and has been replaced with a label named &lt;code&gt;source&lt;/code&gt;.
+It will be removed from Mesos in a future release.&lt;/li&gt;
+&lt;li&gt;The scheduler flag &lt;code&gt;-zk_use_curator&lt;/code&gt; has been deprecated. If you have never set the flag and are
+upgrading you should take care as described in the &lt;a href=&quot;#zk_use_curator_upgrade&quot;&gt;note&lt;/a&gt; above.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;key&lt;/code&gt; argument of &lt;code&gt;getJobUpdateDetails&lt;/code&gt; has been deprecated. Use the &lt;code&gt;query&lt;/code&gt; argument instead.&lt;/li&gt;
+&lt;li&gt;The &amp;ndash;release-threshold option on &lt;code&gt;aurora job restart&lt;/code&gt; has been removed.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.16.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 16 contributors who made Apache Aurora 0.16.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;David Robinson&lt;/li&gt;
+&lt;li&gt;Dmitriy Shirchenko&lt;/li&gt;
+&lt;li&gt;Igor Morozov&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Kai Huang&lt;/li&gt;
+&lt;li&gt;Karthik Anantha Padmanabhan&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Mehrdad Nurolahzade&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Santhosh Kumar Shanmugham&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Tarun Gogineni&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;li&gt;Zhitao Li&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-15-0-released/</id>
+    <link href="/blog/aurora-0-15-0-released/" />
+    <title>
+      0.15.0 Released
+    </title>
+    <updated>2016-07-06T00:00:00+00:00</updated>
+    <author>
+      <name>Maxim Khutornenko</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.15.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. The main scope of this release is to catch up 
+with Mesos release cadence. As such, no major development or deprecation changes were accepted.
+Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;New scheduler commandline argument &lt;code&gt;-enable_mesos_fetcher&lt;/code&gt; to allow job submissions
+to contain URIs which will be passed to the Mesos Fetcher and subsequently downloaded into
+the sandbox. Please note that enabling job submissions to download resources from arbitrary
+URIs may have security implications.&lt;/li&gt;
+&lt;li&gt;Upgraded Mesos to 0.28.2.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.15.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 8 contributors who made Apache Aurora 0.15.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Benjamin Staffin&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Martin Hrabovcin&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Mehrdad Nurolahzade&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-14-0-released/</id>
+    <link href="/blog/aurora-0-14-0-released/" />
+    <title>
+      0.14.0 Released
+    </title>
+    <updated>2016-06-14T00:00:00+00:00</updated>
+    <author>
+      <name>Stephan Erb</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.14.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Upgraded Mesos to 0.27.2&lt;/li&gt;
+&lt;li&gt;Added a new optional &lt;a href=&quot;https://curator.apache.org/&quot;&gt;Apache Curator&lt;/a&gt; backend for performing
+scheduler leader election. You can enable this with the new &lt;code&gt;-zk_use_curator&lt;/code&gt; scheduler argument.&lt;/li&gt;
+&lt;li&gt;Adding &amp;ndash;nosetuid-health-checks flag to control whether the executor runs health checks as the
+job&amp;rsquo;s role&amp;rsquo;s user.&lt;/li&gt;
+&lt;li&gt;New scheduler command line argument &lt;code&gt;-offer_filter_duration&lt;/code&gt; to control the time after which we
+expect Mesos to re-offer unused resources. A short duration improves scheduling performance in
+smaller clusters, but might lead to resource starvation for other frameworks if you run multiple
+ones in your cluster. Uses the Mesos default of 5s.&lt;/li&gt;
+&lt;li&gt;New scheduler command line option &lt;code&gt;-framework_name&lt;/code&gt;  to change the name used for registering
+the Aurora framework with Mesos. The current default value is &amp;lsquo;TwitterScheduler&amp;rsquo;.&lt;/li&gt;
+&lt;li&gt;Added experimental support for launching tasks using filesystem images and the Mesos &lt;a href=&quot;https://github.com/apache/mesos/blob/master/docs/container-image.md&quot;&gt;unified
+containerizer&lt;/a&gt;. See that
+linked documentation for details on configuring Mesos to use the unified containerizer. Note that
+earlier versions of Mesos do not fully support the unified containerizer. Mesos 0.28.x or later is
+recommended for anyone adopting task images via the Mesos containerizer.&lt;/li&gt;
+&lt;li&gt;Upgraded to pystachio 0.8.1 to pick up support for the new &lt;a href=&quot;https://github.com/wickman/pystachio/blob/v0.8.1/README.md#choices&quot;&gt;Choice type&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;container&lt;/code&gt; property of a &lt;code&gt;Job&lt;/code&gt; is now a Choice of either a &lt;code&gt;Container&lt;/code&gt; holder, or a direct
+reference to either a &lt;code&gt;Docker&lt;/code&gt; or &lt;code&gt;Mesos&lt;/code&gt; container.&lt;/li&gt;
+&lt;li&gt;New scheduler command line argument &lt;code&gt;-ip&lt;/code&gt; to control what ip address to bind the schedulers http
+server to.&lt;/li&gt;
+&lt;li&gt;Added experimental support for Mesos GPU resource. This feature will be available in Mesos 1.0
+and is disabled by default. Use &lt;code&gt;-allow_gpu_resource&lt;/code&gt; flag to enable it. Once this feature is
+enabled, creating jobs with GPU resource will make scheduler snapshot backwards incompatible.
+For further further details, please see the full release notes.&lt;/li&gt;
+&lt;li&gt;Experimental support for a webhook feature which POSTs all task state changes to a user defined
+endpoint.&lt;/li&gt;
+&lt;li&gt;Added support for specifying the default tier name in tier configuration file (&lt;code&gt;tiers.json&lt;/code&gt;). The
+&lt;code&gt;default&lt;/code&gt; property is required and is initialized with the &lt;code&gt;preemptible&lt;/code&gt; tier (&lt;code&gt;preemptible&lt;/code&gt; tier
+tasks can be preempted but their resources cannot be revoked).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Deprecations and removals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Deprecated &lt;code&gt;--restart-threshold&lt;/code&gt; option in the &lt;code&gt;aurora job restart&lt;/code&gt; command to match the job
+updater behavior. This option has no effect now and will be removed in the future release.&lt;/li&gt;
+&lt;li&gt;Deprecated &lt;code&gt;-framework_name&lt;/code&gt; default argument &amp;#39;TwitterScheduler&amp;rsquo;. In a future release this
+will change to &amp;#39;aurora&amp;rsquo;. Please be aware that depending on your usage of Mesos, this will
+be a backward incompatible change. For details, see MESOS-703.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;-thermos_observer_root&lt;/code&gt; command line arg has been removed from the scheduler. This was a
+relic from the time when executor checkpoints were written globally, rather than into a task&amp;rsquo;s
+sandbox.&lt;/li&gt;
+&lt;li&gt;Setting the &lt;code&gt;container&lt;/code&gt; property of a &lt;code&gt;Job&lt;/code&gt; to a &lt;code&gt;Container&lt;/code&gt; holder is deprecated in favor of
+setting it directly to the appropriate (i.e. &lt;code&gt;Docker&lt;/code&gt; or &lt;code&gt;Mesos&lt;/code&gt;) container type.&lt;/li&gt;
+&lt;li&gt;Deprecated &lt;code&gt;numCpus&lt;/code&gt;, &lt;code&gt;ramMb&lt;/code&gt; and &lt;code&gt;diskMb&lt;/code&gt; fields in &lt;code&gt;TaskConfig&lt;/code&gt; and &lt;code&gt;ResourceAggregate&lt;/code&gt; thrift
+structs. Use &lt;code&gt;set&amp;lt;Resource&amp;gt; resources&lt;/code&gt; to specify task resources or quota values.&lt;/li&gt;
+&lt;li&gt;The endpoint &lt;code&gt;/slaves&lt;/code&gt; is deprecated. Please use &lt;code&gt;/agents&lt;/code&gt; instead.&lt;/li&gt;
+&lt;li&gt;Deprecated &lt;code&gt;production&lt;/code&gt; field in &lt;code&gt;TaskConfig&lt;/code&gt; thrift struct. Use &lt;code&gt;tier&lt;/code&gt; field to specify task
+scheduling and resource handling behavior.&lt;/li&gt;
+&lt;li&gt;The scheduler &lt;code&gt;resources_*_ram_gb&lt;/code&gt; and &lt;code&gt;resources_*_disk_gb&lt;/code&gt; metrics have been renamed to
+&lt;code&gt;resources_*_ram_mb&lt;/code&gt; and &lt;code&gt;resources_*_disk_mb&lt;/code&gt; respectively. Note the unit change: GB -&amp;gt; MB.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=rel/0.14.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;. The
+community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 11 contributors who made Apache Aurora 0.14.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Chris Bannister&lt;/li&gt;
+&lt;li&gt;Dmitriy Shirchenko&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Mehrdad Nurolahzade&lt;/li&gt;
+&lt;li&gt;Raymond Khalife&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;li&gt;se choi&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-13-0-released/</id>
+    <link href="/blog/aurora-0-13-0-released/" />
+    <title>
+      0.13.0 Released
+    </title>
+    <updated>2016-04-14T00:00:00+00:00</updated>
+    <author>
+      <name>Jake Farrell</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.13.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Upgraded Mesos to 0.26.0&lt;/li&gt;
+&lt;li&gt;Added a new health endpoint (/leaderhealth) which can be used for load balancer health
+checks to always forward requests to the leading scheduler.&lt;/li&gt;
+&lt;li&gt;Added a new &lt;code&gt;aurora job add&lt;/code&gt; client command to scale out an existing job.&lt;/li&gt;
+&lt;li&gt;Upgraded the scheduler ZooKeeper client from 3.4.6 to 3.4.8.&lt;/li&gt;
+&lt;li&gt;Added support for dedicated constraints not exclusive to a particular role.
+See &lt;a href=&quot;/documentation/0.13.0/features/constraints#dedicated-attribute&quot;&gt;here&lt;/a&gt; for more details.&lt;/li&gt;
+&lt;li&gt;Added a new argument &lt;code&gt;--announcer-hostname&lt;/code&gt; to thermos executor to override hostname in service
+registry endpoint. See &lt;a href=&quot;/documentation/0.13.0/reference/configuration#announcer-objects&quot;&gt;here&lt;/a&gt; for details.&lt;/li&gt;
+&lt;li&gt;Descheduling a cron job that was not actually scheduled will no longer return an error.&lt;/li&gt;
+&lt;li&gt;Added a new argument &lt;code&gt;-thermos_home_in_sandbox&lt;/code&gt; to the scheduler for optionally changing
+HOME to the sandbox during thermos executor/runner execution. This is useful in cases
+where the root filesystem inside of the container is read-only, as it moves PEX extraction into
+the sandbox. See &lt;a href=&quot;/documentation/0.13.0/operations/configuration#docker-containers&quot;&gt;here&lt;/a&gt;
+for more detail.&lt;/li&gt;
+&lt;li&gt;Support for ZooKeeper authentication in the executor announcer. See
+&lt;a href=&quot;/documentation/0.13.0/operations/security#announcer-authentication&quot;&gt;here&lt;/a&gt; for details.&lt;/li&gt;
+&lt;li&gt;Scheduler H2 in-memory database is now using
+&lt;a href=&quot;http://www.h2database.com/html/mvstore.html&quot;&gt;MVStore&lt;/a&gt;
+In addition, scheduler thrift snapshots are now supporting full DB dumps for faster restarts.&lt;/li&gt;
+&lt;li&gt;Added scheduler argument &lt;code&gt;-require_docker_use_executor&lt;/code&gt; that indicates whether the scheduler
+should accept tasks that use the Docker containerizer without an executor (experimental).&lt;/li&gt;
+&lt;li&gt;Jobs referencing invalid tier name will be rejected by the scheduler.&lt;/li&gt;
+&lt;li&gt;Added a new scheduler argument &lt;code&gt;--populate_discovery_info&lt;/code&gt;. If set to true, Aurora will start
+to populate DiscoveryInfo field on TaskInfo of Mesos. This could be used for alternative
+service discovery solution like Mesos-DNS.&lt;/li&gt;
+&lt;li&gt;Added support for automatic schema upgrades and downgrades when restoring a snapshot that contains
+a DB dump.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Deprecations and removals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Removed deprecated (now redundant) fields:
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Identity.role&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;TaskConfig.environment&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;TaskConfig.jobName&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;TaskQuery.owner&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Removed deprecated &lt;code&gt;AddInstancesConfig&lt;/code&gt; parameter to &lt;code&gt;addInstances&lt;/code&gt; RPC.&lt;/li&gt;
+&lt;li&gt;Removed deprecated executor argument &lt;code&gt;-announcer-enable&lt;/code&gt;, which was a no-op in 0.12.0.&lt;/li&gt;
+&lt;li&gt;Removed deprecated API constructs related to Locks:
+
+&lt;ul&gt;
+&lt;li&gt;removed RPCs that managed locks
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;acquireLock&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;releaseLock&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;getLocks&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;removed &lt;code&gt;Lock&lt;/code&gt; parameters to RPCs
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;createJob&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;scheduleCronJob&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;descheduleCronJob&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;restartShards&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;killTasks&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;addInstances&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;replaceCronTemplate&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Task ID strings are no longer prefixed by a timestamp.&lt;/li&gt;
+&lt;li&gt;Changes to the way the scheduler reads command line arguments
+
+&lt;ul&gt;
+&lt;li&gt;Removed support for reading command line argument values from files.&lt;/li&gt;
+&lt;li&gt;Removed support for specifying command line argument names with fully-qualified class names.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git;a=blob;f=CHANGELOG;h=7afa22f58052be26d37f85df4c8406c0bf79a57e;hb=refs/heads/master&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;. The
+community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 18 contributors who made Apache Aurora 0.13.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Amol Deshmukh&lt;/li&gt;
+&lt;li&gt;Ashwin Murthy&lt;/li&gt;
+&lt;li&gt;Benjamin Staffin&lt;/li&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Dmitriy Shirchenko&lt;/li&gt;
+&lt;li&gt;Florian Pfeiffer&lt;/li&gt;
+&lt;li&gt;George Sirois&lt;/li&gt;
+&lt;li&gt;Jake Farrell&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Krish&lt;/li&gt;
+&lt;li&gt;Kunal Thakar&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Se Choi&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Tony Dong&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;li&gt;Zhitao Li&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-12-0-released/</id>
+    <link href="/blog/aurora-0-12-0-released/" />
+    <title>
+      0.12.0 Released
+    </title>
+    <updated>2016-03-03T00:00:00+00:00</updated>
+    <author>
+      <name>Bill Farner</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.12.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Upgraded Mesos to 0.25.0.&lt;/li&gt;
+&lt;li&gt;Upgraded the scheduler ZooKeeper client from 3.3.4 to 3.4.6.&lt;/li&gt;
+&lt;li&gt;Added support for configuring Mesos role by passing &lt;code&gt;-mesos_role&lt;/code&gt; to Aurora scheduler at start time.
+This enables resource reservation for Aurora when running in a shared Mesos cluster.&lt;/li&gt;
+&lt;li&gt;Aurora task metadata is now mapped to Mesos task labels. Labels are prefixed with
+&lt;code&gt;org.apache.aurora.metadata.&lt;/code&gt; to prevent clashes with other, external label sources.&lt;/li&gt;
+&lt;li&gt;Added new scheduler flag &lt;code&gt;-default_docker_parameters&lt;/code&gt; to allow a cluster operator to specify a
+universal set of parameters that should be used for every container that does not have parameters
+explicitly configured at the job level.&lt;/li&gt;
+&lt;li&gt;Added support for jobs to specify arbitrary ZooKeeper paths for service registration.  See
+&lt;a href=&quot;https://github.com/apache/aurora/blob/master/docs/configuration-reference.md#announcer-objects&quot;&gt;here&lt;/a&gt;
+for details.&lt;/li&gt;
+&lt;li&gt;Log destination is configurable for the thermos runner. See the configuration reference for details
+on how to configure destination per-process. Command line options may also be passed through the
+scheduler in order to configure the global default behavior.&lt;/li&gt;
+&lt;li&gt;Env variables can be passed through to task processes by passing &lt;code&gt;--preserve_env&lt;/code&gt;
+to thermos.&lt;/li&gt;
+&lt;li&gt;Changed scheduler logging to use logback.
+Operators wishing to customize logging may do so with standard logback configuration as described
+&lt;a href=&quot;http://logback.qos.ch/manual/configuration.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;When using &lt;code&gt;--read-json&lt;/code&gt;, &lt;code&gt;aurora&lt;/code&gt; can now load multiple jobs from one json file,
+similar to the usual pystachio structure: &lt;code&gt;{&amp;quot;jobs&amp;quot;: [job1, job2, ...]}&lt;/code&gt;. The
+older single-job json format is also still supported.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;aurora config list&lt;/code&gt; command now supports &lt;code&gt;--read-json&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Added scheduler command line argument &lt;code&gt;-shiro_after_auth_filter&lt;/code&gt;. Optionally specify a class
+implementing javax.servlet.Filter that will be included in the Filter chain following the Shiro
+auth filters.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;addInstances&lt;/code&gt; thrift RPC does now increase job instance count (scale out) based on the
+task template pointed by instance &lt;code&gt;key&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Deprecations and removals:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Deprecated &lt;code&gt;AddInstancesConfig&lt;/code&gt; argument in &lt;code&gt;addInstances&lt;/code&gt; thrift RPC.&lt;/li&gt;
+&lt;li&gt;Deprecated &lt;code&gt;TaskQuery&lt;/code&gt; argument in &lt;code&gt;killTasks&lt;/code&gt; thrift RPC to disallow killing tasks across
+multiple roles. The new safer approach is using &lt;code&gt;JobKey&lt;/code&gt; with &lt;code&gt;instances&lt;/code&gt; instead.&lt;/li&gt;
+&lt;li&gt;Removed the deprecated field &amp;lsquo;ConfigGroup.instanceIds&amp;rsquo; from the API.&lt;/li&gt;
+&lt;li&gt;Removed the following deprecated &lt;code&gt;HealthCheckConfig&lt;/code&gt; client-side configuration fields: &lt;code&gt;endpoint&lt;/code&gt;,
+&lt;code&gt;expected_response&lt;/code&gt;, &lt;code&gt;expected_response_code&lt;/code&gt;.  These are now set exclusively in like-named fields
+of &lt;code&gt;HttpHealthChecker.&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Removed the deprecated &amp;#39;JobUpdateSettings.maxWaitToInstanceRunningMs&amp;rsquo; thrift api field (
+UpdateConfig.restart_threshold in client-side configuration). This aspect of job restarts is now
+controlled exclusively via the client with &lt;code&gt;aurora job restart --restart-threshold=[seconds]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Deprecated executor flag &lt;code&gt;--announcer-enable&lt;/code&gt;. Enabling the announcer previously required both flags
+&lt;code&gt;--announcer-enable&lt;/code&gt; and &lt;code&gt;--announcer-ensemble&lt;/code&gt;, but now only &lt;code&gt;--announcer-ensemble&lt;/code&gt; must be set.
+&lt;code&gt;--announcer-enable&lt;/code&gt; is a no-op flag now and will be removed in future version.&lt;/li&gt;
+&lt;li&gt;Removed scheduler command line arguments:
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-enable_cors_support&lt;/code&gt;.  Enabling CORS is now implicit by setting the argument
+&lt;code&gt;-enable_cors_for&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-deduplicate_snapshots&lt;/code&gt; and &lt;code&gt;-deflate_snapshots&lt;/code&gt;.  These features are good to always enable.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-enable_job_updates&lt;/code&gt; and &lt;code&gt;-enable_job_creation&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-extra_modules&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-logtostderr&lt;/code&gt;, &lt;code&gt;-alsologtostderr&lt;/code&gt;, &lt;code&gt;-vlog&lt;/code&gt;, &lt;code&gt;-vmodule&lt;/code&gt;, and &lt;code&gt;-use_glog_formatter&lt;/code&gt;. Removed
+in favor of the new logback configuration.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=refs/tags/rel/0.12.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;. The
+community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 17 contributors who made Apache Aurora 0.12.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Amol Deshmukh&lt;/li&gt;
+&lt;li&gt;Anant Vyas&lt;/li&gt;
+&lt;li&gt;Benjamin Staffin&lt;/li&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Dmitriy Shirchenko&lt;/li&gt;
+&lt;li&gt;George Sirois&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Kasisnu Singh&lt;/li&gt;
+&lt;li&gt;Kunal Thakar&lt;/li&gt;
+&lt;li&gt;Martin Hrabovcin&lt;/li&gt;
+&lt;li&gt;Mauricio Garavaglia&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Tony Dong&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;li&gt;Zhitao Li&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-11-0-released/</id>
+    <link href="/blog/aurora-0-11-0-released/" />
+    <title>
+      0.11.0 Released
+    </title>
+    <updated>2015-12-23T00:00:00+00:00</updated>
+    <author>
+      <name>Bill Farner</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.11.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;New/updated&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Added built-in support for
+&lt;a href=&quot;/documentation/0.11.0/configuration-reference/#logger&quot;&gt;log rotation&lt;/a&gt; of task stderr/stdout.&lt;/li&gt;
+&lt;li&gt;Added support for performing task health checks using a
+&lt;a href=&quot;/documentation/0.11.0/configuration-reference/#healthcheckconfig-objects&quot;&gt;shell command&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Added support for accepting an executor configuration in JSON via scheduler command line argument
+&lt;code&gt;--custom_executor_config&lt;/code&gt; which will override all other the command line arguments and default
+values pertaining to the executor.&lt;/li&gt;
+&lt;li&gt;Added a new scheduler flag &lt;code&gt;--framework_announce_principal&lt;/code&gt; to support use of authorization and
+rate limiting in Mesos.&lt;/li&gt;
+&lt;li&gt;Upgraded Mesos to 0.24.1.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Deprecations and removals&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The client-side updater has been removed, along with the CLI commands that used it:
+&lt;code&gt;aurora job update&lt;/code&gt; and &lt;code&gt;aurora job cancel-update&lt;/code&gt;.  Users are encouraged to take
+advantage of scheduler-driven updates (see &lt;code&gt;aurora update -h&lt;/code&gt; for usage), which has been a
+stable feature for several releases.&lt;/li&gt;
+&lt;li&gt;To support configuration of shell-based health checkers, the &lt;code&gt;HealthCheckConfig&lt;/code&gt; schema has been
+restructured to more cleanly allow configuring varied types of health checkers.  The following
+fields from &lt;code&gt;HealthCheckConfig&lt;/code&gt; are now deprecated: &lt;code&gt;endpoint&lt;/code&gt;, &lt;code&gt;expected_response&lt;/code&gt;,
+&lt;code&gt;expected_response_code&lt;/code&gt; in favor of setting them as part of an &lt;code&gt;HttpHealthChecker&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;In the scheduler API, the field &lt;code&gt;JobUpdateSettings.maxWaitToInstanceRunningMs&lt;/code&gt;
+(&lt;code&gt;UpdateConfig.restart_threshold&lt;/code&gt; in client-side configuration) is now deprecated.
+This setting was brittle in practice, and is ignored by the 0.11.0 scheduler.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release
+&lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=refs/tags/rel/0.11.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;. The
+community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 13 contributors who made Apache Aurora 0.11.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Chris Bannister&lt;/li&gt;
+&lt;li&gt;Dmitriy Shirchenko&lt;/li&gt;
+&lt;li&gt;George Sirois&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Kevin Sweeney&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Paul Cavallaro&lt;/li&gt;
+&lt;li&gt;R.B. Boyer&lt;/li&gt;
+&lt;li&gt;Renan DelValle&lt;/li&gt;
+&lt;li&gt;Tengfei Mu&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-10-0-released/</id>
+    <link href="/blog/aurora-0-10-0-released/" />
+    <title>
+      0.10.0 Released
+    </title>
+    <updated>2015-12-12T00:00:00+00:00</updated>
+    <author>
+      <name>Bill Farner</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.10.0, is now available for
+&lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. Here are some highlights in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Upgraded Mesos to 0.23.0. Note: the Aurora executor now requires openssl runtime dependencies that
+were not previously required. You will need libcurl available on every Mesos slave (or Docker
+container) to successfully launch the Aurora executor. See
+&lt;a href=&quot;https://github.com/apache/mesos/blob/ebcf8cc2f2f6c236f6e9315447c247e6348141e1/docs/getting-started.md&quot;&gt;https://github.com/apache/mesos/blob/ebcf8cc2f2f6c236f6e9315447c247e6348141e1/docs/getting-started.md&lt;/a&gt;
+for more details on Mesos runtime dependencies.&lt;/li&gt;
+&lt;li&gt;Resource quota is no longer consumed by production jobs with a dedicated constraint (AURORA-1457).&lt;/li&gt;
+&lt;li&gt;In the scheduler API, the &lt;code&gt;ConfigGroup.instanceIds&lt;/code&gt; field has been deprecated, please use
+&lt;code&gt;ConfigGroup.instances&lt;/code&gt; instead.&lt;/li&gt;
+&lt;li&gt;In the scheduler API, all &lt;code&gt;SessionKey&lt;/code&gt; arguments are now ignored by the scheduler as it has been
+replaced by &lt;a href=&quot;/documentation/0.10.0/security/&quot;&gt;security features&lt;/a&gt; added in 0.8.0.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;--root&lt;/code&gt; argument has been removed from the Thermos observer.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release &lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=refs/tags/rel/0.10.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues, please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;. The community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 19 contributors who made Apache Aurora 0.10.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Andrew Jorgensen&lt;/li&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Brian Brazil&lt;/li&gt;
+&lt;li&gt;David Robinson&lt;/li&gt;
+&lt;li&gt;Dmitriy Shirchenko&lt;/li&gt;
+&lt;li&gt;Jake Farrell&lt;/li&gt;
+&lt;li&gt;Jeffrey Schroeder&lt;/li&gt;
+&lt;li&gt;Joe Smith&lt;/li&gt;
+&lt;li&gt;John Sirois&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Kevin Sweeney&lt;/li&gt;
+&lt;li&gt;Mauricio Garavaglia&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Steve Niemitz&lt;/li&gt;
+&lt;li&gt;Thorhallur Sverrisson&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;li&gt;Zane Silver&lt;/li&gt;
+&lt;li&gt;Jake Farrell&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-at-mesoscon-seattle/</id>
+    <link href="/blog/aurora-at-mesoscon-seattle/" />
+    <title>
+      Recap: Aurora at MesosCon Seattle
+    </title>
+    <updated>2015-08-26T00:00:00+00:00</updated>
+    <author>
+      <name>Dave Lester</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;Last week was the second-ever #MesosCon in Seattle, WA and the Apache Aurora project was represented in several talks by committers and adopters. Check them out! We look forward to participating in future Mesos community events.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;mesoscon-presentations&quot;&gt;MesosCon Presentations&lt;/h2&gt;
+
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/nNrh-gdu9m4&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/ZHABassUOlo&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/y1hi7K1lPkk&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/ZQenXkoG_7o&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;h2 id=&quot;hackathon-winners-and-demos&quot;&gt;Hackathon Winners and Demos&lt;/h2&gt;
+
+&lt;p&gt;Congrats to the Paypal team, who won second place at the MesosCon hackathon for their &lt;a href=&quot;https://github.com/mohitsoni/compose-executor&quot;&gt;Docker Compose Executor&lt;/a&gt;. The team &lt;a href=&quot;https://www.youtube.com/watch?v=KES1Ud4MtDE&amp;amp;t=10m33s&quot;&gt;demonstrated this project onstage&lt;/a&gt;, running by Apache Aurora.&lt;/p&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-9-0-released/</id>
+    <link href="/blog/aurora-0-9-0-released/" />
+    <title>
+      0.9.0 Released
+    </title>
+    <updated>2015-07-24T00:00:00+00:00</updated>
+    <author>
+      <name>Jake Farrell</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.9.0, is now available for &lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. This version includes many new features and improvements including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Now requires JRE 8 or greater.&lt;/li&gt;
+&lt;li&gt;GC executor is fully replaced by the task state reconciliation (AURORA-1047).&lt;/li&gt;
+&lt;li&gt;The scheduler command line argument &amp;lsquo;enable&lt;em&gt;legacy&lt;/em&gt;constraints&amp;rsquo; has been
+removed, and the scheduler no longer automatically injects &amp;#39;host&amp;rsquo; and &amp;#39;rack&amp;rsquo;
+constraints for production services. (AURORA-1074)&lt;/li&gt;
+&lt;li&gt;SLA metrics for non-production jobs have been disabled by default. They can
+be enabled via the scheduler command line. Metric names have changed from
+&amp;rsquo;&amp;hellip;nonprod&lt;em&gt;ms&amp;rsquo; to &amp;ldquo;&amp;hellip;ms&lt;/em&gt;nonprod&amp;rdquo; (AURORA-1350).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release &lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=refs/tags/rel/0.9.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;0-9-0-deprecations&quot;&gt;0.9.0 deprecations&lt;/h2&gt;
+
+&lt;p&gt;The latest Aurora release includes the &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-1079&quot;&gt;several removals and deprecations&lt;/a&gt;, including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;AURORA-1074 - Remove the &amp;ldquo;enable&lt;em&gt;legacy&lt;/em&gt;constraints&amp;rdquo; flag.&lt;/li&gt;
+&lt;li&gt;AURORA-1139 - Remove backwards compatibility shims from JobUpdateKey introduction&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues, please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;. The community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 18 contributors who made Apache Aurora 0.9.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Jake Farrell&lt;/li&gt;
+&lt;li&gt;Kevin Sweeney&lt;/li&gt;
+&lt;li&gt;Joe Smith&lt;/li&gt;
+&lt;li&gt;Andrew Jorgensen&lt;/li&gt;
+&lt;li&gt;Steve Salevan&lt;/li&gt;
+&lt;li&gt;Brian Wickman&lt;/li&gt;
+&lt;li&gt;Brian Brazil&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;Michael Leinartas&lt;/li&gt;
+&lt;li&gt;Benjamin Staffin&lt;/li&gt;
+&lt;li&gt;Dave Lester&lt;/li&gt;
+&lt;li&gt;Jeffrey Schroeder&lt;/li&gt;
+&lt;li&gt;Will Swank&lt;/li&gt;
+&lt;li&gt;Ben Mahler&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-8-0-released/</id>
+    <link href="/blog/aurora-0-8-0-released/" />
+    <title>
+      0.8.0 Released
+    </title>
+    <updated>2015-05-14T00:00:00+00:00</updated>
+    <author>
+      <name>Jake Farrell</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.8.0, is now available for &lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;download&lt;/a&gt;. This version marks the first Aurora release since becoming a top-level project at the Apache Software Foundation, and includes the following features, improvements, and announcements:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Added support for external update coordination&lt;/li&gt;
+&lt;li&gt;Security for scheduler operations, using Apache Shiro&lt;/li&gt;
+&lt;li&gt;Scheduler performance improvements&lt;/li&gt;
+&lt;li&gt;0.8.0 deprecations&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release &lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=refs/tags/rel/0.8.0&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;support-for-external-update-coordination&quot;&gt;Support for external update coordination&lt;/h2&gt;
+
+&lt;p&gt;With the introduction of scheduler-driven job update orchestration, Aurora now optionally supports an inverted dependency model where the updater can willingly pause job update progress upon reaching certain checkpoints and wait for the client/external service to explicitly &amp;ldquo;ack&amp;rdquo; on it. Further details are outlined in the &lt;a href=&quot;http://aurora.apache.org/documentation/0.8.0/client-commands/#coordinated-job-updates&quot;&gt;coordinated job updates&lt;/a&gt; documentation.&lt;/p&gt;
+
+&lt;p&gt;This feature may also be useful for building external update coordination services where Aurora service job upgrades are controlled by application specific health tracking systems, throttling individual job updates based on the internal health/traffic metrics.&lt;/p&gt;
+
+&lt;h2 id=&quot;security-for-scheduler-operations-using-apache-shiro&quot;&gt;Security for scheduler operations, using Apache Shiro&lt;/h2&gt;
+
+&lt;p&gt;Aurora now uses &lt;a href=&quot;http://shiro.apache.org&quot;&gt;Apache Shiro&lt;/a&gt; to manage security for scheduler operations, including authenticated write access (HTTP Basic Auth or Kerberos), and fine-grained ACLs for scheduler RPCs.&lt;/p&gt;
+
+&lt;p&gt;Further details are outlined in the &lt;a href=&quot;http://aurora.apache.org/documentation/0.8.0/security/&quot;&gt;security documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;scheduler-performance-improvements&quot;&gt;Scheduler performance improvements&lt;/h2&gt;
+
+&lt;p&gt;Performance is continually an area of focus and improvement for the Aurora team, with production Aurora clusters measuring tens of thousands of machines and tens-to-hundreds of thousands of tasks. Two specific &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-999&quot;&gt;scheduler performance improvements&lt;/a&gt; were a focus of the 0.8.0 release, including &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-1219&quot;&gt;improved preemption efficiency&lt;/a&gt;, and creating a &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-969&quot;&gt;scheduler performance benchmark framework&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;0-8-0-deprecations&quot;&gt;0.8.0 deprecations&lt;/h2&gt;
+
+&lt;p&gt;The latest Aurora release includes the &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-905&quot;&gt;several removals and deprecations&lt;/a&gt;, including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-975&quot;&gt;AURORA-975&lt;/a&gt;, Removing populatedDEPRECATED from PopulateJobResult&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-1190&quot;&gt;AURORA-1190&lt;/a&gt;, Added a deprecation warning when the client-side updater is used; will be removed in 0.9.0&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-1240&quot;&gt;AURORA-1240&lt;/a&gt;, Added a deprecation warning for restart_theshold setting&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-1189&quot;&gt;AURORA-1189&lt;/a&gt;, Added a warning in the scheduler when the JVM version is &amp;lt; 1.8&lt;/li&gt;
+&lt;li&gt;Removal of the custom security API in favor of integration with Apache Shiro&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues, please let us know on the &lt;a href=&quot;https://aurora.apache.org/community/&quot;&gt;user mailing list and IRC&lt;/a&gt;. The community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 21 contributors who made Apache Aurora 0.8.0 possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Ben Mahler&lt;/li&gt;
+&lt;li&gt;Bhuvan Arumugam&lt;/li&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Brian Brazil&lt;/li&gt;
+&lt;li&gt;Brian Wickman&lt;/li&gt;
+&lt;li&gt;Dave Lester&lt;/li&gt;
+&lt;li&gt;David Robinson&lt;/li&gt;
+&lt;li&gt;Florian Pfeiffer&lt;/li&gt;
+&lt;li&gt;Jake Farrell&lt;/li&gt;
+&lt;li&gt;Joe Smith&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Kevin Sweeney&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Ricardo Cervera-Navarro&lt;/li&gt;
+&lt;li&gt;Sanyogeeta Lawande&lt;/li&gt;
+&lt;li&gt;Stephan Erb&lt;/li&gt;
+&lt;li&gt;Steve Niemitz&lt;/li&gt;
+&lt;li&gt;Thorhallur Sverrisson&lt;/li&gt;
+&lt;li&gt;Tony Dong&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;li&gt;Zeke Harris&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/2015-upcoming-apache-aurora-meetups/</id>
+    <link href="/blog/2015-upcoming-apache-aurora-meetups/" />
+    <title>
+      Upcoming Apache Aurora Meetups in NYC and the Bay Area
+    </title>
+    <updated>2015-03-18T00:00:00+00:00</updated>
+    <author>
+      <name>Dave Lester</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;Meetups are opportunities to bring together members of an open source community to learn about the project, share best practices, and meet one another; naturally we&amp;rsquo;re excited to see a growing number of events featuring Apache Aurora, and we hope you&amp;rsquo;ll join us at a meetup near you!&lt;/p&gt;
+
+&lt;p&gt;There are two upcoming Apache Aurora meetups on our radar:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;New York City, March 25th, 2015 - &lt;a href=&quot;http://www.meetup.com/Apache-Mesos-NYC-Meetup/events/220801840/&quot;&gt;NYC MUG, Apache Aurora meetup&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Bay Area, April 30th, 2015 - &lt;a href=&quot;http://www.meetup.com/Bay-Area-Apache-Aurora-Users-Group/events/221219480/&quot;&gt;Bay Area Apache Aurora Users meetup, From Monolith to Microservices w/ Aurora&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;apache-aurora-users-groups&quot;&gt;Apache Aurora Users Groups&lt;/h2&gt;
+
+&lt;p&gt;Live in San Francisco or the surrounding Bay Area? Join the recently-established &lt;a href=&quot;http://www.meetup.com/Bay-Area-Apache-Aurora-Users-Group/&quot;&gt;Bay Area Apache Aurora Users Group&lt;/a&gt;, which will be home to future Apache Aurora meetups, in addition to the existing &lt;a href=&quot;www.meetup.com/Bay-Area-Mesos-User-Group/&quot;&gt;Apache Mesos User Group&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re interested in establishing an Apache Aurora Users Group in a city near you or you’re hosting an Apache Aurora talk, please let us know on the project mailing list (&lt;a href=&quot;mailto:dev@aurora.apache.org&quot;&gt;dev@aurora.apache.org&lt;/a&gt;) or IRC (#aurora on freenode.net) and we&amp;rsquo;ll help you promote your events.&lt;/p&gt;
+
+&lt;h2 id=&quot;recent-meetup-videos&quot;&gt;Recent Meetup Videos&lt;/h2&gt;
+
+&lt;p&gt;On February 19th, the Bay Area Apache Mesos User Group hosted a meetup on Apache Aurora, and videos from the two talks are now online. Check them out:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Using Apache Aurora + Docker to migrate to a microservice architecture by Steve Niemitz (TellApart)&lt;/em&gt;&lt;/p&gt;
+
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/ZZXtXLvTXAE&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;p&gt;&lt;em&gt;Running Apache Aurora and Mesos at Twitter by Joe Smith (Twitter)&lt;/em&gt;&lt;/p&gt;
+
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/E4lxX6epM_U&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;p&gt;Hope to see you at a future meetup!&lt;/p&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-7-0-incubating-released/</id>
+    <link href="/blog/aurora-0-7-0-incubating-released/" />
+    <title>
+      0.7.0-incubating Released, Adding Support for Docker Containers
+    </title>
+    <updated>2015-02-12T00:00:00+00:00</updated>
+    <author>
+      <name>Maxim Khutornenko</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.7.0-incubating, is now &lt;a href=&quot;http://aurora.apache.org/downloads/&quot;&gt;available for download&lt;/a&gt;. This version marks the third Aurora release since becoming part of the Apache Incubator, and includes the following features, improvements, and announcements:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Beta support for running Docker containers&lt;/li&gt;
+&lt;li&gt;Official support for the Aurora command-line client v2&lt;/li&gt;
+&lt;li&gt;Performance improvements for running Aurora at scale&lt;/li&gt;
+&lt;li&gt;Progress made toward Apache Incubator graduation&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release &lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=refs/tags/rel/0.7.0-incubating&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;docker-support-within-aurora&quot;&gt;Docker support within Aurora&lt;/h2&gt;
+
+&lt;p&gt;Docker has quickly become a popular technology for packaging and managing applications, making it simple to create a snapshot of your app and ship it to different machines in your datacenter. In the Aurora 0.7.0 release, we’ve added a container abstraction that supports Docker out of the box (and potentially future container technologies that may emerge), allowing you to specify a Docker image and schedule it to run within your Aurora cluster.&lt;/p&gt;
+
+&lt;p&gt;This feature is marked as experimental in its first release, but we hope to see companies running it in production and helping improve it moving forward. Native Docker support within the Mesos core was added in the &lt;a href=&quot;http://mesos.apache.org/blog/mesos-0-20-0-released/&quot;&gt;Mesos 0.20.0 release&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;official-support-for-command-line-client-v2&quot;&gt;Official support for command-line client v2&lt;/h2&gt;
+
+&lt;p&gt;Over several releases, Aurora has included a new command-line client version two, rewritten from the ground-up to be simpler and easier to use. In the Aurora 0.7.0 release, we now provide official support for version two of the client, and have fully removed the original version. The previous client version was deprecated in the 0.6.0-incubating release.&lt;/p&gt;
+
+&lt;p&gt;We’ve also made the client even-easier to use, by improving the help output that you receive. You can simply type &lt;code&gt;aurora -h&lt;/code&gt; for a full list of available commands and helpful guidance. We’ve also documented &lt;a href=&quot;http://aurora.apache.org/documentation/0.7.0-incubating/client-commands/&quot;&gt;usage of the client commands&lt;/a&gt; to provide helpful information about managing jobs.&lt;/p&gt;
+
+&lt;h2 id=&quot;performance-improvements&quot;&gt;Performance Improvements&lt;/h2&gt;
+
+&lt;p&gt;Performance is continually an area of focus and improvement for the Aurora team, with production Aurora clusters measuring tens of thousands of machines and tens-to-hundreds of thousands of tasks. Two specific improvements were made in this release that make signficant improvements on large clusters, including &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-121&quot;&gt;AURORA-121&lt;/a&gt; which made task pre-emption more efficient, and &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-930&quot;&gt;AURORA-930&lt;/a&gt; which fixed GC performance issues with snapshot deduplication on large clusters.&lt;/p&gt;
+
+&lt;h2 id=&quot;progress-toward-becoming-top-level-project&quot;&gt;Progress toward becoming Top-Level Project&lt;/h2&gt;
+
+&lt;p&gt;As the Apache Aurora project continues to grow in adopters and contributors, we’ve begun conversations regarding next-steps toward graduating from the Apache Incubator. A graduation resolution is expected to be presented to the Aurora community on the developer mailing list (&lt;a href=&quot;mailto:dev@aurora.apache.org&quot;&gt;dev@aurora.apache.org&lt;/a&gt;, you can subscribe by emailing &lt;a href=&quot;mailto:dev-subscribe@aurora.apache.org&quot;&gt;dev-subscribe@aurora.apache.org&lt;/a&gt;) in the coming weeks and voted on, and hopefully shared with the Apache board shortly after.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues, please let us know on the &lt;a href=&quot;https://aurora.apache.org/community&quot;&gt;user mailing list and IRC&lt;/a&gt;. The community also holds weekly IRC meetings at 11AM Pacific every Monday that we encourage you to join. If you&amp;rsquo;re using Aurora, we&amp;rsquo;d love to hear from you on how to make it better.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 13 contributors who made 0.7.0-incubating possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Brian Wickman&lt;/li&gt;
+&lt;li&gt;Dave Lester&lt;/li&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;Florian Pfeiffer&lt;/li&gt;
+&lt;li&gt;Issam EL ATIF&lt;/li&gt;
+&lt;li&gt;Jake Farrell&lt;/li&gt;
+&lt;li&gt;Jeffrey Schroeder&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Kevin Sweeney&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Steve Niemitz&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+  <entry>
+    <id>http://aurora.apache.org/blog/aurora-0-6-0-incubating-released/</id>
+    <link href="/blog/aurora-0-6-0-incubating-released/" />
+    <title>
+      0.6.0-incubating Released
+    </title>
+    <updated>2014-12-08T00:00:00+00:00</updated>
+    <author>
+      <name>Bill Farner</name>
+    </author>
+    <content type="html">
+      &lt;p&gt;The latest Apache Aurora release, 0.6.0-incubating, is now available for download. This version marks the second Aurora release since becoming part of the &lt;a href=&quot;http://incubator.apache.org&quot;&gt;Apache Incubator&lt;/a&gt;, and includes the following features and improvements:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Introduced highly-available, scheduler-driven job updates in beta (&lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-610&quot;&gt;AURORA-610&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Improvements to the Aurora web UI, including visualization of job updates&lt;/li&gt;
+&lt;li&gt;Added automatic service registration in ZooKeeper (&lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-587&quot;&gt;AURORA-587&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Updates to Aurora client version two, deprecation of v1 coming in future release&lt;/li&gt;
+&lt;li&gt;Lots of new  &lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/&quot;&gt;documentation&lt;/a&gt;. Documentation now includes pages for &lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/deploying-aurora-scheduler/&quot;&gt;deploying the Aurora scheduler&lt;/a&gt;, &lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/cron-jobs/&quot;&gt;cron jobs&lt;/a&gt;, &lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/sla/&quot;&gt;SLA measurement&lt;/a&gt;, &lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/storage/&quot;&gt;storage&lt;/a&gt;, and &lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/storage-config/&quot;&gt;storage configuration and measurement&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Full release notes are available in the release &lt;a href=&quot;https://gitbox.apache.org/repos/asf?p=aurora.git&amp;amp;f=CHANGELOG&amp;amp;hb=refs/tags/rel/0.6.0-incubating&quot;&gt;CHANGELOG&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;highly-available-scheduler-driven-updates&quot;&gt;Highly-available, scheduler-driven updates&lt;/h2&gt;
+
+&lt;p&gt;Rolling updates of services is a crucial feature in Aurora. As such, we
+want to take great care when changing its behavior. Previously, Aurora operated
+by delegating this functionality to the client (or any API client, for that
+matter). In this version, the scheduler can take over the
+responsibility of application update orchestration. Further details were discussed on the &lt;a href=&quot;http://mail-archives.apache.org/mod_mbox/aurora-dev/201407.mbox/%3CCAGRA8uMxwVDokp_iHXhNru2gd-x_nM%2BDYAurpfAO6wuX7%3DnHFw%40mail.gmail.com%3E&quot;&gt;Aurora mailing list&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;aurora-web-ui-improvements&quot;&gt;Aurora Web UI Improvements&lt;/h2&gt;
+
+&lt;p&gt;Since the scheduler can now orchestrate job updates, it has awareness of the progress and outcome of updates.  This means you can see a progress bar for in-flight updates, and the history of updates for your jobs.  Additionally, the performance of the UI was improved, especially for large roles and jobs &lt;a href=&quot;https://issues.apache.org/jira/browse/AURORA-458&quot;&gt;AURORA-458&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;service-announcement-and-management&quot;&gt;Service Announcement and Management&lt;/h2&gt;
+
+&lt;p&gt;Job configurations can now supply an &lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/configuration-reference/#announcer-objects&quot;&gt;&lt;code&gt;announce&lt;/code&gt; parameter&lt;/a&gt;, which is meant to be a way to opt-in for registration in a service discovery system. This has been implemented in the Aurora executor, and will automatically announce tasks via ZooKeeper.&lt;/p&gt;
+
+&lt;h2 id=&quot;aurora-client-improvements&quot;&gt;Aurora Client Improvements&lt;/h2&gt;
+
+&lt;p&gt;Progress was made in features to v2 of the &lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/client-commands/&quot;&gt;Aurora client&lt;/a&gt;. We will support version 1 and version 2 for 0.6.0, with version 1 to be removed in 0.7.0.&lt;/p&gt;
+
+&lt;h2 id=&quot;improved-project-documentation&quot;&gt;Improved Project Documentation&lt;/h2&gt;
+
+&lt;p&gt;New documentation pages including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/deploying-aurora-scheduler/&quot;&gt;Deploying the Aurora scheduler&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/cron-jobs/&quot;&gt;Cron jobs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/sla/&quot;&gt;SLA measurement&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/storage/&quot;&gt;Storage&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/storage-config/&quot;&gt;Storage configuration and measurement&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://aurora.apache.org/documentation/0.6.0-incubating/monitoring/&quot;&gt;Monitoring&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;getting-involved&quot;&gt;Getting Involved&lt;/h2&gt;
+
+&lt;p&gt;We encourage you to try out this release and let us know what you think. If you run into any issues, please let us know on the &lt;a href=&quot;https://aurora.apache.org/community&quot;&gt;user mailing list and IRC&lt;/a&gt;. The community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.&lt;/p&gt;
+
+&lt;h2 id=&quot;thanks&quot;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;Thanks to the 16 contributors who made 0.6.0-incubating possible:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Bill Farner&lt;/li&gt;
+&lt;li&gt;Maxim Khutornenko&lt;/li&gt;
+&lt;li&gt;Kevin Sweeney&lt;/li&gt;
+&lt;li&gt;Mark Chu-Carroll&lt;/li&gt;
+&lt;li&gt;Joshua Cohen&lt;/li&gt;
+&lt;li&gt;Zameer Manji&lt;/li&gt;
+&lt;li&gt;David McLaughlin&lt;/li&gt;
+&lt;li&gt;Brian Wickman&lt;/li&gt;
+&lt;li&gt;Joe Smith&lt;/li&gt;
+&lt;li&gt;Jake Farrell&lt;/li&gt;
+&lt;li&gt;Matthew Jeffryes&lt;/li&gt;
+&lt;li&gt;Dominic Hamon&lt;/li&gt;
+&lt;li&gt;Bjoern Metzdorf&lt;/li&gt;
+&lt;li&gt;Joseph Glanville&lt;/li&gt;
+&lt;li&gt;David Robinson&lt;/li&gt;
+&lt;li&gt;David Pan&lt;/li&gt;
+&lt;/ul&gt;
+
+	</content>
+  </entry>
+</feed>

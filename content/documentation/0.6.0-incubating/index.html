@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/'"
+        value="0.6.0-incubating">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    selected="selected">
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="overview">Overview</h1>
+
+<p><em>Aurora</em> is a service scheduler that schedules jobs onto <em>Mesos</em>, which runs tasks at a specified cluster. Typical services consist of up to hundreds of task replicas.</p>
+
+<p>Aurora provides a <em>Job</em> abstraction consisting of a <em>Task</em> template and instructions for creating near-identical replicas of that Task (modulo things like &ldquo;instance id&rdquo; or specific port numbers which may differ from machine to machine).</p>
+
+<p><em>Terminology Note</em>: <em>Replicas</em> are also referred to as <em>shards</em> and <em>instances</em>. While there is a general desire to move to using &ldquo;instances&rdquo;, &ldquo;shard&rdquo; is still found in commands and help strings.</p>
+
+<p>Typically a Task is a single <em>Process</em> corresponding to a single command line, such as <code>python2.6 my_script.py</code>. However, sometimes you must colocate separate Processes together within a single Task, which runs within a single container and <code>chroot</code>, often referred to as a &ldquo;sandbox&rdquo;. For example, if you run multiple cooperating agents together such as <code>logrotate</code>, <code>installer</code>, and master or slave processes. <em>Thermos</em> provides a Process abstraction under the Mesos Tasks.</p>
+
+<p>To use and get up to speed on Aurora, you should look the docs in this directory in this order:</p>
+
+<ol>
+<li>How to <a href="/documentation/0.6.0-incubating/deploying-aurora-scheduler/">deploy Aurora</a> or, how to <a href="/documentation/0.6.0-incubating/vagrant/">install Aurora on virtual machines on your private machine</a> (the Tutorial uses the virtual machine approach).</li>
+<li>As a user, get started quickly with a <a href="/documentation/0.6.0-incubating/tutorial/">Tutorial</a>.</li>
+<li>For an overview of Aurora&rsquo;s process flow under the hood, see the <a href="/documentation/0.6.0-incubating/user-guide/">User Guide</a>.</li>
+<li>To learn how to write a configuration file, look at our <a href="/documentation/0.6.0-incubating/configuration-tutorial/">Configuration Tutorial</a>. From there, look at the <a href="/documentation/0.6.0-incubating/configuration-reference/">Aurora + Thermos Reference</a>.</li>
+<li>Then read up on the <a href="/documentation/0.6.0-incubating/client-commands/">Aurora Command Line Client</a>.</li>
+<li>Find out general information and useful tips about how Aurora does <a href="/documentation/0.6.0-incubating/resource-isolation/">Resource Isolation</a>.</li>
+</ol>
+
+<p>To contact the Aurora Developer List, email <a href="mailto:dev@aurora.incubator.apache.org">dev@aurora.incubator.apache.org</a>. You may want to read the list <a href="http://mail-archives.apache.org/mod_mbox/incubator-aurora-dev/">archives</a>. You can also use the IRC channel <code>#aurora</code> on <code>irc.freenode.net</code></p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/developing-aurora-client/'"
+        value="0.5.0-incubating">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    selected="selected">
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="getting-started">Getting Started</h1>
+
+<p>Aurora consists of four main pieces: the scheduler (which finds resources in the cluster that can be used to run a job), the executor (which uses the resources assigned by the scheduler to run a job), the command-line client, and the web-ui. For information about working on the scheduler or the webUI, see the file &ldquo;developing-aurora-scheduler.md&rdquo; in this directory.</p>
+
+<p>If you want to work on the command-line client, this is the place for you!</p>
+
+<p>The client is written in Python, and unlike the server side of things, we build the client using the Pants build tool, instead of Gradle. Pants is a tool that was built by twitter for handling builds of large collaborative systems. You can see a detailed explanation of
+pants <a href="http://pantsbuild.github.io/python-readme.html">here</a>.</p>
+
+<p>To build the client executable, run the following in a command-shell:</p>
+<pre class="highlight plaintext"><code>$ ./pants src/main/python/apache/aurora/client/cli:aurora2
+</code></pre>
+
+<p>This will produce a python executable <em>pex</em> file in <code>dist/aurora2.pex</code>. Pex files
+are fully self-contained executables: just copy the pex file into your path, and you&rsquo;ll be able to run it. For example, for a typical installation:</p>
+<pre class="highlight plaintext"><code>$ cp dist/aurora2.pex /usr/local/bin/aurora
+</code></pre>
+
+<p>To run all of the client tests:</p>
+<pre class="highlight plaintext"><code>$ ./pasts src/test/python/apache/aurora/client/:all
+</code></pre>
+
+<h1 id="client-versions">Client Versions</h1>
+
+<p>There are currently two versions of the aurora client, imaginatively known as v1 and v2. All new development is done entirely in v2, but we continue to support and fix bugs in v1, until we get to the point where v2 is feature-complete and tested, and aurora users have had some time at adapt and switch their processes to use v2.</p>
+
+<p>Both versions are built on the same underlying API code.</p>
+
+<p>Client v1 was implemented using twitter.common.app. The command-line processing code for v1 can be found in <code>src/main/python/apache/aurora/client/commands</code> and
+<code>src/main/python/apache/aurora/client/bin</code>.</p>
+
+<p>Client v2 was implemented using its own noun/verb framework. The client v2 code can be found in <code>src/main/python/apache/aurora/client/cli</code>, and the noun/verb framework can be
+found in the <code>__init__.py</code> file in that directory.</p>
+
+<h1 id="building-and-testing-the-client">Building and Testing the Client</h1>
+
+<p>Building and testing the client code are both done using Pants. The relevant targets to know about are:</p>
+
+<ul>
+<li>Build a client v2 executable: <code>./pants src/main/python/apache/aurora/client/cli:aurora2</code></li>
+<li>Test client v2 code: <code>./pants ./pants src/test/python/apache/aurora/client/cli:all</code></li>
+<li>Build a client v1 executable: <code>./pants src/main/python/apache/aurora/client/bin:aurora_client</code></li>
+<li>Test client v1 code: <code>./pants src/main/python/apache/aurora/client/commands:all</code></li>
+<li>Test all client code: <code>./pants src/main/python/apache/aurora/client:all</code></li>
+</ul>
+
+<h1 id="overview-of-the-client-architecture">Overview of the Client Architecture</h1>
+
+<p>The client is built on a stacked architecture:</p>
+
+<ol>
+<li><p>At the lowest level, we have a thrift RPC API interface
+to the aurora scheduler. The interface is declared in thrift, in the file
+<code>src/main/thrift/org/apache/aurora/gen/api.thrift</code>.</p>
+
+<ol>
+<li>On top of the primitive API, we have a client API. The client API
+takes the primitive operations provided by the scheduler, and uses them
+to implement client-side behaviors. For example, when you update a job,
+on the scheduler, that&rsquo;s done by a sequence of operations.  The sequence is implemented
+by the client API <code>update</code> method, which does the following using the thrift API:
+
+<ul>
+<li>fetching the state of task instances in the mesos cluster, and figuring out which need
+to be updated;</li>
+<li>For each task to be updated:
+
+<ul>
+<li>killing the old version;</li>
+<li>starting the new version;</li>
+<li>monitoring the new version to ensure that the update succeeded.</li>
+</ul></li>
+</ul></li>
+<li>On top of the API, we have the command-line client itself. The core client, at this level,
+consists of the interface to the command-line which the user will use to interact with aurora.
+The client v2 code is found in <code>src/python/apache/aurora/client/cli</code>. In the <code>cli</code> directory,
+the rough structure is as follows:
+
+<ul>
+<li><code>__init__.py</code> contains the noun/verb command-line processing framework used by client v2.</li>
+<li><code>jobs.py</code> contains the implementation of the core <code>job</code> noun, and all of its operations.</li>
+<li><code>bridge.py</code> contains the implementation of a component that allows us to ship a
+combined client that runs both v1 and v2 client commands during the transition period.</li>
+<li><code>client.py</code> contains the code that binds the client v2 nouns and verbs into an executable.</li>
+</ul></li>
+</ol></li>
+</ol>
+
+<h1 id="running-debugging-the-client">Running/Debugging the Client</h1>
+
+<p>For manually testing client changes against a cluster, we use vagrant. To start a virtual cluster,
+you need to install a working vagrant environment, and then run &ldquo;vagrant up&rdquo; for the root of
+the aurora workspace. This will create a vagrant host named &ldquo;devcluster&rdquo;, with a mesos master,
+a set of mesos slaves, and an aurora scheduler.</p>
+
+<p>To use the devcluster, you need to bring it up by running <code>vagrant up</code>, and then connect to the vagrant host using <code>vagrant ssh</code>. This will open a bash session on the virtual machine hosting the devcluster. In the home directory, there are two key paths to know about:</p>
+
+<ul>
+<li><code>~/aurora</code>: this is a copy of the git workspace in which you launched the vagrant cluster.
+ To test client changes, you&rsquo;ll use this copy.</li>
+<li><code>/vagrant</code>: this is a mounted filesystem that&rsquo;s a direct image of your git workspace.
+ This isn&rsquo;t a copy - it is your git workspace. Editing files on your host machine will
+ be immediately visible here, because they are the same files.</li>
+</ul>
+
+<p>Whenever the scheduler is modified, to update your vagrant environment to use the new scheduler,
+you&rsquo;ll need to re-initialize your vagrant images. To do this, you need to run two commands:</p>
+
+<ul>
+<li><code>vagrant destroy</code>: this will delete the old devcluster image.</li>
+<li><code>vagrant up</code>: this creates a fresh devcluster image based on the current state of your workspace.</li>
+</ul>
+
+<p>You should try to minimize rebuilding vagrant images; it&rsquo;s not horribly slow, but it does take a while.</p>
+
+<p>To test client changes:</p>
+
+<ul>
+<li>Make a change in your local workspace, and commit it.</li>
+<li><code>vagrant ssh</code> into the devcluster.</li>
+<li><code>cd aurora</code></li>
+<li>Pull your changes into the vagrant copy: <code>git pull /vagrant *branchname*</code>.</li>
+<li>Build the modified client using pants.</li>
+<li>Run your command using <code>aurora2</code>. (You don&rsquo;t need to do any install; the aurora2 command
+ is a symbolic link to the executable generated by pants.)</li>
+</ul>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

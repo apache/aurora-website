@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Renan DelValle</strong></p>
+			</span>
+		</span>
+		<p><em>Posted September 10, 2018</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.21.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.21.0, is now available for
+<a href="http://aurora.apache.org/downloads/">download</a>. Here are some highlights in this release:</p>
+
+<ul>
+<li>Updated to Mesos 1.5.0.</li>
+<li><p>Introduce ability for tasks to specify custom SLA requirements via the new <code>SlaPolicy</code> structs.
+There are 3 different SLA Policies that are currently supported - <code>CountSlaPolicy</code>,
+<code>PercentageSlaPolicy</code> and <code>CoordinatorSlaPolicy</code>. SLA policies based on count and percentage
+express the required number of <code>RUNNING</code> instances as either a count or percentage in addition to
+allowing the duration-window for which these requirements have to be satisfied. For applications
+that need more control over how SLA is determined, a custom SLA calculator can be configured a.k.a
+Coordinator. Any action that can affect SLA, will first check with the Coordinator before
+proceeding.</p>
+
+<p><strong>IMPORTANT: The storage changes required for this feature will make scheduler
+snapshot backwards incompatible. Scheduler will be unable to read snapshot if rolled back to
+previous version. If rollback is absolutely necessary, perform the following steps:</strong></p>
+
+<ol>
+<li>Stop all host maintenance requests via <code>aurora_admin host_activate</code>.</li>
+<li>Ensure a new snapshot is created by running <code>aurora_admin scheduler_snapshot &lt;cluster&gt;</code></li>
+<li>Rollback to previous version</li>
+</ol></li>
+</ul>
+
+<p>Note: The <code>Coordinator</code> interface required for the <code>CoordinatorSlaPolicy</code> is experimental at
+  this juncture and is bound to change in the future.
+- Introduced ability for updates to be &lsquo;SLA-aware&rsquo;, or only update instances if it is within SLA,
+  using the new <code>sla_aware</code> field in <code>UpdateConfig</code>. See the bullet point above for an explanation
+  of custom SLA requirements.</p>
+
+<p><strong>NOTE</strong>: SLA-aware updates will use the desired config&rsquo;s SLA, not the existing config.</p>
+
+<p>Three additional scheduler options have been added to support this feature:</p>
+<pre class="highlight plaintext"><code>1. `max_update_action_batch_size (default: 300)`: the number of update actions to process in a
+batch.
+2. `sla_aware_kill_retry_min_delay (default: 1mins)`: the minimum amount of time to wait before
+retrying an SLA-aware kill (using a truncated binary backoff).
+3. `sla_aware_kill_retry_max_delay (default: 5mins)`: the maximum amount of time to wait before
+retrying an SLA-aware kill (using a truncated binary backoff).
+</code></pre>
+
+<p>Deprecations and removals:</p>
+
+<ul>
+<li>Deprecated the <code>aurora_admin host_drain</code> command used for maintenance. With this release the SLA
+computations are moved to the scheduler and it is no longer required for the client to compute
+SLAs and watch the drains. The scheduler persists any host maintenance request and performs
+SLA-aware drain of the tasks, before marking the host as <code>DRAINED</code>. So maintenance requests
+survive across scheduler fail-overs. Use the newly introduced <code>aurora_admin sla_host_drain</code>
+to skip the SLA computations on the admin client.</li>
+<li>Removed resource fields (<code>numCpus</code>, <code>ramMb</code>, <code>diskMb</code>) from ResourceAggregate.</li>
+</ul>
+
+<p>Full release notes are available in the release
+<a href="https://gitbox.apache.org/repos/asf?p=aurora.git&amp;f=CHANGELOG&amp;hb=rel/0.21.0">CHANGELOG</a>.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 9 contributors who made Apache Aurora 0.21.0 possible:</p>
+
+<ul>
+<li>Jing Chen</li>
+<li>Renan DelValle</li>
+<li>Stephan Erb</li>
+<li>Jordan Ly</li>
+<li>David McLaughlin</li>
+<li>John Sirois</li>
+<li>Sameer Parekh</li>
+<li>Reza Motamedi</li>
+<li>Ezequiel Torres Feyuk</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

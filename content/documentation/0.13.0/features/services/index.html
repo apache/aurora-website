@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/services/'"
+        value="0.13.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    selected="selected">
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="long-running-services">Long-running Services</h1>
+
+<p>Jobs that are always restart on completion, whether successful or unsuccessful,
+are called services. This is useful for long-running processes
+such as webservices that should always be running, unless stopped explicitly.</p>
+
+<h2 id="service-specification">Service Specification</h2>
+
+<p>A job is identified as a service by the presence of the flag
+`<code>service=True</code> in the <a href="../../reference/configuration/#job-objects"><code>Job</code></a> object.
+The <code>Service</code> alias can be used as shorthand for <code>Job</code> with <code>service=True</code>.</p>
+
+<p>Example (available in the <a href="../../getting-started/vagrant/">Vagrant environment</a>):</p>
+<pre class="highlight plaintext"><code>$ cat /vagrant/examples/jobs/hello_world.aurora
+hello = Process(
+  name = 'hello',
+  cmdline = """
+    while true; do
+      echo hello world
+      sleep 10
+    done
+  """)
+
+task = SequentialTask(
+  processes = [hello],
+  resources = Resources(cpu = 1.0, ram = 128*MB, disk = 128*MB)
+)
+
+jobs = [
+  Service(
+    task = task,
+    cluster = 'devcluster',
+    role = 'www-data',
+    environment = 'prod',
+    name = 'hello'
+  )
+]
+</code></pre>
+
+<p>Jobs without the service bit set only restart up to <code>max_task_failures</code> times and only if they
+terminated unsuccessfully either due to human error or machine failure (see the
+<a href="../../reference/configuration/#job-objects"><code>Job</code></a> object for details).</p>
+
+<h2 id="ports">Ports</h2>
+
+<p>In order to be useful, most services have to bind to one or more ports. Aurora enables this
+usecase via the <a href="../../reference/configuration/#thermos-namespace"><code>thermos.ports</code> namespace</a> that
+allows to request arbitrarily named ports:</p>
+<pre class="highlight plaintext"><code>nginx = Process(
+  name = 'nginx',
+  cmdline = './run_nginx.sh -port {{thermos.ports[http]}}'
+)
+</code></pre>
+
+<p>When this process is included in a job, the job will be allocated a port, and the command line
+will be replaced with something like:</p>
+<pre class="highlight plaintext"><code>./run_nginx.sh -port 42816
+</code></pre>
+
+<p>Where 42816 happens to be the allocated port.</p>
+
+<p>For details on how to enable clients to discover this dynamically assigned port, see our
+<a href="../service-discovery/">Service Discovery</a> documentation.</p>
+
+<h2 id="health-checking">Health Checking</h2>
+
+<p>Typically, the Thermos executor monitors processes within a task only by liveness of the forked
+process. In addition to that, Aurora has support for rudimentary health checking: Either via HTTP
+via custom shell scripts.</p>
+
+<p>For example, simply by requesting a <code>health</code> port, a process can request to be health checked
+via repeated calls to the <code>/health</code> endpoint:</p>
+<pre class="highlight plaintext"><code>nginx = Process(
+  name = 'nginx',
+  cmdline = './run_nginx.sh -port {{thermos.ports[health]}}'
+)
+</code></pre>
+
+<p>Please see the
+<a href="../../reference/configuration/#healthcheckconfig-objects">configuration reference</a>
+for configuration options for this feature.</p>
+
+<p>You can pause health checking by touching a file inside of your sandbox, named <code>.healthchecksnooze</code>.
+As long as that file is present, health checks will be disabled, enabling users to gather core
+dumps or other performance measurements without worrying about Aurora&rsquo;s health check killing
+their process.</p>
+
+<p>WARNING: Remember to remove this when you are done, otherwise your instance will have permanently
+disabled health checks.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

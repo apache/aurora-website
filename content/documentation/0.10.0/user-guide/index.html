@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/user-guide/'"
+        value="0.10.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    selected="selected">
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h2 id="aurora-user-guide">Aurora User Guide</h2>
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#job-lifecycle">Job Lifecycle</a>
+
+<ul>
+<li><a href="#life-of-a-task">Life Of A Task</a></li>
+<li><a href="#pending-to-running-states">PENDING to RUNNING states</a></li>
+<li><a href="#task-updates">Task Updates</a></li>
+<li><a href="#http-health-checking-and-graceful-shutdown">HTTP Health Checking and Graceful Shutdown</a>
+
+<ul>
+<li><a href="#tearing-a-task-down">Tearing a task down</a></li>
+</ul></li>
+<li><a href="#giving-priority-to-production-tasks-preempting">Giving Priority to Production Tasks: PREEMPTING</a></li>
+<li><a href="#natural-termination-finished-failed">Natural Termination: FINISHED, FAILED</a></li>
+<li><a href="#forceful-termination-killing-restarting">Forceful Termination: KILLING, RESTARTING</a></li>
+</ul></li>
+<li><a href="#service-discovery">Service Discovery</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#creating-jobs">Creating Jobs</a></li>
+<li><a href="#interacting-with-jobs">Interacting With Jobs</a></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<p>This document gives an overview of how Aurora works under the hood.
+It assumes you&rsquo;ve already worked through the &ldquo;hello world&rdquo; example
+job in the <a href="/documentation/0.10.0/tutorial/">Aurora Tutorial</a>. Specifics of how to use Aurora are <strong>not</strong>
+ given here, but pointers to documentation about how to use Aurora are
+provided.</p>
+
+<p>Aurora is a Mesos framework used to schedule <em>jobs</em> onto Mesos. Mesos
+cares about individual <em>tasks</em>, but typical jobs consist of dozens or
+hundreds of task replicas. Aurora provides a layer on top of Mesos with
+its <code>Job</code> abstraction. An Aurora <code>Job</code> consists of a task template and
+instructions for creating near-identical replicas of that task (modulo
+things like &ldquo;instance id&rdquo; or specific port numbers which may differ from
+machine to machine).</p>
+
+<p>How many tasks make up a Job is complicated. On a basic level, a Job consists of
+one task template and instructions for creating near-idential replicas of that task
+(otherwise referred to as &ldquo;instances&rdquo; or &ldquo;shards&rdquo;).</p>
+
+<p>However, since Jobs can be updated on the fly, a single Job identifier or <em>job key</em>
+can have multiple job configurations associated with it.</p>
+
+<p>For example, consider when I have a Job with 4 instances that each
+request 1 core of cpu, 1 GB of RAM, and 1 GB of disk space as specified
+in the configuration file <code>hello_world.aurora</code>. I want to
+update it so it requests 2 GB of RAM instead of 1. I create a new
+configuration file to do that called <code>new_hello_world.aurora</code> and
+issue a <code>aurora job update &lt;job_key_value&gt;/0-1 new_hello_world.aurora</code>
+command.</p>
+
+<p>This results in instances 0 and 1 having 1 cpu, 2 GB of RAM, and 1 GB of disk space,
+while instances 2 and 3 have 1 cpu, 1 GB of RAM, and 1 GB of disk space. If instance 3
+dies and restarts, it restarts with 1 cpu, 1 GB RAM, and 1 GB disk space.</p>
+
+<p>So that means there are two simultaneous task configurations for the same Job
+at the same time, just valid for different ranges of instances.</p>
+
+<p>This isn&rsquo;t a recommended pattern, but it is valid and supported by the
+Aurora scheduler. This most often manifests in the &ldquo;canary pattern&rdquo; where
+instance 0 runs with a different configuration than instances 1-N to test
+different code versions alongside the actual production job.</p>
+
+<p>A task can merely be a single <em>process</em> corresponding to a single
+command line, such as <code>python2.6 my_script.py</code>. However, a task can also
+consist of many separate processes, which all run within a single
+sandbox. For example, running multiple cooperating agents together,
+such as <code>logrotate</code>, <code>installer</code>, master, or slave processes. This is
+where Thermos  comes in. While Aurora provides a <code>Job</code> abstraction on
+top of Mesos <code>Tasks</code>, Thermos provides a <code>Process</code> abstraction
+underneath Mesos <code>Task</code>s and serves as part of the Aurora framework&rsquo;s
+executor.</p>
+
+<p>You define <code>Job</code>s,<code>Task</code>s, and <code>Process</code>es in a configuration file.
+Configuration files are written in Python, and make use of the Pystachio
+templating language. They end in a <code>.aurora</code> extension.</p>
+
+<p>Pystachio is a type-checked dictionary templating library.</p>
+
+<blockquote>
+<p>TL;DR</p>
+
+<ul>
+<li>  Aurora manages jobs made of tasks.</li>
+<li>  Mesos manages tasks made of processes.</li>
+<li>  Thermos manages processes.</li>
+<li>  All defined in <code>.aurora</code> configuration file.</li>
+</ul>
+</blockquote>
+
+<p><img alt="Aurora hierarchy" src="../images/aurora_hierarchy.png" /></p>
+
+<p>Each <code>Task</code> has a <em>sandbox</em> created when the <code>Task</code> starts and garbage
+collected when it finishes. All of a <code>Task&#39;</code>s processes run in its
+sandbox, so processes can share state by using a shared current working
+directory.</p>
+
+<p>The sandbox garbage collection policy considers many factors, most
+importantly age and size. It makes a best-effort attempt to keep
+sandboxes around as long as possible post-task in order for service
+owners to inspect data and logs, should the <code>Task</code> have completed
+abnormally. But you can&rsquo;t design your applications assuming sandboxes
+will be around forever, e.g. by building log saving or other
+checkpointing mechanisms directly into your application or into your
+<code>Job</code> description.</p>
+
+<h2 id="job-lifecycle">Job Lifecycle</h2>
+
+<p>When Aurora reads a configuration file and finds a <code>Job</code> definition, it:</p>
+
+<ol>
+<li> Evaluates the <code>Job</code> definition.</li>
+<li> Splits the <code>Job</code> into its constituent <code>Task</code>s.</li>
+<li> Sends those <code>Task</code>s to the scheduler.</li>
+<li> The scheduler puts the <code>Task</code>s into <code>PENDING</code> state, starting each
+<code>Task</code>&rsquo;s life cycle.</li>
+</ol>
+
+<h3 id="life-of-a-task">Life Of A Task</h3>
+
+<p><img alt="Life of a task" src="../images/lifeofatask.png" /></p>
+
+<h3 id="pending-to-running-states">PENDING to RUNNING states</h3>
+
+<p>When a <code>Task</code> is in the <code>PENDING</code> state, the scheduler constantly
+searches for machines satisfying that <code>Task</code>&rsquo;s resource request
+requirements (RAM, disk space, CPU time) while maintaining configuration
+constraints such as &ldquo;a <code>Task</code> must run on machines  dedicated  to a
+particular role&rdquo; or attribute limit constraints such as &ldquo;at most 2
+<code>Task</code>s from the same <code>Job</code> may run on each rack&rdquo;. When the scheduler
+finds a suitable match, it assigns the <code>Task</code> to a machine and puts the
+<code>Task</code> into the <code>ASSIGNED</code> state.</p>
+
+<p>From the <code>ASSIGNED</code> state, the scheduler sends an RPC to the slave
+machine containing <code>Task</code> configuration, which the slave uses to spawn
+an executor responsible for the <code>Task</code>&rsquo;s lifecycle. When the scheduler
+receives an acknowledgement that the machine has accepted the <code>Task</code>,
+the <code>Task</code> goes into <code>STARTING</code> state.</p>
+
+<p><code>STARTING</code> state initializes a <code>Task</code> sandbox. When the sandbox is fully
+initialized, Thermos begins to invoke <code>Process</code>es. Also, the slave
+machine sends an update to the scheduler that the <code>Task</code> is
+in <code>RUNNING</code> state.</p>
+
+<p>If a <code>Task</code> stays in <code>ASSIGNED</code> or <code>STARTING</code> for too long, the
+scheduler forces it into <code>LOST</code> state, creating a new <code>Task</code> in its
+place that&rsquo;s sent into <code>PENDING</code> state. This is technically true of any
+active state: if the Mesos core tells the scheduler that a slave has
+become unhealthy (or outright disappeared), the <code>Task</code>s assigned to that
+slave go into <code>LOST</code> state and new <code>Task</code>s are created in their place.
+From <code>PENDING</code> state, there is no guarantee a <code>Task</code> will be reassigned
+to the same machine unless job constraints explicitly force it there.</p>
+
+<p>If there is a state mismatch, (e.g. a machine returns from a <code>netsplit</code>
+and the scheduler has marked all its <code>Task</code>s <code>LOST</code> and rescheduled
+them), a state reconciliation process kills the errant <code>RUNNING</code> tasks,
+which may take up to an hour. But to emphasize this point: there is no
+uniqueness guarantee for a single instance of a job in the presence of
+network partitions. If the Task requires that, it should be baked in at
+the application level using a distributed coordination service such as
+Zookeeper.</p>
+
+<h3 id="task-updates">Task Updates</h3>
+
+<p><code>Job</code> configurations can be updated at any point in their lifecycle.
+Usually updates are done incrementally using a process called a <em>rolling
+upgrade</em>, in which Tasks are upgraded in small groups, one group at a
+time.  Updates are done using various Aurora Client commands.</p>
+
+<p>For a configuration update, the Aurora Client calculates required changes
+by examining the current job config state and the new desired job config.
+It then starts a rolling batched update process by going through every batch
+and performing these operations:</p>
+
+<ul>
+<li>If an instance is present in the scheduler but isn&rsquo;t in the new config,
+then that instance is killed.</li>
+<li>If an instance is not present in the scheduler but is present in
+the new config, then the instance is created.</li>
+<li>If an instance is present in both the scheduler the new config, then
+the client diffs both task configs. If it detects any changes, it
+performs an instance update by killing the old config instance and adds
+the new config instance.</li>
+</ul>
+
+<p>The Aurora client continues through the instance list until all tasks are
+updated, in <code>RUNNING,</code> and healthy for a configurable amount of time.
+If the client determines the update is not going well (a percentage of health
+checks have failed), it cancels the update.</p>
+
+<p>Update cancellation runs a procedure similar to the described above
+update sequence, but in reverse order. New instance configs are swapped
+with old instance configs and batch updates proceed backwards
+from the point where the update failed. E.g.; (0,1,2) (3,4,5) (6,7,
+8-FAIL) results in a rollback in order (8,7,6) (5,4,3) (2,1,0).</p>
+
+<h3 id="http-health-checking-and-graceful-shutdown">HTTP Health Checking and Graceful Shutdown</h3>
+
+<p>The Executor implements a protocol for rudimentary control of a task via HTTP.  Tasks subscribe for
+this protocol by declaring a port named <code>health</code>.  Take for example this configuration snippet:</p>
+<pre class="highlight plaintext"><code>nginx = Process(
+  name = 'nginx',
+  cmdline = './run_nginx.sh -port {{thermos.ports[http]}}')
+</code></pre>
+
+<p>When this Process is included in a job, the job will be allocated a port, and the command line
+will be replaced with something like:</p>
+<pre class="highlight plaintext"><code>./run_nginx.sh -port 42816
+</code></pre>
+
+<p>Where 42816 happens to be the allocated. port.  Typically, the Executor monitors Processes within
+a task only by liveness of the forked process.  However, when a <code>health</code> port was allocated, it will
+also send periodic HTTP health checks.  A task requesting a <code>health</code> port must handle the following
+requests:</p>
+
+<table><thead>
+<tr>
+<th>HTTP request</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>GET /health</code></td>
+<td>Inquires whether the task is healthy.</td>
+</tr>
+<tr>
+<td><code>POST /quitquitquit</code></td>
+<td>Task should initiate graceful shutdown.</td>
+</tr>
+<tr>
+<td><code>POST /abortabortabort</code></td>
+<td>Final warning task is being killed.</td>
+</tr>
+</tbody></table>
+
+<p>Please see the
+<a href="/documentation/0.10.0/configuration-reference/#healthcheckconfig-objects">configuration reference</a> for
+configuration options for this feature.</p>
+
+<h4 id="snoozing-health-checks">Snoozing Health Checks</h4>
+
+<p>If you need to pause your health check, you can do so by touching a file inside of your sandbox,
+named <code>.healthchecksnooze</code></p>
+
+<p>As long as that file is present, health checks will be disabled, enabling users to gather core dumps
+or other performance measurements without worrying about Aurora&rsquo;s health check killing their
+process.</p>
+
+<p>WARNING: Remember to remove this when you are done, otherwise your instance will have permanently
+disabled health checks.</p>
+
+<h4 id="tearing-a-task-down">Tearing a task down</h4>
+
+<p>The Executor follows an escalation sequence when killing a running task:</p>
+
+<ol>
+<li>If <code>health</code> port is not present, skip to (5)</li>
+<li>POST /quitquitquit</li>
+<li>wait 5 seconds</li>
+<li>POST /abortabortabort</li>
+<li>Send SIGTERM (<code>kill</code>)</li>
+<li>Send SIGKILL (<code>kill -9</code>)</li>
+</ol>
+
+<p>If the Executor notices that all Processes in a Task have aborted during this sequence, it will
+not proceed with subsequent steps.  Note that graceful shutdown is best-effort, and due to the many
+inevitable realities of distributed systems, it may not be performed.</p>
+
+<h3 id="giving-priority-to-production-tasks-preempting">Giving Priority to Production Tasks: PREEMPTING</h3>
+
+<p>Sometimes a Task needs to be interrupted, such as when a non-production
+Task&rsquo;s resources are needed by a higher priority production Task. This
+type of interruption is called a <em>pre-emption</em>. When this happens in
+Aurora, the non-production Task is killed and moved into
+the <code>PREEMPTING</code> state  when both the following are true:</p>
+
+<ul>
+<li>The task being killed is a non-production task.</li>
+<li>The other task is a <code>PENDING</code> production task that hasn&rsquo;t been
+scheduled due to a lack of resources.</li>
+</ul>
+
+<p>Since production tasks are much more important, Aurora kills off the
+non-production task to free up resources for the production task. The
+scheduler UI shows the non-production task was preempted in favor of the
+production task. At some point, tasks in <code>PREEMPTING</code> move to <code>KILLED</code>.</p>
+
+<p>Note that non-production tasks consuming many resources are likely to be
+preempted in favor of production tasks.</p>
+
+<h3 id="natural-termination-finished-failed">Natural Termination: FINISHED, FAILED</h3>
+
+<p>A <code>RUNNING</code> <code>Task</code> can terminate without direct user interaction. For
+example, it may be a finite computation that finishes, even something as
+simple as <code>echo hello world.</code>Or it could be an exceptional condition in
+a long-lived service. If the <code>Task</code> is successful (its underlying
+processes have succeeded with exit status <code>0</code> or finished without
+reaching failure limits) it moves into <code>FINISHED</code> state. If it finished
+after reaching a set of failure limits, it goes into <code>FAILED</code> state.</p>
+
+<h3 id="forceful-termination-killing-restarting">Forceful Termination: KILLING, RESTARTING</h3>
+
+<p>You can terminate a <code>Task</code> by issuing an <code>aurora job kill</code> command, which
+moves it into <code>KILLING</code> state. The scheduler then sends the slave  a
+request to terminate the <code>Task</code>. If the scheduler receives a successful
+response, it moves the Task into <code>KILLED</code> state and never restarts it.</p>
+
+<p>The scheduler has access to a non-public <code>RESTARTING</code> state. If a <code>Task</code>
+is forced into the <code>RESTARTING</code> state, the scheduler kills the
+underlying task but in parallel schedules an identical replacement for
+it.</p>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>You define and configure your Jobs (and their Tasks and Processes) in
+Aurora configuration files. Their filenames end with the <code>.aurora</code>
+suffix, and you write them in Python making use of the Pystachio
+templating language, along
+with specific Aurora, Mesos, and Thermos commands and methods. See the
+<a href="/documentation/0.10.0/configuration-reference/">Configuration Guide and Reference</a> and
+<a href="/documentation/0.10.0/configuration-tutorial/">Configuration Tutorial</a>.</p>
+
+<h2 id="service-discovery">Service Discovery</h2>
+
+<p>It is possible for the Aurora executor to announce tasks into ServerSets for
+the purpose of service discovery.  ServerSets use the Zookeeper <a href="http://zookeeper.apache.org/doc/trunk/recipes.html#sc_outOfTheBox">group membership pattern</a>
+of which there are several reference implementations:</p>
+
+<ul>
+<li><a href="https://github.com/apache/mesos/blob/master/src/zookeeper/group.cpp">C++</a></li>
+<li><a href="https://github.com/twitter/commons/blob/master/src/java/com/twitter/common/zookeeper/ServerSetImpl.java#L221">Java</a></li>
+<li><a href="https://github.com/twitter/commons/blob/master/src/python/twitter/common/zookeeper/serverset/serverset.py#L51">Python</a></li>
+</ul>
+
+<p>These can also be used natively in Finagle using the <a href="https://github.com/twitter/finagle/blob/master/finagle-serversets/src/main/scala/com/twitter/finagle/zookeeper/ZookeeperServerSetCluster.scala">ZookeeperServerSetCluster</a>.</p>
+
+<p>For more information about how to configure announcing, see the <a href="/documentation/0.10.0/configuration-reference/">Configuration Reference</a>.</p>
+
+<h2 id="creating-jobs">Creating Jobs</h2>
+
+<p>You create and manipulate Aurora Jobs with the Aurora client, which starts all its
+command line commands with
+<code>aurora</code>. See <a href="/documentation/0.10.0/client-commands/">Aurora Client Commands</a> for details
+about the Aurora Client.</p>
+
+<h2 id="interacting-with-jobs">Interacting With Jobs</h2>
+
+<p>You interact with Aurora jobs either via:</p>
+
+<ul>
+<li>Read-only Web UIs</li>
+</ul>
+
+<p>Part of the output from creating a new Job is a URL for the Job&rsquo;s scheduler UI page.</p>
+
+<p>For example:</p>
+<pre class="highlight plaintext"><code>  vagrant@precise64:~$ aurora job create devcluster/www-data/prod/hello \
+  /vagrant/examples/jobs/hello_world.aurora
+  INFO] Creating job hello
+  INFO] Response from scheduler: OK (message: 1 new tasks pending for job www-data/prod/hello)
+  INFO] Job url: http://precise64:8081/scheduler/www-data/prod/hello
+</code></pre>
+
+<p>The &ldquo;Job url&rdquo; goes to the Job&rsquo;s scheduler UI page. To go to the overall scheduler UI page,
+  stop at the &ldquo;scheduler&rdquo; part of the URL, in this case, <code>http://precise64:8081/scheduler</code></p>
+
+<p>You can also reach the scheduler UI page via the Client command <code>aurora job open</code>:</p>
+<pre class="highlight plaintext"><code>  aurora job open [&lt;cluster&gt;[/&lt;role&gt;[/&lt;env&gt;/&lt;job_name&gt;]]]
+</code></pre>
+
+<p>If only the cluster is specified, it goes directly to that cluster&rsquo;s scheduler main page.
+  If the role is specified, it goes to the top-level role page. If the full job key is specified,
+  it goes directly to the job page where you can inspect individual tasks.</p>
+
+<p>Once you click through to a role page, you see Jobs arranged separately by pending jobs, active
+  jobs, and finished jobs. Jobs are arranged by role, typically a service account for production
+  jobs and user accounts for test or development jobs.</p>
+
+<ul>
+<li>The Aurora client</li>
+</ul>
+
+<p>See <a href="/documentation/0.10.0/client-commands/">client commands</a>.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

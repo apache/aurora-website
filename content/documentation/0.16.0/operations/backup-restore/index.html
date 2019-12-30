@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/operations/backup-restore/'"
+        value="0.16.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    selected="selected">
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="recovering-from-a-scheduler-backup">Recovering from a Scheduler Backup</h1>
+
+<p><strong>Be sure to read the entire page before attempting to restore from a backup, as it may have
+unintended consequences.</strong></p>
+
+<h1 id="summary">Summary</h1>
+
+<p>The restoration procedure replaces the existing (possibly corrupted) Mesos replicated log with an
+earlier, backed up, version and requires all schedulers to be taken down temporarily while
+restoring. Once completed, the scheduler state resets to what it was when the backup was created.
+This means any jobs/tasks created or updated after the backup are unknown to the scheduler and will
+be killed shortly after the cluster restarts. All other tasks continue operating as normal.</p>
+
+<p>Usually, it is a bad idea to restore a backup that is not extremely recent (i.e. older than a few
+hours). This is because the scheduler will expect the cluster to look exactly as the backup does,
+so any tasks that have been rescheduled since the backup was taken will be killed.</p>
+
+<p>Instructions below have been verified in <a href="../../getting-started/vagrant/">Vagrant environment</a> and with minor
+syntax/path changes should be applicable to any Aurora cluster.</p>
+
+<h1 id="preparation">Preparation</h1>
+
+<p>Follow these steps to prepare the cluster for restoring from a backup:</p>
+
+<ul>
+<li><p>Stop all scheduler instances</p></li>
+<li><p>Consider blocking external traffic on a port defined in <code>-http_port</code> for all schedulers to
+prevent users from interacting with the scheduler during the restoration process. This will help
+troubleshooting by reducing the scheduler log noise and prevent users from making changes that will
+be erased after the backup snapshot is restored.</p></li>
+<li><p>Configure <code>aurora_admin</code> access to run all commands listed in
+<a href="#restore-from-backup">Restore from backup</a> section locally on the leading scheduler:</p>
+
+<ul>
+<li>Make sure the <a href="../../reference/client-cluster-configuration/">clusters.json</a> file configured to
+access scheduler directly. Set <code>scheduler_uri</code> setting and remove <code>zk</code>. Since leader can get
+re-elected during the restore steps, consider doing it on all scheduler replicas.</li>
+<li><p>Depending on your particular security approach you will need to either turn off scheduler
+authorization by removing scheduler <code>-http_authentication_mechanism</code> flag or make sure the
+direct scheduler access is properly authorized. E.g.: in case of Kerberos you will need to make
+a <code>/etc/hosts</code> file change to match your local IP to the scheduler URL configured in keytabs:</p>
+
+<p><local_ip> <scheduler_domain_in_keytabs></p></li>
+</ul></li>
+<li><p>Next steps are required to put scheduler into a partially disabled state where it would still be
+able to accept storage recovery requests but unable to schedule or change task states. This may be
+accomplished by updating the following scheduler configuration options:</p>
+
+<ul>
+<li>Set <code>-mesos_master_address</code> to a non-existent zk address. This will prevent scheduler from
+registering with Mesos. E.g.: <code>-mesos_master_address=zk://localhost:1111/mesos/master</code></li>
+<li><code>-max_registration_delay</code> - set to sufficiently long interval to prevent registration timeout
+and as a result scheduler suicide. E.g: <code>-max_registration_delay=360mins</code></li>
+<li>Make sure <code>-reconciliation_initial_delay</code> option is set high enough (e.g.: <code>365days</code>) to
+prevent accidental task GC. This is important as scheduler will attempt to reconcile the cluster
+state and will kill all tasks when restarted with an empty Mesos replicated log.</li>
+</ul></li>
+<li><p>Restart all schedulers</p></li>
+</ul>
+
+<h1 id="cleanup-and-re-initialize-mesos-replicated-log">Cleanup and re-initialize Mesos replicated log</h1>
+
+<p>Get rid of the corrupted files and re-initialize Mesos replicated log:</p>
+
+<ul>
+<li>Stop schedulers</li>
+<li>Delete all files under <code>-native_log_file_path</code> on all schedulers</li>
+<li>Initialize Mesos replica&rsquo;s log file: <code>sudo mesos-log initialize --path=&lt;-native_log_file_path&gt;</code></li>
+<li>Start schedulers</li>
+</ul>
+
+<h1 id="restore-from-backup">Restore from backup</h1>
+
+<p>At this point the scheduler is ready to rehydrate from the backup:</p>
+
+<ul>
+<li><p>Identify the leading scheduler by:</p>
+
+<ul>
+<li>examining the <code>scheduler_lifecycle_LEADER_AWAITING_REGISTRATION</code> metric at the scheduler
+<code>/vars</code> endpoint. Leader will have 1. All other replicas - 0.</li>
+<li>examining scheduler logs</li>
+<li>or examining Zookeeper registration under the path defined by <code>-zk_endpoints</code>
+and <code>-serverset_path</code></li>
+</ul></li>
+<li><p>Locate the desired backup file, copy it to the leading scheduler&rsquo;s <code>-backup_dir</code> folder and stage
+recovery by running the following command on a leader
+<code>aurora_admin scheduler_stage_recovery --bypass-leader-redirect &lt;cluster&gt; scheduler-backup-&lt;yyyy-MM-dd-HH-mm&gt;</code></p></li>
+<li><p>At this point, the recovery snapshot is staged and available for manual verification/modification
+via <code>aurora_admin scheduler_print_recovery_tasks --bypass-leader-redirect</code> and
+<code>scheduler_delete_recovery_tasks --bypass-leader-redirect</code> commands.
+See <code>aurora_admin help &lt;command&gt;</code> for usage details.</p></li>
+<li><p>Commit recovery. This instructs the scheduler to overwrite the existing Mesos replicated log with
+the provided backup snapshot and initiate a mandatory failover
+<code>aurora_admin scheduler_commit_recovery --bypass-leader-redirect  &lt;cluster&gt;</code></p></li>
+</ul>
+
+<h1 id="cleanup">Cleanup</h1>
+
+<p>Undo any modification done during <a href="#preparation">Preparation</a> sequence.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,40 @@
+releases:
+  - version: 0.22.0
+    blog_post: aurora-0-22-0-release
+  - version: 0.21.0
+    blog_post: aurora-0-21-0-released
+  - version: 0.20.0
+    blog_post: aurora-0-20-0-released
+  - version: 0.19.1
+    blog_post: aurora-0-19-1-released
+  - version: 0.19.0
+    blog_post: aurora-0-19-0-released
+  - version: 0.18.1
+    blog_post: aurora-0-18-1-released
+  - version: 0.18.0
+    blog_post: aurora-0-18-0-released
+  - version: 0.17.0
+    blog_post: aurora-0-17-0-released
+  - version: 0.16.0
+    blog_post: aurora-0-16-0-released
+  - version: 0.15.0
+    blog_post: aurora-0-15-0-released
+  - version: 0.14.0
+    blog_post: aurora-0-14-0-released
+  - version: 0.13.0
+    blog_post: aurora-0-13-0-released
+  - version: 0.12.0
+    blog_post: aurora-0-12-0-released
+  - version: 0.11.0
+    blog_post: aurora-0-11-0-released
+  - version: 0.10.0
+    blog_post: aurora-0-10-0-released
+  - version: 0.9.0
+    blog_post: aurora-0-9-0-released
+  - version: 0.8.0
+    blog_post: aurora-0-8-0-released
+  - version: 0.7.0-incubating
+    blog_post: aurora-0-7-0-incubating-released
+  - version: 0.6.0-incubating
+    blog_post: aurora-0-6-0-incubating-released
+  - version: 0.5.0-incubating

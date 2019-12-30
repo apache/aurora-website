@@ -36,7 +36,7 @@ set :markdown, :layout_engine => :erb,
                :fenced_code_blocks => true,
                :with_toc_data => true
 
-set :build_dir, 'publish'
+set :build_dir, 'content'
 
 set :css_dir, 'assets/css'
 set :js_dir, 'assets/js'

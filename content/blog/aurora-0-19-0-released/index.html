@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Bill Farner</strong></p>
+			</span>
+		</span>
+		<p><em>Posted November 10, 2017</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.19.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.19.0, is now available for
+<a href="http://aurora.apache.org/downloads/">download</a>. Here are some highlights in this release:</p>
+
+<ul>
+<li>Added the ability to configure the executor&rsquo;s stop timeout, which is the maximum amount of time
+the executor will wait during a graceful shutdown sequence before continuing the &lsquo;Forceful
+Termination&rsquo; process (see
+<a href="http://aurora.apache.org/documentation/latest/reference/task-lifecycle/">here</a> for details).</li>
+<li>Added the ability to configure the wait period after calling the graceful shutdown endpoint and
+the shutdown endpoint using the <code>graceful_shutdown_wait_secs</code> and <code>shutdown_wait_secs</code> fields in
+<code>HttpLifecycleConfig</code> respectively. Previously, the executor would only wait 5 seconds between
+steps (adding up to a total of 10 seconds as there are 2 steps). The overall waiting period is
+bounded by the executor&rsquo;s stop timeout, which can be configured using the executor&rsquo;s
+<code>stop_timeout_in_secs</code> flag.</li>
+<li>Added the <code>thrift_method_interceptor_modules</code> scheduler flag that lets cluster operators inject
+custom Thrift method interceptors.</li>
+<li>Increase default ZooKeeper session timeout from 4 to 15 seconds.</li>
+<li>Added option <code>-zk_connection_timeout</code> to control the connection timeout of ZooKeeper connections.</li>
+<li>Added scheduler command line argument <code>-hold_offers_forever</code>, suitable for use in clusters where
+Aurora is the only framework.  This setting disables other options such as <code>-min_offer_hold_time</code>,
+and allows the scheduler to more efficiently cache scheduling attempts.</li>
+<li>The scheduler no longer uses an internal H2 database for storage.</li>
+<li>There is a new Scheduler UI which, in addition to the facelift, provides the ability to inject your
+own custom UI components.</li>
+</ul>
+
+<p>Deprecations and removals:</p>
+
+<ul>
+<li>Removed the deprecated command line argument <code>-zk_use_curator</code>, removing the choice to use the
+legacy ZooKeeper client.</li>
+<li>Removed the <code>rewriteConfigs</code> thrift API call in the scheduler. This was a last-ditch mechanism
+to modify scheduler state on the fly. It was considered extremely risky to use since its
+inception, and is safer to abandon due to its lack of use and likelihood for code rot.</li>
+<li>Removed the Job environment validation from the command line client. Validation was moved to the
+the scheduler side through the <code>allowed_job_environments</code> option. By default allowing any of
+<code>devel</code>, <code>test</code>, <code>production</code>, and any value matching the regular expression <code>staging[0-9]*</code>.</li>
+<li>Removed scheduler command line arguments related to the internal H2 database, which is no longer
+used:
+
+<ul>
+<li><code>-use_beta_db_task_store</code></li>
+<li><code>-enable_db_metrics</code></li>
+<li><code>-slow_query_log_threshold</code></li>
+<li><code>-db_row_gc_interval</code></li>
+<li><code>-db_lock_timeout</code></li>
+<li><code>-db_max_active_connection_count</code></li>
+<li><code>-db_max_idle_connection_count</code></li>
+<li><code>-snapshot_hydrate_stores</code></li>
+<li><code>-enable_h2_console</code></li>
+</ul></li>
+</ul>
+
+<p>Full release notes are available in the release
+<a href="https://gitbox.apache.org/repos/asf?p=aurora.git&amp;f=CHANGELOG&amp;hb=rel/0.19.0">CHANGELOG</a>.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 14 contributors who made Apache Aurora 0.19.0 possible:</p>
+
+<ul>
+<li>Bill Farner</li>
+<li>David McLaughlin</li>
+<li>Derek Slager</li>
+<li>Jordan Ly</li>
+<li>Kai Huang</li>
+<li>Keisuke Nishimoto</li>
+<li>Mauricio Garavaglia</li>
+<li>Renan DelValle</li>
+<li>Reza Motamedi</li>
+<li>Robert Allen</li>
+<li>Ruben D. Porras</li>
+<li>Santhosh Kumar Shanmugham</li>
+<li>Stephan Erb</li>
+<li>Zameer Manji</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

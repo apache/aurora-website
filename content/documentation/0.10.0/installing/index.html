@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/installing/'"
+        value="0.10.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    selected="selected">
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="installing-aurora">Installing Aurora</h1>
+
+<ul>
+<li><a href="#components">Components</a>
+
+<ul>
+<li><a href="#machine-profiles">Machine profiles</a>
+
+<ul>
+<li><a href="#coordinator">Coordinator</a></li>
+<li><a href="#worker">Worker</a></li>
+<li><a href="#client">Client</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#getting-aurora">Getting Aurora</a>
+
+<ul>
+<li><a href="#building-your-own-binary-packages">Building your own binary packages</a></li>
+<li><a href="#rpms">RPMs</a></li>
+</ul></li>
+<li><a href="#installing-the-scheduler">Installing the scheduler</a>
+
+<ul>
+<li><a href="#ubuntu-trusty">Ubuntu Trusty</a></li>
+<li><a href="#centos-7">CentOS 7</a></li>
+<li><a href="#finalizing">Finalizing</a></li>
+<li><a href="#configuration">Configuration</a></li>
+</ul></li>
+<li><a href="#installing-worker-components">Installing worker components</a>
+
+<ul>
+<li><a href="#ubuntu-trusty-1">Ubuntu Trusty</a></li>
+<li><a href="#centos-7-1">CentOS 7</a></li>
+<li><a href="#configuration-1">Configuration</a></li>
+</ul></li>
+<li><a href="#installing-the-client">Installing the client</a>
+
+<ul>
+<li><a href="#ubuntu-trusty-2">Ubuntu Trusty</a></li>
+<li><a href="#centos-7-2">CentOS 7</a></li>
+<li><a href="#configuration-2">Configuration</a></li>
+</ul></li>
+<li><a href="#see-also">See also</a></li>
+<li><a href="#installing-mesos">Installing Mesos</a>
+
+<ul>
+<li><a href="#mesos-on-ubuntu-trusty">Mesos on Ubuntu Trusty</a></li>
+<li><a href="#mesos-on-centos-7">Mesos on CentOS 7</a></li>
+</ul></li>
+</ul>
+
+<h2 id="components">Components</h2>
+
+<p>Before installing Aurora, it&rsquo;s important to have an understanding of the components that make up
+a functioning Aurora cluster.</p>
+
+<ul>
+<li><p><strong>Aurora scheduler</strong><br>
+The scheduler will be your primary interface to the work you run in your cluster.  You will
+instruct it to run jobs, and it will manage them in Mesos for you.  You will also frequently use
+the scheduler&rsquo;s web interface as a heads-up display for what&rsquo;s running in your cluster.</p></li>
+<li><p><strong>Aurora client</strong><br>
+The client (<code>aurora</code> command) is a command line tool that exposes primitives that you can use to
+interact with the scheduler.</p></li>
+</ul>
+
+<p>Aurora also provides an admin client (<code>aurora_admin</code> command) that contains commands built for
+  cluster administrators.  You can use this tool to do things like manage user quotas and manage
+  graceful maintenance on machines in cluster.</p>
+
+<ul>
+<li><p><strong>Aurora executor</strong><br>
+The executor (a.k.a. Thermos executor) is responsible for carrying out the workloads described in
+the Aurora DSL (<code>.aurora</code> files).  The executor is what actually executes user processes.  It will
+also perform health checking of tasks and register tasks in ZooKeeper for the purposes of dynamic
+service discovery.  You can find lots more detail on the executor and Thermos in the
+<a href="/documentation/0.10.0/user-guide/">user guide</a>.</p></li>
+<li><p><strong>Aurora observer</strong><br>
+The observer provides browser-based access to the status of individual tasks executing on worker
+machines.  It gives insight into the processes executing, and facilitates browsing of task sandbox
+directories.</p></li>
+<li><p><strong>ZooKeeper</strong><br>
+<a href="http://zookeeper.apache.org">ZooKeeper</a> is a distributed consensus system.  In an Aurora cluster
+it is used for reliable election of the leading Aurora scheduler and Mesos master.</p></li>
+<li><p><strong>Mesos master</strong><br>
+The master is responsible for tracking worker machines and performing accounting of their
+resources.  The scheduler interfaces with the master to control the cluster.</p></li>
+<li><p><strong>Mesos agent</strong><br>
+The agent receives work assigned by the scheduler and executes them.  It interfaces with Linux
+isolation systems like cgroups, namespaces and Docker to manage the resource consumption of tasks.
+When a user task is launched, the agent will launch the executor (in the context of a Linux cgroup
+or Docker container depending upon the environment), which will in turn fork user processes.</p></li>
+</ul>
+
+<h2 id="machine-profiles">Machine profiles</h2>
+
+<p>Given that many of these components communicate over the network, there are numerous ways you could
+assemble them to create an Aurora cluster.  The simplest way is to think in terms of three machine
+profiles:</p>
+
+<h3 id="coordinator">Coordinator</h3>
+
+<p><strong>Components</strong>: ZooKeeper, Aurora scheduler, Mesos master</p>
+
+<p>A small number of machines (typically 3 or 5) responsible for cluster orchestration.  In most cases
+it is fine to co-locate these components in anything but very large clusters (&gt; 1000 machines).
+Beyond that point, operators will likely want to manage these services on separate machines.</p>
+
+<p>In practice, 5 coordinators have been shown to reliably manage clusters with tens of thousands of
+machines.</p>
+
+<h3 id="worker">Worker</h3>
+
+<p><strong>Components</strong>: Aurora executor, Aurora observer, Mesos agent</p>
+
+<p>The bulk of the cluster, where services will actually run.</p>
+
+<h3 id="client">Client</h3>
+
+<p><strong>Components</strong>: Aurora client, Aurora admin client</p>
+
+<p>Any machines that users submit jobs from.</p>
+
+<h2 id="getting-aurora">Getting Aurora</h2>
+
+<p>Source and binary distributions can be found on our
+<a href="https://aurora.apache.org/downloads/">downloads</a> page.  Installing from binary packages is
+recommended for most.</p>
+
+<h3 id="building-your-own-binary-packages">Building your own binary packages</h3>
+
+<p>Our package build toolchain makes it easy to build your own packages if you would like.  See the
+<a href="https://github.com/apache/aurora-packaging">instructions</a> to learn how.</p>
+
+<h3 id="rpms">RPMs</h3>
+
+<p>We currently have work in progress to provide official RPMs.  As of this writing, the suggested way
+to get RPMs is to <a href="#building-your-own-binary-packages">build them</a>.</p>
+
+<p>We do have unofficial experimental RPMs available for testing purposes.</p>
+
+<p><strong>Use these RPMs at your own risk, they are not officially released under the ASF guidelines.</strong></p>
+<pre class="highlight plaintext"><code>echo '[apache-aurora-wfarner]
+name=Apache Aurora distribution maintained by wfarner
+baseurl=http://people.apache.org/~wfarner/aurora/distributions/0.9.0/rpm/centos-7/x86_64/
+gpgcheck = 0' | sudo tee /etc/yum.repos.d/apache-aurora-wfarner.repo &gt; /dev/null
+</code></pre>
+
+<h2 id="installing-the-scheduler">Installing the scheduler</h2>
+
+<h3 id="ubuntu-trusty">Ubuntu Trusty</h3>
+
+<ol>
+<li><p>Install Mesos<br>
+Skip down to <a href="#mesos-on-ubuntu-trusty">install mesos</a>, then run:</p>
+<pre class="highlight plaintext"><code>sudo start mesos-master
+</code></pre></li>
+<li><p>Install ZooKeeper</p>
+<pre class="highlight plaintext"><code>sudo apt-get install -y zookeeperd
+</code></pre></li>
+<li><p>Install the Aurora scheduler</p>
+<pre class="highlight plaintext"><code>wget -c https://apache.bintray.com/aurora/aurora-scheduler_0.10.0-1_amd64.deb
+sudo dpkg -i aurora-scheduler_0.10.0-1_amd64.deb
+</code></pre></li>
+</ol>
+
+<h3 id="centos-7">CentOS 7</h3>
+
+<ol>
+<li><p>Install Mesos<br>
+Skip down to <a href="#mesos-on-centos-7">install mesos</a>, then run:</p>
+<pre class="highlight plaintext"><code>sudo systemctl start mesos-master
+</code></pre></li>
+<li><p>Install ZooKeeper</p>
+<pre class="highlight plaintext"><code>sudo rpm -Uvh https://archive.cloudera.com/cdh4/one-click-install/redhat/6/x86_64/cloudera-cdh-4-0.x86_64.rpm
+sudo yum install -y java-1.8.0-openjdk-headless zookeeper-server
+
+sudo service zookeeper-server init
+sudo systemctl start zookeeper-server
+</code></pre></li>
+<li><p>Install the Aurora scheduler<br>
+If you haven&rsquo;t already, read the section on <a href="#rpms">how to get Aurora RPMs</a>.</p>
+<pre class="highlight plaintext"><code># Note: for older Aurora RPM versions, this may be called 'aurora'.
+sudo yum install -y aurora-scheduler
+</code></pre></li>
+</ol>
+
+<p>Note: if you are using the unreleased 0.9.0 RPM, you will need to edit <code>/etc/sysconfig/aurora</code>:<br>
+Change<br>
+<code>-mesos_master_address=&#39;zk://127.0.0.1:2181/mesos/master&#39;</code><br>
+To<br>
+<code>-mesos_master_address=&#39;zk://127.0.0.1:2181/mesos&#39;</code><br>
+And<br>
+<code>-native_log_file_path=&#39;/var/lib/aurora/db&#39;</code><br>
+To<br>
+<code>-native_log_file_path=&#39;/var/lib/aurora/scheduler/db&#39;</code></p>
+
+<h3 id="finalizing">Finalizing</h3>
+
+<p>By default, the scheduler will start in an uninitialized mode.  This is because external
+coordination is necessary to be certain operator error does not result in a quorum of schedulers
+starting up and believing their databases are empty when in fact they should be re-joining a
+cluster.</p>
+
+<p>Because of this, a fresh install of the scheduler will need intervention to start up.  First,
+stop the scheduler service.<br>
+Ubuntu: <code>sudo stop aurora-scheduler</code><br>
+CentOS: <code>sudo systemctl stop aurora</code></p>
+
+<p>Now initialize the database:</p>
+<pre class="highlight plaintext"><code>sudo -u aurora mkdir -p /var/lib/aurora/scheduler/db
+sudo -u aurora mesos-log initialize --path=/var/lib/aurora/scheduler/db
+</code></pre>
+
+<p>Now you can start the scheduler back up.<br>
+Ubuntu: <code>sudo start aurora-scheduler</code><br>
+CentOS: <code>sudo systemctl start aurora</code></p>
+
+<h3 id="configuration">Configuration</h3>
+
+<p>For more detail on this topic, see the dedicated page on
+<a href="/documentation/0.10.0/deploying-aurora-scheduler/">deploying the scheduler</a></p>
+
+<h2 id="installing-worker-components">Installing worker components</h2>
+
+<h3 id="ubuntu-trusty">Ubuntu Trusty</h3>
+
+<ol>
+<li><p>Install Mesos<br>
+Skip down to <a href="#mesos-on-ubuntu-trusty">install mesos</a>, then run:</p>
+<pre class="highlight plaintext"><code>sudo start mesos-slave
+</code></pre></li>
+<li><p>Install Aurora executor and observer</p>
+<pre class="highlight plaintext"><code>wget -c https://apache.bintray.com/aurora/aurora-executor_0.10.0-1_amd64.deb
+sudo dpkg -i aurora-executor_0.10.0-1_amd64.deb
+</code></pre></li>
+</ol>
+
+<h3 id="centos-7">CentOS 7</h3>
+
+<ol>
+<li><p>Install Mesos<br>
+Skip down to <a href="#mesos-on-centos-7">install mesos</a>, then run:</p>
+<pre class="highlight plaintext"><code>sudo systemctl start mesos-slave
+</code></pre></li>
+<li><p>Install Aurora executor and observer<br>
+If you haven&rsquo;t already, read the section on <a href="#rpms">how to get Aurora RPMs</a>.</p>
+<pre class="highlight plaintext"><code># Note: for older Aurora RPM versions, this may be called 'aurora-thermos'.
+sudo yum install -y aurora-executor
+</code></pre></li>
+</ol>
+
+<h3 id="configuration">Configuration</h3>
+
+<p>The executor and observer typically do not require much configuration.  Command line arguments can
+be passed to the executor using a command line argument on the scheduler.</p>
+
+<h2 id="installing-the-client">Installing the client</h2>
+
+<h3 id="ubuntu-trusty">Ubuntu Trusty</h3>
+<pre class="highlight plaintext"><code>sudo apt-get install -y python2.7 wget
+
+wget https://apache.bintray.com/aurora/aurora-tools_0.10.0-1_amd64.deb
+sudo dpkg -i aurora-tools_0.10.0-1_amd64.deb
+</code></pre>
+
+<h3 id="centos-7">CentOS 7</h3>
+
+<p>If you haven&rsquo;t already, read the section on <a href="#rpms">how to get Aurora RPMs</a>.</p>
+<pre class="highlight plaintext"><code># Note: for older Aurora RPM versions, this may be called 'aurora-client'.
+sudo yum install -y aurora-tools
+</code></pre>
+
+<h3 id="configuration">Configuration</h3>
+
+<p>Client configuration lives in a json file that describes the clusters available and how to reach
+them.  By default this file is at <code>/etc/aurora/clusters.json</code>.</p>
+
+<p>Jobs may be submitted to the scheduler using the client, and are described with
+<a href="/documentation/0.10.0/configuration-reference/">job configurations</a> expressed in <code>.aurora</code> files.  Typically you will
+maintain a single job configuration file to describe one or more deployment environments (e.g.
+dev, test, prod) for a production job.</p>
+
+<h2 id="see-also">See also</h2>
+
+<p>We have other docs that you will find useful once you have your cluster up and running:</p>
+
+<ul>
+<li><a href="/documentation/0.10.0/monitoring/">Monitor</a> your cluster</li>
+<li>Enable scheduler <a href="/documentation/0.10.0/security/">security</a></li>
+<li>View job SLA <a href="/documentation/0.10.0/sla/">statistics</a></li>
+<li>Understand the internals of the scheduler&rsquo;s <a href="/documentation/0.10.0/storage/">storage</a></li>
+</ul>
+
+<h2 id="installing-mesos">Installing Mesos</h2>
+
+<p>Mesos uses a single package for the Mesos master and slave.  As a result, the package dependencies
+are identical for both.</p>
+
+<h3 id="mesos-on-ubuntu-trusty">Mesos on Ubuntu Trusty</h3>
+<pre class="highlight plaintext"><code>sudo add-apt-repository ppa:openjdk-r/ppa -y
+sudo apt-get update
+
+sudo apt-get install -y software-properties-common wget libsvn1 libcurl3 openjdk-8-jre-headless
+
+wget -c http://downloads.mesosphere.io/master/ubuntu/14.04/mesos_0.23.0-1.0.ubuntu1404_amd64.deb
+sudo dpkg -i mesos_0.23.0-1.0.ubuntu1404_amd64.deb
+</code></pre>
+
+<h3 id="mesos-on-centos-7">Mesos on CentOS 7</h3>
+<pre class="highlight plaintext"><code>sudo rpm -Uvh http://repos.mesosphere.io/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
+sudo yum install -y mesos-0.22.0
+</code></pre>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

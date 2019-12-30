@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Jake Farrell</strong></p>
+			    <p><a href="http://twitter.com/eatfresh">@eatfresh</a></p>
+			</span>
+		</span>
+		<p><em>Posted May 14, 2015</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.8.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.8.0, is now available for <a href="http://aurora.apache.org/downloads/">download</a>. This version marks the first Aurora release since becoming a top-level project at the Apache Software Foundation, and includes the following features, improvements, and announcements:</p>
+
+<ul>
+<li>Added support for external update coordination</li>
+<li>Security for scheduler operations, using Apache Shiro</li>
+<li>Scheduler performance improvements</li>
+<li>0.8.0 deprecations</li>
+</ul>
+
+<p>Full release notes are available in the release <a href="https://gitbox.apache.org/repos/asf?p=aurora.git&amp;f=CHANGELOG&amp;hb=refs/tags/rel/0.8.0">CHANGELOG</a>.</p>
+
+<h2 id="support-for-external-update-coordination">Support for external update coordination</h2>
+
+<p>With the introduction of scheduler-driven job update orchestration, Aurora now optionally supports an inverted dependency model where the updater can willingly pause job update progress upon reaching certain checkpoints and wait for the client/external service to explicitly &ldquo;ack&rdquo; on it. Further details are outlined in the <a href="http://aurora.apache.org/documentation/0.8.0/client-commands/#coordinated-job-updates">coordinated job updates</a> documentation.</p>
+
+<p>This feature may also be useful for building external update coordination services where Aurora service job upgrades are controlled by application specific health tracking systems, throttling individual job updates based on the internal health/traffic metrics.</p>
+
+<h2 id="security-for-scheduler-operations-using-apache-shiro">Security for scheduler operations, using Apache Shiro</h2>
+
+<p>Aurora now uses <a href="http://shiro.apache.org">Apache Shiro</a> to manage security for scheduler operations, including authenticated write access (HTTP Basic Auth or Kerberos), and fine-grained ACLs for scheduler RPCs.</p>
+
+<p>Further details are outlined in the <a href="http://aurora.apache.org/documentation/0.8.0/security/">security documentation</a>.</p>
+
+<h2 id="scheduler-performance-improvements">Scheduler performance improvements</h2>
+
+<p>Performance is continually an area of focus and improvement for the Aurora team, with production Aurora clusters measuring tens of thousands of machines and tens-to-hundreds of thousands of tasks. Two specific <a href="https://issues.apache.org/jira/browse/AURORA-999">scheduler performance improvements</a> were a focus of the 0.8.0 release, including <a href="https://issues.apache.org/jira/browse/AURORA-1219">improved preemption efficiency</a>, and creating a <a href="https://issues.apache.org/jira/browse/AURORA-969">scheduler performance benchmark framework</a>.</p>
+
+<h2 id="0-8-0-deprecations">0.8.0 deprecations</h2>
+
+<p>The latest Aurora release includes the <a href="https://issues.apache.org/jira/browse/AURORA-905">several removals and deprecations</a>, including:</p>
+
+<ul>
+<li><a href="https://issues.apache.org/jira/browse/AURORA-975">AURORA-975</a>, Removing populatedDEPRECATED from PopulateJobResult</li>
+<li><a href="https://issues.apache.org/jira/browse/AURORA-1190">AURORA-1190</a>, Added a deprecation warning when the client-side updater is used; will be removed in 0.9.0</li>
+<li><a href="https://issues.apache.org/jira/browse/AURORA-1240">AURORA-1240</a>, Added a deprecation warning for restart_theshold setting</li>
+<li><a href="https://issues.apache.org/jira/browse/AURORA-1189">AURORA-1189</a>, Added a warning in the scheduler when the JVM version is &lt; 1.8</li>
+<li>Removal of the custom security API in favor of integration with Apache Shiro</li>
+</ul>
+
+<h2 id="getting-involved">Getting Involved</h2>
+
+<p>We encourage you to try out this release and let us know what you think. If you run into any issues, please let us know on the <a href="https://aurora.apache.org/community/">user mailing list and IRC</a>. The community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 21 contributors who made Apache Aurora 0.8.0 possible:</p>
+
+<ul>
+<li>Ben Mahler</li>
+<li>Bhuvan Arumugam</li>
+<li>Bill Farner</li>
+<li>Brian Brazil</li>
+<li>Brian Wickman</li>
+<li>Dave Lester</li>
+<li>David Robinson</li>
+<li>Florian Pfeiffer</li>
+<li>Jake Farrell</li>
+<li>Joe Smith</li>
+<li>Joshua Cohen</li>
+<li>Kevin Sweeney</li>
+<li>Maxim Khutornenko</li>
+<li>Ricardo Cervera-Navarro</li>
+<li>Sanyogeeta Lawande</li>
+<li>Stephan Erb</li>
+<li>Steve Niemitz</li>
+<li>Thorhallur Sverrisson</li>
+<li>Tony Dong</li>
+<li>Zameer Manji</li>
+<li>Zeke Harris</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

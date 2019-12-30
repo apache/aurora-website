@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Renan DelValle</strong></p>
+			</span>
+		</span>
+		<p><em>Posted December 12, 2019</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.22.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.22.0, is now available for
+<a href="http://aurora.apache.org/downloads/">download</a>. Here are some highlights in this release:</p>
+
+<ul>
+<li>Updated to Mesos 1.6.1.</li>
+<li>New update strategy added: Variable Batch Update. With this strategy, a job may be updated in
+in batches of different sizes. For example, an update which modifies a total of 10 instances may
+be done in batch sizes of 2, 3, and 5. The number of updated instances must equal the size of the
+current group size in order to move to the next group size. If the number of updated instances is
+greater to the sum of all group sizes, the last group size will be used in perpetuity until all
+instances are updated.
+A new field has been added to <code>UpdateConfig</code> called <code>update_strategy</code>.
+Update strategy may take a <code>QueueUpdateStrategy</code>, <code>BatchUpdateStrategy</code>,
+or a <code>VariableBatchUpdateStrategy</code> object. <code>QueueUpdateStrategy</code> and <code>BatchUpdateStrategy</code> take
+a single integer argument while <code>VariableBatchUpdateStrategy</code> takes a list of positive integers
+as an argument.</li>
+<li>Users may now set a value for the URI fetcher to rename a downloaded artifact to after it
+has been downloaded.</li>
+<li>Auto pause feature added to VariableBatch strategy and Batch strategy. With this feature enabled,
+when an update is <code>ROLLING_FORWARD</code>, the update will automatically pause itself right before
+a new batch is started. (This feature is being released as tested but in beta state. We are
+looking to collect feedback before we consider it fully stable.)</li>
+<li><code>loader.load()</code> now uses memoization on the config file path so that we only load and process
+each config file once.</li>
+<li>Instances run with custom executors will no longer show links to thermos observer.</li>
+<li>Add observer command line option <code>--disable_task_resource_collection</code> to disable the collection of
+CPU, memory, and disk metrics for observed tasks. This is useful in setups where metrics cannot be
+gathered reliable (e.g. when using PID namespaces) or when it is expensive due to hundreds of
+active tasks per host.</li>
+<li>Added flag <code>-sla_aware_kill_non_prod</code> which allows operators to enable SLA aware killing
+for non-production jobs. Jobs are considered non-production when they are preemptable and/or
+revocable.</li>
+</ul>
+
+<p>Deprecations and removals:</p>
+
+<ul>
+<li>Deprecated use of Thrift fields <code>JobUpdateSettings.waitForBatchCompletion</code> and
+<code>JobUpdateSettings.updateGroupSize</code>. Please set the proper <code>JobUpdateSettings.updateStrategy</code>
+instead. Note that these same constructs, as represented in the Aurora DSL, are still valid
+as they will be converted to the new field automatically by the client
+for backwards compatibility.</li>
+<li>Backfill code for finding a matching tier to for a Job has been removed. Tier will now be set
+when a Job is received by the scheduler. If no tier is provided, the default tier defined in
+<code>-tier_config</code>.</li>
+</ul>
+
+<p>Full release notes are available in the release
+<a href="https://github.com/apache/aurora/milestone/2?closed=1">CHANGELOG</a>.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 8 contributors who made Apache Aurora 0.22.0 possible:</p>
+
+<ul>
+<li>Se Choi</li>
+<li>Raúl Cuza</li>
+<li>Renan DelValle</li>
+<li>Stephan Erb</li>
+<li>Mauricio Garavaglia</li>
+<li>Daniel Knightly</li>
+<li>Philipp Sontag</li>
+<li>Justin Venus</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

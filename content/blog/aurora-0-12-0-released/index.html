@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Bill Farner</strong></p>
+			    <p><a href="http://twitter.com/wfarner">@wfarner</a></p>
+			</span>
+		</span>
+		<p><em>Posted March  3, 2016</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.12.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.12.0, is now available for
+<a href="http://aurora.apache.org/downloads/">download</a>. Here are some highlights in this release:</p>
+
+<ul>
+<li>Upgraded Mesos to 0.25.0.</li>
+<li>Upgraded the scheduler ZooKeeper client from 3.3.4 to 3.4.6.</li>
+<li>Added support for configuring Mesos role by passing <code>-mesos_role</code> to Aurora scheduler at start time.
+This enables resource reservation for Aurora when running in a shared Mesos cluster.</li>
+<li>Aurora task metadata is now mapped to Mesos task labels. Labels are prefixed with
+<code>org.apache.aurora.metadata.</code> to prevent clashes with other, external label sources.</li>
+<li>Added new scheduler flag <code>-default_docker_parameters</code> to allow a cluster operator to specify a
+universal set of parameters that should be used for every container that does not have parameters
+explicitly configured at the job level.</li>
+<li>Added support for jobs to specify arbitrary ZooKeeper paths for service registration.  See
+<a href="https://github.com/apache/aurora/blob/master/docs/configuration-reference.md#announcer-objects">here</a>
+for details.</li>
+<li>Log destination is configurable for the thermos runner. See the configuration reference for details
+on how to configure destination per-process. Command line options may also be passed through the
+scheduler in order to configure the global default behavior.</li>
+<li>Env variables can be passed through to task processes by passing <code>--preserve_env</code>
+to thermos.</li>
+<li>Changed scheduler logging to use logback.
+Operators wishing to customize logging may do so with standard logback configuration as described
+<a href="http://logback.qos.ch/manual/configuration.html">here</a></li>
+<li>When using <code>--read-json</code>, <code>aurora</code> can now load multiple jobs from one json file,
+similar to the usual pystachio structure: <code>{&quot;jobs&quot;: [job1, job2, ...]}</code>. The
+older single-job json format is also still supported.</li>
+<li><code>aurora config list</code> command now supports <code>--read-json</code></li>
+<li>Added scheduler command line argument <code>-shiro_after_auth_filter</code>. Optionally specify a class
+implementing javax.servlet.Filter that will be included in the Filter chain following the Shiro
+auth filters.</li>
+<li>The <code>addInstances</code> thrift RPC does now increase job instance count (scale out) based on the
+task template pointed by instance <code>key</code>.</li>
+</ul>
+
+<p>Deprecations and removals:</p>
+
+<ul>
+<li>Deprecated <code>AddInstancesConfig</code> argument in <code>addInstances</code> thrift RPC.</li>
+<li>Deprecated <code>TaskQuery</code> argument in <code>killTasks</code> thrift RPC to disallow killing tasks across
+multiple roles. The new safer approach is using <code>JobKey</code> with <code>instances</code> instead.</li>
+<li>Removed the deprecated field &lsquo;ConfigGroup.instanceIds&rsquo; from the API.</li>
+<li>Removed the following deprecated <code>HealthCheckConfig</code> client-side configuration fields: <code>endpoint</code>,
+<code>expected_response</code>, <code>expected_response_code</code>.  These are now set exclusively in like-named fields
+of <code>HttpHealthChecker.</code></li>
+<li>Removed the deprecated &#39;JobUpdateSettings.maxWaitToInstanceRunningMs&rsquo; thrift api field (
+UpdateConfig.restart_threshold in client-side configuration). This aspect of job restarts is now
+controlled exclusively via the client with <code>aurora job restart --restart-threshold=[seconds]</code>.</li>
+<li>Deprecated executor flag <code>--announcer-enable</code>. Enabling the announcer previously required both flags
+<code>--announcer-enable</code> and <code>--announcer-ensemble</code>, but now only <code>--announcer-ensemble</code> must be set.
+<code>--announcer-enable</code> is a no-op flag now and will be removed in future version.</li>
+<li>Removed scheduler command line arguments:
+
+<ul>
+<li><code>-enable_cors_support</code>.  Enabling CORS is now implicit by setting the argument
+<code>-enable_cors_for</code>.</li>
+<li><code>-deduplicate_snapshots</code> and <code>-deflate_snapshots</code>.  These features are good to always enable.</li>
+<li><code>-enable_job_updates</code> and <code>-enable_job_creation</code></li>
+<li><code>-extra_modules</code></li>
+<li><code>-logtostderr</code>, <code>-alsologtostderr</code>, <code>-vlog</code>, <code>-vmodule</code>, and <code>-use_glog_formatter</code>. Removed
+in favor of the new logback configuration.</li>
+</ul></li>
+</ul>
+
+<p>Full release notes are available in the release
+<a href="https://gitbox.apache.org/repos/asf?p=aurora.git&amp;f=CHANGELOG&amp;hb=refs/tags/rel/0.12.0">CHANGELOG</a>.</p>
+
+<h2 id="getting-involved">Getting Involved</h2>
+
+<p>We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the <a href="https://aurora.apache.org/community/">user mailing list and IRC</a>. The
+community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 17 contributors who made Apache Aurora 0.12.0 possible:</p>
+
+<ul>
+<li>Amol Deshmukh</li>
+<li>Anant Vyas</li>
+<li>Benjamin Staffin</li>
+<li>Bill Farner</li>
+<li>Dmitriy Shirchenko</li>
+<li>George Sirois</li>
+<li>John Sirois</li>
+<li>Joshua Cohen</li>
+<li>Kasisnu Singh</li>
+<li>Kunal Thakar</li>
+<li>Martin Hrabovcin</li>
+<li>Mauricio Garavaglia</li>
+<li>Maxim Khutornenko</li>
+<li>Stephan Erb</li>
+<li>Tony Dong</li>
+<li>Zameer Manji</li>
+<li>Zhitao Li</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

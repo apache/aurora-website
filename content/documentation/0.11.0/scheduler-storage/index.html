@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/scheduler-storage/'"
+        value="0.11.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    selected="selected">
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="snapshot-performance">Snapshot Performance</h1>
+
+<p>Periodically the scheduler writes a full snapshot of its state to the replicated log. To do this
+it needs to hold a global storage write lock while it writes out this data. In large clusters
+this has been observed to take up to 40 seconds. Long pauses can cause issues in the system,
+including delays in scheduling new tasks.</p>
+
+<p>The scheduler has two optimizations to reduce the size of snapshots and thus improve snapshot
+performance: compression and deduplication. Most users will want to enable both compression
+and deduplication.</p>
+
+<h2 id="compression">Compression</h2>
+
+<p>To reduce the size of the snapshot the DEFLATE algorithm can be applied to the serialized bytes
+of the snapshot as they are written to the stream. This reduces the total number of bytes that
+need to be written to the replicated log at the cost of CPU and generally reduces the amount
+of time a snapshot takes. Most users will want to enable both compression and deduplication.</p>
+
+<h3 id="enabling-compression">Enabling Compression</h3>
+
+<p>Snapshot compression is enabled via the <code>-deflate_snapshots</code> flag. This is the default since
+Aurora 0.5.0. All released versions of Aurora can read both compressed and uncompressed snapshots,
+so there are no backwards compatibility concerns associated with changing this flag.</p>
+
+<h3 id="disabling-compression">Disabling compression</h3>
+
+<p>Disable compression by passing <code>-deflate_snapshots=false</code>.</p>
+
+<h2 id="deduplication">Deduplication</h2>
+
+<p>In Aurora 0.6.0 a new snapshot format was introduced. Rather than write one configuration blob
+per Mesos task this format stores each configuration blob once, and each Mesos task with a
+pointer to its blob. This format is not backwards compatible with earlier versions of Aurora.</p>
+
+<h3 id="enabling-deduplication">Enabling Deduplication</h3>
+
+<p>After upgrading Aurora to 0.6.0, enable deduplication with the <code>-deduplicate_snapshots</code> flag.
+After the first snapshot the cluster will be using the deduplicated format to write to the
+replicated log. Snapshots are created periodically by the scheduler (according to
+the <code>-dlog_snapshot_interval</code> flag). An administrator can also force a snapshot operation with
+<code>aurora_admin snapshot</code>.</p>
+
+<h3 id="disabling-deduplication">Disabling Deduplication</h3>
+
+<p>To disable deduplication, for example to rollback to Aurora, restart all of the cluster&rsquo;s
+schedulers with <code>-deduplicate_snapshots=false</code> and either wait for a snapshot or force one
+using <code>aurora_admin snapshot</code>.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

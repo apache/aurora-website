@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/getting-started/tutorial/'"
+        value="0.20.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    selected="selected">
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="aurora-tutorial">Aurora Tutorial</h1>
+
+<p>This tutorial shows how to use the Aurora scheduler to run (and &ldquo;<code>printf-debug</code>&rdquo;)
+a hello world program on Mesos. This is the recommended document for new Aurora users
+to start getting up to speed on the system.</p>
+
+<ul>
+<li><a href="#setup-install-aurora">Prerequisite</a></li>
+<li><a href="#the-script">The Script</a></li>
+<li><a href="#aurora-configuration">Aurora Configuration</a></li>
+<li><a href="#creating-the-job">Creating the Job</a></li>
+<li><a href="#watching-the-job-run">Watching the Job Run</a></li>
+<li><a href="#cleanup">Cleanup</a></li>
+<li><a href="#next-steps">Next Steps</a></li>
+</ul>
+
+<h2 id="prerequisite">Prerequisite</h2>
+
+<p>This tutorial assumes you are running <a href="../vagrant/">Aurora locally using Vagrant</a>.
+However, in general the instructions are also applicable to any other
+<a href="../../operations/installation/">Aurora installation</a>.</p>
+
+<p>Unless otherwise stated, all commands are to be run from the root of the aurora
+repository clone.</p>
+
+<h2 id="the-script">The Script</h2>
+
+<p>Our &ldquo;hello world&rdquo; application is a simple Python script that loops
+forever, displaying the time every few seconds. Copy the code below and
+put it in a file named <code>hello_world.py</code> in the root of your Aurora repository clone
+(Note: this directory is the same as <code>/vagrant</code> inside the Vagrant VMs).</p>
+
+<p>The script has an intentional bug, which we will explain later on.</p>
+
+<!-- NOTE: If you are changing this file, be sure to also update examples/vagrant/test_tutorial.sh.
+-->
+<pre class="highlight python"><code><span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">time</span>
+
+<span style="color: #000000;font-weight: bold">def</span> <span style="color: #990000;font-weight: bold">main</span><span style="background-color: #f8f8f8">():</span>
+  <span style="background-color: #f8f8f8">SLEEP_DELAY</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">10</span>
+  <span style="color: #999988;font-style: italic"># Python experts - ignore this blatant bug.</span>
+  <span style="color: #000000;font-weight: bold">for</span> <span style="background-color: #f8f8f8">i</span> <span style="color: #000000;font-weight: bold">in</span> <span style="background-color: #f8f8f8">xrang</span><span style="background-color: #f8f8f8">(</span><span style="color: #009999">100</span><span style="background-color: #f8f8f8">):</span>
+    <span style="color: #000000;font-weight: bold">print</span><span style="background-color: #f8f8f8">(</span><span style="color: #d14">"Hello world! The time is now: </span><span style="color: #d14">%</span><span style="color: #d14">s. Sleeping for </span><span style="color: #d14">%</span><span style="color: #d14">d secs"</span> <span style="color: #000000;font-weight: bold">%</span> <span style="background-color: #f8f8f8">(</span>
+      <span style="background-color: #f8f8f8">time</span><span style="color: #000000;font-weight: bold">.</span><span style="background-color: #f8f8f8">asctime</span><span style="background-color: #f8f8f8">(),</span> <span style="background-color: #f8f8f8">SLEEP_DELAY</span><span style="background-color: #f8f8f8">))</span>
+    <span style="background-color: #f8f8f8">time</span><span style="color: #000000;font-weight: bold">.</span><span style="background-color: #f8f8f8">sleep</span><span style="background-color: #f8f8f8">(</span><span style="background-color: #f8f8f8">SLEEP_DELAY</span><span style="background-color: #f8f8f8">)</span>
+
+<span style="color: #000000;font-weight: bold">if</span> <span style="background-color: #f8f8f8">__name__</span> <span style="color: #000000;font-weight: bold">==</span> <span style="color: #d14">"__main__"</span><span style="background-color: #f8f8f8">:</span>
+  <span style="background-color: #f8f8f8">main</span><span style="background-color: #f8f8f8">()</span>
+</code></pre>
+
+<h2 id="aurora-configuration">Aurora Configuration</h2>
+
+<p>Once we have our script/program, we need to create a <em>configuration
+file</em> that tells Aurora how to manage and launch our Job. Save the below
+code in the file <code>hello_world.aurora</code>.</p>
+
+<!-- NOTE: If you are changing this file, be sure to also update examples/vagrant/test_tutorial.sh.
+-->
+<pre class="highlight python"><code><span style="background-color: #f8f8f8">pkg_path</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'/vagrant/hello_world.py'</span>
+
+<span style="color: #999988;font-style: italic"># we use a trick here to make the configuration change with</span>
+<span style="color: #999988;font-style: italic"># the contents of the file, for simplicity.  in a normal setting, packages would be</span>
+<span style="color: #999988;font-style: italic"># versioned, and the version number would be changed in the configuration.</span>
+<span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">hashlib</span>
+<span style="color: #000000;font-weight: bold">with</span> <span style="color: #0086B3">open</span><span style="background-color: #f8f8f8">(</span><span style="background-color: #f8f8f8">pkg_path</span><span style="background-color: #f8f8f8">,</span> <span style="color: #d14">'rb'</span><span style="background-color: #f8f8f8">)</span> <span style="color: #000000;font-weight: bold">as</span> <span style="background-color: #f8f8f8">f</span><span style="background-color: #f8f8f8">:</span>
+  <span style="background-color: #f8f8f8">pkg_checksum</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">hashlib</span><span style="color: #000000;font-weight: bold">.</span><span style="background-color: #f8f8f8">md5</span><span style="background-color: #f8f8f8">(</span><span style="background-color: #f8f8f8">f</span><span style="color: #000000;font-weight: bold">.</span><span style="background-color: #f8f8f8">read</span><span style="background-color: #f8f8f8">())</span><span style="color: #000000;font-weight: bold">.</span><span style="background-color: #f8f8f8">hexdigest</span><span style="background-color: #f8f8f8">()</span>
+
+<span style="color: #999988;font-style: italic"># copy hello_world.py into the local sandbox</span>
+<span style="background-color: #f8f8f8">install</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">Process</span><span style="background-color: #f8f8f8">(</span>
+  <span style="background-color: #f8f8f8">name</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'fetch_package'</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">cmdline</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'cp </span><span style="color: #d14">%</span><span style="color: #d14">s . &amp;&amp; echo </span><span style="color: #d14">%</span><span style="color: #d14">s &amp;&amp; chmod +x hello_world.py'</span> <span style="color: #000000;font-weight: bold">%</span> <span style="background-color: #f8f8f8">(</span><span style="background-color: #f8f8f8">pkg_path</span><span style="background-color: #f8f8f8">,</span> <span style="background-color: #f8f8f8">pkg_checksum</span><span style="background-color: #f8f8f8">))</span>
+
+<span style="color: #999988;font-style: italic"># run the script</span>
+<span style="background-color: #f8f8f8">hello_world</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">Process</span><span style="background-color: #f8f8f8">(</span>
+  <span style="background-color: #f8f8f8">name</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'hello_world'</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">cmdline</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'python -u hello_world.py'</span><span style="background-color: #f8f8f8">)</span>
+
+<span style="color: #999988;font-style: italic"># describe the task</span>
+<span style="background-color: #f8f8f8">hello_world_task</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">SequentialTask</span><span style="background-color: #f8f8f8">(</span>
+  <span style="background-color: #f8f8f8">processes</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">[</span><span style="background-color: #f8f8f8">install</span><span style="background-color: #f8f8f8">,</span> <span style="background-color: #f8f8f8">hello_world</span><span style="background-color: #f8f8f8">],</span>
+  <span style="background-color: #f8f8f8">resources</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">Resources</span><span style="background-color: #f8f8f8">(</span><span style="background-color: #f8f8f8">cpu</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">1</span><span style="background-color: #f8f8f8">,</span> <span style="background-color: #f8f8f8">ram</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">1</span><span style="color: #000000;font-weight: bold">*</span><span style="background-color: #f8f8f8">MB</span><span style="background-color: #f8f8f8">,</span> <span style="background-color: #f8f8f8">disk</span><span style="color: #000000;font-weight: bold">=</span><span style="color: #009999">8</span><span style="color: #000000;font-weight: bold">*</span><span style="background-color: #f8f8f8">MB</span><span style="background-color: #f8f8f8">))</span>
+
+<span style="background-color: #f8f8f8">jobs</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">[</span>
+  <span style="background-color: #f8f8f8">Service</span><span style="background-color: #f8f8f8">(</span><span style="background-color: #f8f8f8">cluster</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'devcluster'</span><span style="background-color: #f8f8f8">,</span>
+          <span style="background-color: #f8f8f8">environment</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'devel'</span><span style="background-color: #f8f8f8">,</span>
+          <span style="background-color: #f8f8f8">role</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'www-data'</span><span style="background-color: #f8f8f8">,</span>
+          <span style="background-color: #f8f8f8">name</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'hello_world'</span><span style="background-color: #f8f8f8">,</span>
+          <span style="background-color: #f8f8f8">task</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">hello_world_task</span><span style="background-color: #f8f8f8">)</span>
+<span style="background-color: #f8f8f8">]</span>
+</code></pre>
+
+<p>There is a lot going on in that configuration file:</p>
+
+<ol>
+<li><p>From a &ldquo;big picture&rdquo; viewpoint, it first defines two
+Processes. Then it defines a Task that runs the two Processes in the
+order specified in the Task definition, as well as specifying what
+computational and memory resources are available for them.  Finally,
+it defines a Job that will schedule the Task on available and suitable
+machines. This Job is the sole member of a list of Jobs; you can
+specify more than one Job in a config file.</p></li>
+<li><p>At the Process level, it specifies how to get your code into the
+local sandbox in which it will run. It then specifies how the code is
+actually run once the second Process starts.</p></li>
+</ol>
+
+<p>For more about Aurora configuration files, see the <a href="../../reference/configuration-tutorial/">Configuration
+Tutorial</a> and the <a href="../../reference/configuration/">Configuration
+Reference</a> (preferably after finishing this
+tutorial).</p>
+
+<h2 id="creating-the-job">Creating the Job</h2>
+
+<p>We&rsquo;re ready to launch our job! To do so, we use the Aurora Client to
+issue a Job creation request to the Aurora scheduler.</p>
+
+<p>Many Aurora Client commands take a <em>job key</em> argument, which uniquely
+identifies a Job. A job key consists of four parts, each separated by a
+&ldquo;/&rdquo;. The four parts are  <code>&lt;cluster&gt;/&lt;role&gt;/&lt;environment&gt;/&lt;jobname&gt;</code>
+in that order:</p>
+
+<ul>
+<li>Cluster refers to the name of a particular Aurora installation.</li>
+<li>Role names are user accounts existing on the agent machines. If you
+don&rsquo;t know what accounts are available, contact your sysadmin.</li>
+<li>Environment names are namespaces; you can count on <code>test</code>, <code>devel</code>,
+<code>staging</code> and <code>prod</code> existing.</li>
+<li>Jobname is the custom name of your job.</li>
+</ul>
+
+<p>When comparing two job keys, if any of the four parts is different from
+its counterpart in the other key, then the two job keys identify two separate
+jobs. If all four values are identical, the job keys identify the same job.</p>
+
+<p>The <code>clusters.json</code> <a href="../../reference/client-cluster-configuration/">client configuration</a>
+for the Aurora scheduler defines the available cluster names.
+For Vagrant, from the top-level of your Aurora repository clone, do:</p>
+<pre class="highlight plaintext"><code>$ vagrant ssh
+</code></pre>
+
+<p>Followed by:</p>
+<pre class="highlight plaintext"><code>vagrant@aurora:~$ cat /etc/aurora/clusters.json
+</code></pre>
+
+<p>You&rsquo;ll see something like the following. The <code>name</code> value shown here, corresponds to a job key&rsquo;s cluster value.</p>
+<pre class="highlight javascript"><code><span style="background-color: #f8f8f8">[{</span>
+  <span style="color: #d14">"name"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"devcluster"</span><span style="background-color: #f8f8f8">,</span>
+  <span style="color: #d14">"zk"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"192.168.33.7"</span><span style="background-color: #f8f8f8">,</span>
+  <span style="color: #d14">"scheduler_zk_path"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"/aurora/scheduler"</span><span style="background-color: #f8f8f8">,</span>
+  <span style="color: #d14">"auth_mechanism"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"UNAUTHENTICATED"</span><span style="background-color: #f8f8f8">,</span>
+  <span style="color: #d14">"slave_run_directory"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"latest"</span><span style="background-color: #f8f8f8">,</span>
+  <span style="color: #d14">"slave_root"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"/var/lib/mesos"</span>
+<span style="background-color: #f8f8f8">}]</span>
+</code></pre>
+
+<p>The Aurora Client command that actually runs our Job is <code>aurora job create</code>. It creates a Job as
+specified by its job key and configuration file arguments and runs it.</p>
+<pre class="highlight plaintext"><code>aurora job create &lt;cluster&gt;/&lt;role&gt;/&lt;environment&gt;/&lt;jobname&gt; &lt;config_file&gt;
+</code></pre>
+
+<p>Or for our example:</p>
+<pre class="highlight plaintext"><code>aurora job create devcluster/www-data/devel/hello_world /vagrant/hello_world.aurora
+</code></pre>
+
+<p>After entering our virtual machine using <code>vagrant ssh</code>, this returns:</p>
+<pre class="highlight plaintext"><code>vagrant@aurora:~$ aurora job create devcluster/www-data/devel/hello_world /vagrant/hello_world.aurora
+ INFO] Creating job hello_world
+ INFO] Checking status of devcluster/www-data/devel/hello_world
+Job create succeeded: job url=http://aurora.local:8081/scheduler/www-data/devel/hello_world
+</code></pre>
+
+<h2 id="watching-the-job-run">Watching the Job Run</h2>
+
+<p>Now that our job is running, let&rsquo;s see what it&rsquo;s doing. Access the
+scheduler web interface at <code>http://$scheduler_hostname:$scheduler_port/scheduler</code>
+Or when using <code>vagrant</code>, <code>http://192.168.33.7:8081/scheduler</code>
+First we see what Jobs are scheduled:</p>
+
+<p><img alt="Scheduled Jobs" src="../../images/ScheduledJobs.png" /></p>
+
+<p>Click on your user name, which in this case was <code>www-data</code>, and we see the Jobs associated
+with that role:</p>
+
+<p><img alt="Role Jobs" src="../../images/RoleJobs.png" /></p>
+
+<p>If you click on your <code>hello_world</code> Job, you&rsquo;ll see:</p>
+
+<p><img alt="hello_world Job" src="../../images/HelloWorldJob.png" /></p>
+
+<p>Oops, looks like our first job didn&rsquo;t quite work! The task is temporarily throttled for
+having failed on every attempt of the Aurora scheduler to run it. We have to figure out
+what is going wrong.</p>
+
+<p>On the Completed tasks tab, we see all past attempts of the Aurora scheduler to run our job.</p>
+
+<p><img alt="Completed tasks tab" src="../../images/CompletedTasks.png" /></p>
+
+<p>We can navigate to the Task page of a failed run by clicking on the host link.</p>
+
+<p><img alt="Task page" src="../../images/TaskBreakdown.png" /></p>
+
+<p>Once there, we see that the <code>hello_world</code> process failed. The Task page
+captures the standard error and standard output streams and makes them available.
+Clicking through to <code>stderr</code> on the failed <code>hello_world</code> process, we see what happened.</p>
+
+<p><img alt="stderr page" src="../../images/stderr.png" /></p>
+
+<p>It looks like we made a typo in our Python script. We wanted <code>xrange</code>,
+not <code>xrang</code>. Edit the <code>hello_world.py</code> script to use the correct function
+and save it as <code>hello_world_v2.py</code>. Then update the <code>hello_world.aurora</code>
+configuration to the newest version.</p>
+
+<p>In order to try again, we can now instruct the scheduler to update our job:</p>
+<pre class="highlight plaintext"><code>vagrant@aurora:~$ aurora update start devcluster/www-data/devel/hello_world /vagrant/hello_world.aurora
+ INFO] Starting update for: hello_world
+Job update has started. View your update progress at http://aurora.local:8081/scheduler/www-data/devel/hello_world/update/8ef38017-e60f-400d-a2f2-b5a8b724e95b
+</code></pre>
+
+<p>This time, the task comes up.</p>
+
+<p><img alt="Running Job" src="../../images/RunningJob.png" /></p>
+
+<p>By again clicking on the host, we inspect the Task page, and see that the
+<code>hello_world</code> process is running.</p>
+
+<p><img alt="Running Task page" src="../../images/runningtask.png" /></p>
+
+<p>We then inspect the output by clicking on <code>stdout</code> and see our process&rsquo;
+output:</p>
+
+<p><img alt="stdout page" src="../../images/stdout.png" /></p>
+
+<h2 id="cleanup">Cleanup</h2>
+
+<p>Now that we&rsquo;re done, we kill the job using the Aurora client:</p>
+<pre class="highlight plaintext"><code>vagrant@aurora:~$ aurora job killall devcluster/www-data/devel/hello_world
+ INFO] Killing tasks for job: devcluster/www-data/devel/hello_world
+ INFO] Instances to be killed: [0]
+Successfully killed instances [0]
+Job killall succeeded
+</code></pre>
+
+<p>The job page now shows the <code>hello_world</code> tasks as completed.</p>
+
+<p><img alt="Killed Task page" src="../../images/killedtask.png" /></p>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Now that you&rsquo;ve finished this Tutorial, you should read or do the following:</p>
+
+<ul>
+<li><a href="../../reference/configuration-tutorial/">The Aurora Configuration Tutorial</a>, which provides more examples
+and best practices for writing Aurora configurations. You should also look at
+the <a href="../../reference/configuration/">Aurora Configuration Reference</a>.</li>
+<li>Explore the Aurora Client - use <code>aurora -h</code>, and read the
+<a href="../../reference/client-commands/">Aurora Client Commands</a> document.</li>
+</ul>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
