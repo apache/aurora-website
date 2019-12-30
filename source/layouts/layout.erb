@@ -21,17 +21,17 @@
 	</script>
   </head>
   <body>
-	  <% if current_page.url == "/" %>
-	    <%= partial "header_homepage" %>
-		<%= yield %>
-      <% else %>
-        <%= partial "header_normal" %>	
-  	  <div class="container-fluid">
-  	  	<div class="container content">
-          <%= yield %>
-  		</div>
-  	  </div>
-	  <% end %>
-      <%= partial "footer" %>
-	</body>
+  <% if current_page.url == "/" %>
+    <%= partial "header_homepage" %>
+    <%= yield %>
+  <% else %>
+    <%= partial "header_normal" %>	
+    <div class="container-fluid">
+      <div class="container content">
+        <%= yield %>
+      </div>
+    </div>
+  <% end %>
+  <%= partial "footer" %>
+  </body>
 </html>

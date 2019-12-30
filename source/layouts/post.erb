@@ -13,14 +13,17 @@ Apache Aurora Blog
 			<% end %>
 			<span class="author_contact">
 			  <p><strong><%= current_page.data.post_author.display_name %></strong></p>
-			  <p><a href="http://twitter.com/<%= current_page.data.post_author.twitter %>">@<%= current_page.data.post_author.twitter %></a></p>
+			  <% if current_page.data.post_author.twitter %>
+			    <p><a href="http://twitter.com/<%= current_page.data.post_author.twitter %>">@<%= current_page.data.post_author.twitter 
+%></a></p>
+			  <% end %>
 			</span>
 		</span>
 		<p><em>Posted <%= current_article.date.strftime("%B %e, %Y")  %></em></p>
 	</div>
 	
 	<div class="share">
-		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="apachemesos">Tweet</a></span>
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
 		
 		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
 		

@@ -2,13 +2,13 @@
 
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Apache Aurora Blog</title>
-  <id>http://aurora.incubator.apache.org/blog</id>
-  <link href="http://aurora.incubator.apache.org/blog" />
-  <link href="http://aurora.incubator.apache.org/blog/feed.xml" rel="self"/>
+  <id>http://aurora.apache.org/blog</id>
+  <link href="http://aurora.apache.org/blog" />
+  <link href="http://aurora.apache.org/blog/feed.xml" rel="self"/>
   <updated><%= blog.articles.first.date.to_time.iso8601  %></updated>
   <% blog.articles.each do |article| %>
   <entry>
-    <id>http://aurora.incubator.apache.org<%= article.url %></id>
+    <id>http://aurora.apache.org<%= article.url %></id>
     <link href="<%= article.url %>" />
     <title>
       <%= article.title %>

@@ -11,13 +11,13 @@ span.glyphicon {
     font-size: 6em;
 	padding-top: 25px;
 }
-.section-ltgreen {
-	background: #40c3b0;
+.section-dark-flow {
+	background: #0A0A08;
 	color: #fff;
 	font-size: 1.3em;
 	text-shadow: .5px .5px 0px #1b5d3e;
 }
-.section-ltgreen h2 {
+.section-dark-flow h2 {
 	color: #fff;
 }
 .section-footer {
@@ -26,6 +26,7 @@ span.glyphicon {
 .section-homepage-header {
 	background-image: url("/assets/img/aurora_image_1600.jpg");
 	background-size: cover;
+        height: 375px;
 	background-position: center bottom;
 }
 .section-homepage-header h1 {
@@ -59,6 +60,9 @@ span.glyphicon {
 .disclaimer {
 	font-size: .9em;
 	color: #AAA;
+}
+.documentation img {
+	max-width: 600px;
 }
 iframe {
 	border: none;
