@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/constraints/'"
+        value="0.18.1">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    selected="selected">
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="scheduling-constraints">Scheduling Constraints</h1>
+
+<p>By default, Aurora will pick any random agent with sufficient resources
+in order to schedule a task. This scheduling choice can be further
+restricted with the help of constraints.</p>
+
+<h2 id="mesos-attributes">Mesos Attributes</h2>
+
+<p>Data centers are often organized with hierarchical failure domains.  Common failure domains
+include hosts, racks, rows, and PDUs.  If you have this information available, it is wise to tag
+the Mesos agent with them as
+<a href="https://mesos.apache.org/documentation/attributes-resources/">attributes</a>.</p>
+
+<p>The Mesos agent <code>--attributes</code> command line argument can be used to mark agents with
+static key/value pairs, so called attributes (not to be confused with <code>--resources</code>, which are
+dynamic and accounted).</p>
+
+<p>For example, consider the host <code>cluster1-aaa-03-sr2</code> and its following attributes (given in
+key:value format): <code>host:cluster1-aaa-03-sr2</code> and <code>rack:aaa</code>.</p>
+
+<p>Aurora makes these attributes available for matching with scheduling constraints.</p>
+
+<h2 id="limit-constraints">Limit Constraints</h2>
+
+<p>Limit constraints allow to control machine diversity using constraints. The below
+constraint ensures that no more than two instances of your job may run on a single host.
+Think of this as a &ldquo;group by&rdquo; limit.</p>
+<pre class="highlight plaintext"><code>Service(
+  name = 'webservice',
+  role = 'www-data',
+  constraints = {
+    'host': 'limit:2',
+  }
+  ...
+)
+</code></pre>
+
+<p>Likewise, you can use constraints to control rack diversity, e.g. at
+most one task per rack:</p>
+<pre class="highlight plaintext"><code>constraints = {
+  'rack': 'limit:1',
+}
+</code></pre>
+
+<p>Use these constraints sparingly as they can dramatically reduce Tasks&rsquo; schedulability.
+Further details are available in the reference documentation on
+<a href="../../reference/configuration/#specifying-scheduling-constraints">Scheduling Constraints</a>.</p>
+
+<h2 id="value-constraints">Value Constraints</h2>
+
+<p>Value constraints can be used to express that a certain attribute with a certain value
+should be present on a Mesos agent. For example, the following job would only be
+scheduled on nodes that claim to have an <code>SSD</code> as their disk.</p>
+<pre class="highlight plaintext"><code>Service(
+  name = 'webservice',
+  role = 'www-data',
+  constraints = {
+    'disk': 'SSD',
+  }
+  ...
+)
+</code></pre>
+
+<p>Further details are available in the reference documentation on
+<a href="../../reference/configuration/#specifying-scheduling-constraints">Scheduling Constraints</a>.</p>
+
+<h2 id="running-stateful-services">Running stateful services</h2>
+
+<p>Aurora is best suited to run stateless applications, but it also accommodates for stateful services
+like databases, or services that otherwise need to always run on the same machines.</p>
+
+<h3 id="dedicated-attribute">Dedicated attribute</h3>
+
+<p>Most of the Mesos attributes arbitrary and available for custom use.  There is one exception,
+though: the <code>dedicated</code> attribute.  Aurora treats this specially, and only allows matching jobs to
+run on these machines, and will only schedule matching jobs on these machines.</p>
+
+<h4 id="syntax">Syntax</h4>
+
+<p>The dedicated attribute has semantic meaning. The format is <code>$role(/.*)?</code>. When a job is created,
+the scheduler requires that the <code>$role</code> component matches the <code>role</code> field in the job
+configuration, and will reject the job creation otherwise.  The remainder of the attribute is
+free-form. We&rsquo;ve developed the idiom of formatting this attribute as <code>$role/$job</code>, but do not
+enforce this. For example: a job <code>devcluster/www-data/prod/hello</code> with a dedicated constraint set as
+<code>www-data/web.multi</code> will have its tasks scheduled only on Mesos agents configured with:
+<code>--attributes=dedicated:www-data/web.multi</code>.</p>
+
+<p>A wildcard (<code>*</code>) may be used for the role portion of the dedicated attribute, which will allow any
+owner to elect for a job to run on the host(s). For example: tasks from both
+<code>devcluster/www-data/prod/hello</code> and <code>devcluster/vagrant/test/hello</code> with a dedicated constraint
+formatted as <code>*/web.multi</code> will be scheduled only on Mesos agents configured with
+<code>--attributes=dedicated:*/web.multi</code>. This may be useful when assembling a virtual cluster of
+machines sharing the same set of traits or requirements.</p>
+
+<h5 id="example">Example</h5>
+
+<p>Consider the following agent command line:</p>
+<pre class="highlight plaintext"><code>mesos-slave --attributes="dedicated:db_team/redis" ...
+</code></pre>
+
+<p>And this job configuration:</p>
+<pre class="highlight plaintext"><code>Service(
+  name = 'redis',
+  role = 'db_team',
+  constraints = {
+    'dedicated': 'db_team/redis'
+  }
+  ...
+)
+</code></pre>
+
+<p>The job configuration is indicating that it should only be scheduled on agents with the attribute
+<code>dedicated:db_team/redis</code>.  Additionally, Aurora will prevent any tasks that do <em>not</em> have that
+constraint from running on those agents.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/webhooks/'"
+        value="0.16.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    selected="selected">
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="webhooks">Webhooks</h1>
+
+<p>Aurora has an optional feature which allows operator to specify a file to configure a HTTP webhook
+to receive task state change events. It can be enabled with a scheduler flag eg
+<code>-webhook_config=/path/to/webhook.json</code>. At this point, webhooks are still considered <em>experimental</em>.</p>
+
+<p>Below is a sample configuration:</p>
+<pre class="highlight json"><code><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+  </span><span style="color: #000080">"headers"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+    </span><span style="color: #000080">"Content-Type"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"application/vnd.kafka.json.v1+json"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+    </span><span style="color: #000080">"Producer-Type"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"reliable"</span><span style="color: #bbbbbb">
+  </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+  </span><span style="color: #000080">"targetURL"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"http://localhost:5000/"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+  </span><span style="color: #000080">"timeoutMsec"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #009999">5</span><span style="color: #bbbbbb">
+</span><span style="background-color: #f8f8f8">}</span><span style="color: #bbbbbb">
+</span></code></pre>
+
+<p>And an example of a response that you will get back:
+<code>json
+{
+    &quot;task&quot;:
+    {
+        &quot;cachedHashCode&quot;:0,
+        &quot;assignedTask&quot;: {
+            &quot;cachedHashCode&quot;:0,
+            &quot;taskId&quot;:&quot;vagrant-test-http_example-8-a6cf7ec5-d793-49c7-b10f-0e14ab80bfff&quot;,
+            &quot;task&quot;: {
+                &quot;cachedHashCode&quot;:-1819348376,
+                &quot;job&quot;: {
+                    &quot;cachedHashCode&quot;:803049425,
+                    &quot;role&quot;:&quot;vagrant&quot;,
+                    &quot;environment&quot;:&quot;test&quot;,
+                    &quot;name&quot;:&quot;http_example&quot;
+                    },
+                &quot;owner&quot;: {
+                    &quot;cachedHashCode&quot;:226895216,
+                    &quot;user&quot;:&quot;vagrant&quot;
+                    },
+                &quot;isService&quot;:true,
+                &quot;numCpus&quot;:0.1,
+                &quot;ramMb&quot;:16,
+                &quot;diskMb&quot;:8,
+                &quot;priority&quot;:0,
+                &quot;maxTaskFailures&quot;:1,
+                &quot;production&quot;:false,
+                &quot;resources&quot;:[
+                    {&quot;cachedHashCode&quot;:729800451,&quot;setField&quot;:&quot;NUM_CPUS&quot;,&quot;value&quot;:0.1},
+                    {&quot;cachedHashCode&quot;:552899914,&quot;setField&quot;:&quot;RAM_MB&quot;,&quot;value&quot;:16},
+                    {&quot;cachedHashCode&quot;:-1547868317,&quot;setField&quot;:&quot;DISK_MB&quot;,&quot;value&quot;:8},
+                    {&quot;cachedHashCode&quot;:1957328227,&quot;setField&quot;:&quot;NAMED_PORT&quot;,&quot;value&quot;:&quot;http&quot;},
+                    {&quot;cachedHashCode&quot;:1954229436,&quot;setField&quot;:&quot;NAMED_PORT&quot;,&quot;value&quot;:&quot;tcp&quot;}
+                    ],
+                &quot;constraints&quot;:[],
+                &quot;requestedPorts&quot;:[&quot;http&quot;,&quot;tcp&quot;],
+                &quot;taskLinks&quot;:{&quot;http&quot;:&quot;http://%host%:%port:http%&quot;},
+                &quot;contactEmail&quot;:&quot;vagrant@localhost&quot;,
+                &quot;executorConfig&quot;: {
+                    &quot;cachedHashCode&quot;:-1194797325,
+                    &quot;name&quot;:&quot;AuroraExecutor&quot;,
+                    &quot;data&quot;: &quot;{\&quot;environment\&quot;: \&quot;test\&quot;, \&quot;health_check_config\&quot;: {\&quot;initial_interval_secs\&quot;: 5.0, \&quot;health_checker\&quot;: { \&quot;http\&quot;: {\&quot;expected_response_code\&quot;: 0, \&quot;endpoint\&quot;: \&quot;/health\&quot;, \&quot;expected_response\&quot;: \&quot;ok\&quot;}}, \&quot;max_consecutive_failures\&quot;: 0, \&quot;timeout_secs\&quot;: 1.0, \&quot;interval_secs\&quot;: 1.0}, \&quot;name\&quot;: \&quot;http_example\&quot;, \&quot;service\&quot;: true, \&quot;max_task_failures\&quot;: 1, \&quot;cron_collision_policy\&quot;: \&quot;KILL_EXISTING\&quot;, \&quot;enable_hooks\&quot;: false, \&quot;cluster\&quot;: \&quot;devcluster\&quot;, \&quot;task\&quot;: {\&quot;processes\&quot;: [{\&quot;daemon\&quot;: false, \&quot;name\&quot;: \&quot;echo_ports\&quot;, \&quot;ephemeral\&quot;: false, \&quot;max_failures\&quot;: 1, \&quot;min_duration\&quot;: 5, \&quot;cmdline\&quot;: \&quot;echo \\\&quot;tcp port: {{thermos.ports[tcp]}}; http port: {{thermos.ports[http]}}; alias: {{thermos.ports[alias]}}\\\&quot;\&quot;, \&quot;final\&quot;: false}, {\&quot;daemon\&quot;: false, \&quot;name\&quot;: \&quot;stage_server\&quot;, \&quot;ephemeral\&quot;: false, \&quot;max_failures\&quot;: 1, \&quot;min_duration\&quot;: 5, \&quot;cmdline\&quot;: \&quot;cp /vagrant/src/test/sh/org/apache/aurora/e2e/http_example.py .\&quot;, \&quot;final\&quot;: false}, {\&quot;daemon\&quot;: false, \&quot;name\&quot;: \&quot;run_server\&quot;, \&quot;ephemeral\&quot;: false, \&quot;max_failures\&quot;: 1, \&quot;min_duration\&quot;: 5, \&quot;cmdline\&quot;: \&quot;python http_example.py {{thermos.ports[http]}}\&quot;, \&quot;final\&quot;: false}], \&quot;name\&quot;: \&quot;http_example\&quot;, \&quot;finalization_wait\&quot;: 30, \&quot;max_failures\&quot;: 1, \&quot;max_concurrency\&quot;: 0, \&quot;resources\&quot;: {\&quot;disk\&quot;: 8388608, \&quot;ram\&quot;: 16777216, \&quot;cpu\&quot;: 0.1}, \&quot;constraints\&quot;: [{\&quot;order\&quot;: [\&quot;echo_ports\&quot;, \&quot;stage_server\&quot;, \&quot;run_server\&quot;]}]}, \&quot;production\&quot;: false, \&quot;role\&quot;: \&quot;vagrant\&quot;, \&quot;contact\&quot;: \&quot;vagrant@localhost\&quot;, \&quot;announce\&quot;: {\&quot;primary_port\&quot;: \&quot;http\&quot;, \&quot;portmap\&quot;: {\&quot;alias\&quot;: \&quot;http\&quot;}}, \&quot;lifecycle\&quot;: {\&quot;http\&quot;: {\&quot;graceful_shutdown_endpoint\&quot;: \&quot;/quitquitquit\&quot;, \&quot;port\&quot;: \&quot;health\&quot;, \&quot;shutdown_endpoint\&quot;: \&quot;/abortabortabort\&quot;}}, \&quot;priority\&quot;: 0}&quot;},
+                    &quot;metadata&quot;:[],
+                    &quot;container&quot;:{
+                        &quot;cachedHashCode&quot;:-1955376216,
+                        &quot;setField&quot;:&quot;MESOS&quot;,
+                        &quot;value&quot;:{&quot;cachedHashCode&quot;:31}}
+                    },
+                    &quot;assignedPorts&quot;:{},
+                    &quot;instanceId&quot;:8
+        },
+        &quot;status&quot;:&quot;PENDING&quot;,
+        &quot;failureCount&quot;:0,
+        &quot;taskEvents&quot;:[
+            {&quot;cachedHashCode&quot;:0,&quot;timestamp&quot;:1464992060258,&quot;status&quot;:&quot;PENDING&quot;,&quot;scheduler&quot;:&quot;aurora&quot;}]
+        },
+        &quot;oldState&quot;:{}}
+</code></p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

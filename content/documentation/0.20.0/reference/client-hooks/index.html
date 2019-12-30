@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/reference/client-hooks/'"
+        value="0.20.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    selected="selected">
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="hooks-for-aurora-client-api">Hooks for Aurora Client API</h1>
+
+<p>You can execute hook methods around Aurora API Client methods when they are called by the Aurora Command Line commands.</p>
+
+<p>Explaining how hooks work is a bit tricky because of some indirection about what they apply to. Basically, a hook is code that executes when a particular Aurora Client API method runs, letting you extend the method&rsquo;s actions. The hook executes on the client side, specifically on the machine executing Aurora commands.</p>
+
+<p>The catch is that hooks are associated with Aurora Client API methods, which users don&rsquo;t directly call. Instead, users call Aurora Command Line commands, which call Client API methods during their execution. Since which hooks run depend on which Client API methods get called, you will need to know which Command Line commands call which API methods. Later on, there is a table showing the various associations.</p>
+
+<p><strong>Terminology Note</strong>: From now on, &ldquo;method(s)&rdquo; refer to Client API methods, and &ldquo;command(s)&rdquo; refer to Command Line commands.</p>
+
+<ul>
+<li><a href="#hook-types">Hook Types</a></li>
+<li><a href="#execution-order">Execution Order</a></li>
+<li><a href="#hookable-methods">Hookable Methods</a></li>
+<li><a href="#activating-and-using-hooks">Activating and Using Hooks</a></li>
+<li><a href="#aurora-config-file-settings">.aurora Config File Settings</a></li>
+<li><a href="#command-line">Command Line</a></li>
+<li><a href="#hooks-protocol">Hooks Protocol</a>
+
+<ul>
+<li><a href="#pre_-methods">pre_ Methods</a></li>
+<li><a href="#err_-methods">err_ Methods</a></li>
+<li><a href="#post_-methods">post_ Methods</a></li>
+</ul></li>
+<li><a href="#generic-hooks">Generic Hooks</a></li>
+<li><a href="#hooks-process-checklist">Hooks Process Checklist</a></li>
+</ul>
+
+<h2 id="hook-types">Hook Types</h2>
+
+<p>Hooks have three basic types, differing by when they run with respect to their associated method.</p>
+
+<p><code>pre_&lt;method_name&gt;</code>: When its associated method is called, the <code>pre_</code> hook executes first, then the called method. If the <code>pre_</code> hook fails, the method never runs. Later code that expected the method to succeed may be affected by this, and result in terminating the Aurora client.</p>
+
+<p>Note that a <code>pre_</code> hook can error-trap internally so it does not
+return <code>False</code>. Designers/contributors of new <code>pre_</code> hooks should
+consider whether or not to error-trap them. You can error trap at the
+highest level very generally and always pass the <code>pre_</code> hook by
+returning <code>True</code>. For example:</p>
+<pre class="highlight plaintext"><code>def pre_create(...):
+  do_something()  # if do_something fails with an exception, the create_job is not attempted!
+  return True
+
+# However...
+def pre_create(...):
+  try:
+    do_something()  # may cause exception
+  except Exception:  # generic error trap will catch it
+    pass  # and ignore the exception
+  return True  # create_job will run in any case!
+</code></pre>
+
+<p><code>post_&lt;method_name&gt;</code>: A <code>post_</code> hook executes after its associated method successfully finishes running. If it fails, the already executed method is unaffected. A <code>post_</code> hook&rsquo;s error is trapped, and any later operations are unaffected.</p>
+
+<p><code>err_&lt;method_name&gt;</code>: Executes only when its associated method returns a status other than OK or throws an exception. If an <code>err_</code> hook fails, the already executed method is unaffected. An <code>err_</code> hook&rsquo;s error is trapped, and any later operations are unaffected.</p>
+
+<h2 id="execution-order">Execution Order</h2>
+
+<p>A command with <code>pre_</code>, <code>post_</code>, and <code>err_</code> hooks defined and activated for its called method executes in the following order when the method successfully executes:</p>
+
+<ol>
+<li>Command called</li>
+<li>Command code executes</li>
+<li>Method Called</li>
+<li><code>pre_</code> method hook runs</li>
+<li>Method runs and successfully finishes</li>
+<li><code>post_</code> method hook runs</li>
+<li>Command code executes</li>
+<li>Command execution ends</li>
+</ol>
+
+<p>The following is what happens when, for the same command and hooks, the method associated with the command suffers an error and does not successfully finish executing:</p>
+
+<ol>
+<li>Command called</li>
+<li>Command code executes</li>
+<li>Method Called</li>
+<li><code>pre_</code> method hook runs</li>
+<li>Method runs and fails</li>
+<li><code>err_</code> method hook runs</li>
+<li>Command Code executes (if <code>err_</code> method does not end the command execution)</li>
+<li>Command execution ends</li>
+</ol>
+
+<p>Note that the <code>post_</code> and <code>err_</code> hooks for the same method can never both run for a single execution of that method.</p>
+
+<h2 id="hookable-methods">Hookable Methods</h2>
+
+<p>You can associate <code>pre_</code>, <code>post_</code>, and <code>err_</code> hooks with the following methods. Since you do not directly interact with the methods, but rather the Aurora Command Line commands that call them, for each method we also list the command(s) that can call the method. Note that a different method or methods may be called by a command depending on how the command&rsquo;s other code executes. Similarly, multiple commands can call the same method. We also list the methods&rsquo; argument signatures, which are used by their associated hooks. <a name="Chart"></a></p>
+
+<table><thead>
+<tr>
+<th>Aurora Client API Method</th>
+<th>Client API Method Argument Signature</th>
+<th>Aurora Command Line Command</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>create_job</code></td>
+<td><code>self</code>, <code>config</code></td>
+<td><code>job create</code>, <code>runtask</td>
+</tr>
+<tr>
+<td><code>restart</code></td>
+<td><code>self</code>, <code>job_key</code>, <code>shards</code>, <code>update_config</code>, <code>health_check_interval_seconds</code></td>
+<td><code>job restart</code></td>
+</tr>
+<tr>
+<td><code>kill_job</code></td>
+<td><code>self</code>, <code>job_key</code>, <code>shards=None</code></td>
+<td><code>job kill</code></td>
+</tr>
+<tr>
+<td><code>start_cronjob</code></td>
+<td><code>self</code>, <code>job_key</code></td>
+<td><code>cron start</code></td>
+</tr>
+<tr>
+<td><code>start_job_update</code></td>
+<td><code>self</code>, <code>config</code>, <code>instances=None</code></td>
+<td><code>update start</code></td>
+</tr>
+</tbody></table>
+
+<p>Some specific examples:</p>
+
+<ul>
+<li><p><code>pre_create_job</code> executes when a <code>create_job</code> method is called, and before the <code>create_job</code> method itself executes.</p></li>
+<li><p><code>post_cancel_update</code> executes after a <code>cancel_update</code> method has successfully finished running.</p></li>
+<li><p><code>err_kill_job</code> executes when the <code>kill_job</code> method is called, but doesn&rsquo;t successfully finish running.</p></li>
+</ul>
+
+<h2 id="activating-and-using-hooks">Activating and Using Hooks</h2>
+
+<p>By default, hooks are inactive. If you do not want to use hooks, you do not need to make any changes to your code. If you do want to use hooks, you will need to alter your <code>.aurora</code> config file to activate them both for the configuration as a whole as well as for individual <code>Job</code>s. And, of course, you will need to define in your config file what happens when a particular hook executes.</p>
+
+<h2 id="aurora-config-file-settings">.aurora Config File Settings</h2>
+
+<p>You can define a top-level <code>hooks</code> variable in any <code>.aurora</code> config file. <code>hooks</code> is a list of all objects that define hooks used by <code>Job</code>s defined in that config file. If you do not want to define any hooks for a configuration, <code>hooks</code> is optional.</p>
+<pre class="highlight plaintext"><code>hooks = [Object_with_defined_hooks1, Object_with_defined_hooks2]
+</code></pre>
+
+<p>Be careful when assembling a config file using <code>include</code> on multiple smaller config files. If there are multiple files that assign a value to <code>hooks</code>, only the last assignment made will stick. For example, if <code>x.aurora</code> has <code>hooks = [a, b, c]</code> and <code>y.aurora</code> has <code>hooks = [d, e, f]</code> and <code>z.aurora</code> has, in this order, <code>include x.aurora</code> and <code>include y.aurora</code>, the <code>hooks</code> value will be <code>[d, e, f]</code>.</p>
+
+<p>Also, for any <code>Job</code> that you want to use hooks with, its <code>Job</code> definition in the <code>.aurora</code> config file must set an <code>enable_hooks</code> flag to <code>True</code> (it defaults to <code>False</code>). By default, hooks are disabled and you must enable them for <code>Job</code>s of your choice.</p>
+
+<p>To summarize, to use hooks for a particular job, you must both activate hooks for your config file as a whole, and for that job. Activating hooks only for individual jobs won&rsquo;t work, nor will only activating hooks for your config file as a whole. You must also specify the hooks&rsquo; defining object in the <code>hooks</code> variable.</p>
+
+<p>Recall that <code>.aurora</code> config files are written in Pystachio. So the following turns on hooks for production jobs at cluster1 and cluster2, but leaves them off for similar jobs with a defined user role. Of course, you also need to list the objects that define the hooks in your config file&rsquo;s <code>hooks</code> variable.</p>
+<pre class="highlight plaintext"><code>jobs = [
+        Job(enable_hooks = True, cluster = c, env = 'prod') for c in ('cluster1', 'cluster2')
+       ]
+jobs.extend(
+   Job(cluster = c, env = 'prod', role = getpass.getuser()) for c in ('cluster1', 'cluster2'))
+   # Hooks disabled for these jobs
+</code></pre>
+
+<h2 id="command-line">Command Line</h2>
+
+<p>All Aurora Command Line commands now accept an <code>.aurora</code> config file as an optional parameter (some, of course, accept it as a required parameter). Whenever a command has a <code>.aurora</code> file parameter, any hooks specified and activated in the <code>.aurora</code> file can be used. For example:</p>
+<pre class="highlight plaintext"><code>aurora job restart cluster1/role/env/app myapp.aurora
+</code></pre>
+
+<p>The command activates any hooks specified and activated in <code>myapp.aurora</code>. For the <code>restart</code> command, that is the only thing the <code>myapp.aurora</code> parameter does. So, if the command was the following, since there is no <code>.aurora</code> config file to specify any hooks, no hooks on the <code>restart</code> command can run.</p>
+<pre class="highlight plaintext"><code>aurora job restart cluster1/role/env/app
+</code></pre>
+
+<h2 id="hooks-protocol">Hooks Protocol</h2>
+
+<p>Any object defined in the <code>.aurora</code> config file can define hook methods. You should define your hook methods within a class, and then use the class name as a value in the <code>hooks</code> list in your config file.</p>
+
+<p>Note that you can define other methods in the class that its hook methods can call; all the logic of a hook does not have to be in its definition.</p>
+
+<p>The following example defines a class containing a <code>pre_kill_job</code> hook definition that calls another method defined in the class.</p>
+<pre class="highlight plaintext"><code># Defines a method pre_kill_job
+class KillConfirmer(object):
+  def confirm(self, msg):
+    return raw_input(msg).lower() == 'yes'
+
+  def pre_kill_job(self, job_key, shards=None):
+    shards = ('shards %s' % shards) if shards is not None else 'all shards'
+    return self.confirm('Are you sure you want to kill %s (%s)? (yes/no): '
+                        % (job_key, shards))
+</code></pre>
+
+<h3 id="pre_-methods">pre_ Methods</h3>
+
+<p><code>pre_</code> methods have the signature:</p>
+<pre class="highlight plaintext"><code>pre_&lt;API method name&gt;(self, &lt;associated method's signature&gt;)
+</code></pre>
+
+<p><code>pre_</code> methods have the same signature as their associated method, with the addition of <code>self</code> as the first parameter. See the <a href="#Chart">chart</a> above for the mapping of parameters to methods. When writing <code>pre_</code> methods, you can use the <code>*</code> and <code>**</code> syntax to designate that all unspecified parameters are passed in a list to the <code>*</code>ed variable and all named parameters with values are passed as name/value pairs to the <code>**</code>ed variable.</p>
+
+<p>If this method returns False, the API command call aborts.</p>
+
+<h3 id="err_-methods">err_ Methods</h3>
+
+<p><code>err_</code> methods have the signature:</p>
+<pre class="highlight plaintext"><code>err_&lt;API method name&gt;(self, exc, &lt;associated method's signature&gt;)
+</code></pre>
+
+<p><code>err_</code> methods have the same signature as their associated method, with the addition of a first parameter <code>self</code> and a second parameter <code>exc</code>. <code>exc</code> is either a result with responseCode other than <code>ResponseCode.OK</code> or an <code>Exception</code>. See the <a href="#Chart">chart</a> above for the mapping of parameters to methods. When writing <code>err</code>_ methods, you can use the <code>*</code> and <code>**</code> syntax to designate that all unspecified parameters are passed in a list to the <code>*</code>ed variable and all named parameters with values are passed as name/value pairs to the <code>**</code>ed variable.</p>
+
+<p><code>err_</code> method return codes are ignored.</p>
+
+<h3 id="post_-methods">post_ Methods</h3>
+
+<p><code>post_</code> methods have the signature:</p>
+<pre class="highlight plaintext"><code>post_&lt;API method name&gt;(self, result, &lt;associated method signature&gt;)
+</code></pre>
+
+<p><code>post_</code> method parameters are <code>self</code>, then <code>result</code>, followed by the same parameter signature as their associated method. <code>result</code> is the result of the associated method call. See the <a href="#chart">chart</a> above for the mapping of parameters to methods. When writing <code>post_</code> methods, you can use the <code>*</code> and <code>**</code> syntax to designate that all unspecified arguments are passed in a list to the <code>*</code>ed parameter and all unspecified named arguments with values are passed as name/value pairs to the <code>**</code>ed parameter.</p>
+
+<p><code>post_</code> method return codes are ignored.</p>
+
+<h2 id="generic-hooks">Generic Hooks</h2>
+
+<p>There are seven Aurora API Methods which any of the three hook types can attach to. Thus, there are 21 possible hook/method combinations for a single <code>.aurora</code> config file. Say that you define <code>pre_</code> and <code>post_</code> hooks for the <code>restart</code> method. That leaves 19 undefined hook/method combinations; <code>err_restart</code> and the 3 <code>pre_</code>, <code>post_</code>, and <code>err_</code> hooks for each of the other 6 hookable methods. You can define what happens when any of these otherwise undefined 19 hooks execute via a generic hook, whose signature is:</p>
+<pre class="highlight plaintext"><code>generic_hook(self, hook_config, event, method_name, result_or_err, args*, kw**)
+</code></pre>
+
+<p>where:</p>
+
+<ul>
+<li><p><code>hook_config</code> is a named tuple of <code>config</code> (the Pystashio <code>config</code> object) and <code>job_key</code>.</p></li>
+<li><p><code>event</code> is one of <code>pre</code>, <code>err</code>, or <code>post</code>, indicating which type of hook the genetic hook is standing in for. For example, assume no specific hooks were defined for the <code>restart</code> API command. If <code>generic_hook</code> is defined and activated, and <code>restart</code> is called, <code>generic_hook</code> will effectively run as <code>pre_restart</code>, <code>post_restart</code>, and <code>err_restart</code>. You can use a selection statement on this value so that <code>generic_hook</code> will act differently based on whether it is standing in for a <code>pre_</code>, <code>post_</code>, or <code>err_</code> hook.</p></li>
+<li><p><code>method_name</code> is the Client API method name whose execution is causing this execution of the <code>generic_hook</code>.</p></li>
+<li><p><code>args*</code>, <code>kw**</code> are the API method arguments and keyword arguments respectively.</p></li>
+<li><p><code>result_or_err</code> is a tri-state parameter taking one of these three values:</p>
+
+<ol>
+<li>None for <code>pre_</code>hooks</li>
+<li><code>result</code> for <code>post_</code> nooks</li>
+<li><code>exc</code> for <code>err_</code> hooks</li>
+</ol></li>
+</ul>
+
+<p>Example:</p>
+<pre class="highlight plaintext"><code># Overrides the standard do-nothing generic_hook by adding a log writing operation.
+from twitter.common import log
+  class Logger(object):
+    '''Adds to the log every time a hookable API method is called'''
+    def generic_hook(self, hook_config, event, method_name, result_or_err, *args, **kw)
+      log.info('%s: %s_%s of %s'
+               % (self.__class__.__name__, event, method_name, hook_config.job_key))
+</code></pre>
+
+<h2 id="hooks-process-checklist">Hooks Process Checklist</h2>
+
+<ol>
+<li><p>In your <code>.aurora</code> config file, add a <code>hooks</code> variable. Note that you may want to define a <code>.aurora</code> file only for hook definitions and then include this file in multiple other config files that you want to use the same hooks.</p>
+
+<p>hooks = []</p></li>
+<li><p>In the <code>hooks</code> variable, list all objects that define hooks used by <code>Job</code>s defined in this config:</p>
+
+<p>hooks = [Object<em>hook</em>definer1, Object<em>hook</em>definer2]</p></li>
+<li><p>For each job that uses hooks in this config file, add <code>enable_hooks = True</code> to the <code>Job</code> definition. Note that this is necessary even if you only want to use the generic hook.</p></li>
+<li><p>Write your <code>pre_</code>, <code>post_</code>, and <code>err_</code> hook definitions as part of an object definition in your <code>.aurora</code> config file.</p></li>
+<li><p>If desired, write your <code>generic_hook</code> definition as part of an object definition in your <code>.aurora</code> config file. Remember, the object must be listed as a member of <code>hooks</code>.</p></li>
+<li><p>If your Aurora command line command does not otherwise take an <code>.aurora</code> config file argument, add the appropriate <code>.aurora</code> file as an argument in order to define and activate the configuration&rsquo;s hooks.</p></li>
+</ol>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

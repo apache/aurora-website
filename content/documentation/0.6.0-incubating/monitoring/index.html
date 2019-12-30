@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/monitoring/'"
+        value="0.6.0-incubating">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    selected="selected">
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="monitoring-your-aurora-cluster">Monitoring your Aurora cluster</h1>
+
+<p>Before you start running important services in your Aurora cluster, it&rsquo;s important to set up
+monitoring and alerting of Aurora itself.  Most of your monitoring can be against the scheduler,
+since it will give you a global view of what&rsquo;s going on.</p>
+
+<h2 id="reading-stats">Reading stats</h2>
+
+<p>The scheduler exposes a <em>lot</em> of instrumentation data via its HTTP interface. You can get a quick
+peek at the first few of these in our vagrant image:</p>
+<pre class="highlight plaintext"><code>$ vagrant ssh -c 'curl -s localhost:8081/vars | head'
+async_tasks_completed 1004
+attribute_store_fetch_all_events 15
+attribute_store_fetch_all_events_per_sec 0.0
+attribute_store_fetch_all_nanos_per_event 0.0
+attribute_store_fetch_all_nanos_total 3048285
+attribute_store_fetch_all_nanos_total_per_sec 0.0
+attribute_store_fetch_one_events 3391
+attribute_store_fetch_one_events_per_sec 0.0
+attribute_store_fetch_one_nanos_per_event 0.0
+attribute_store_fetch_one_nanos_total 454690753
+</code></pre>
+
+<p>These values are served as <code>Content-Type: text/plain</code>, with each line containing a space-separated metric
+name and value. Values may be integers, doubles, or strings (note: strings are static, others
+may be dynamic).</p>
+
+<p>If your monitoring infrastructure prefers JSON, the scheduler exports that as well:</p>
+<pre class="highlight plaintext"><code>$ vagrant ssh -c 'curl -s localhost:8081/vars.json | python -mjson.tool | head'
+{
+    "async_tasks_completed": 1009,
+    "attribute_store_fetch_all_events": 15,
+    "attribute_store_fetch_all_events_per_sec": 0.0,
+    "attribute_store_fetch_all_nanos_per_event": 0.0,
+    "attribute_store_fetch_all_nanos_total": 3048285,
+    "attribute_store_fetch_all_nanos_total_per_sec": 0.0,
+    "attribute_store_fetch_one_events": 3409,
+    "attribute_store_fetch_one_events_per_sec": 0.0,
+    "attribute_store_fetch_one_nanos_per_event": 0.0,
+</code></pre>
+
+<p>This will be the same data as above, served with <code>Content-Type: application/json</code>.</p>
+
+<h2 id="viewing-live-stat-samples-on-the-scheduler">Viewing live stat samples on the scheduler</h2>
+
+<p>The scheduler uses the Twitter commons stats library, which keeps an internal time-series database
+of exported variables - nearly everything in <code>/vars</code> is available for instant graphing.  This is
+useful for debugging, but is not a replacement for an external monitoring system.</p>
+
+<p>You can view these graphs on a scheduler at <code>/graphview</code>.  It supports some composition and
+aggregation of values, which can be invaluable when triaging a problem.  For example, if you have
+the scheduler running in vagrant, check out these links:
+<a href="http://192.168.33.7:8081/graphview?query=jvm_uptime_secs">simple graph</a>
+<a href="http://192.168.33.7:8081/graphview?query=rate(scheduler_log_native_append_nanos_total)%2Frate(scheduler_log_native_append_events)%2F1e6">complex composition</a></p>
+
+<h3 id="counters-and-gauges">Counters and gauges</h3>
+
+<p>Among numeric stats, there are two fundamental types of stats exported: <em>counters</em> and <em>gauges</em>.
+Counters are guaranteed to be monotonically-increasing for the lifetime of a process, while gauges
+may decrease in value.  Aurora uses counters to represent things like the number of times an event
+has occurred, and gauges to capture things like the current length of a queue.  Counters are a
+natural fit for accurate composition into <a href="http://en.wikipedia.org/wiki/Rate_ratio">rate ratios</a>
+(useful for sample-resistant latency calculation), while gauges are not.</p>
+
+<h1 id="alerting">Alerting</h1>
+
+<h2 id="quickstart">Quickstart</h2>
+
+<p>If you are looking for just bare-minimum alerting to get something in place quickly, set up alerting
+on <code>framework_registered</code> and <code>task_store_LOST</code>. These will give you a decent picture of overall
+health.</p>
+
+<h2 id="a-note-on-thresholds">A note on thresholds</h2>
+
+<p>One of the most difficult things in monitoring is choosing alert thresholds. With many of these
+stats, there is no value we can offer as a threshold that will be guaranteed to work for you. It
+will depend on the size of your cluster, number of jobs, churn of tasks in the cluster, etc. We
+recommend you start with a strict value after viewing a small amount of collected data, and then
+adjust thresholds as you see fit. Feel free to ask us if you would like to validate that your alerts
+and thresholds make sense.</p>
+
+<h4 id="jvm_uptime_secs"><code>jvm_uptime_secs</code></h4>
+
+<p>Type: integer counter</p>
+
+<h4 id="description">Description</h4>
+
+<p>The number of seconds the JVM process has been running. Comes from
+<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/management/RuntimeMXBean.html#getUptime()">RuntimeMXBean#getUptime()</a></p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>Detecting resets (decreasing values) on this stat will tell you that the scheduler is failing to
+stay alive.</p>
+
+<h4 id="triage">Triage</h4>
+
+<p>Look at the scheduler logs to identify the reason the scheduler is exiting.</p>
+
+<h4 id="system_load_avg"><code>system_load_avg</code></h4>
+
+<p>Type: double gauge</p>
+
+<h4 id="description">Description</h4>
+
+<p>The current load average of the system for the last minute. Comes from
+<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/management/OperatingSystemMXBean.html?is-external=true#getSystemLoadAverage()">OperatingSystemMXBean#getSystemLoadAverage()</a>.</p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>A high sustained value suggests that the scheduler machine may be over-utilized.</p>
+
+<h4 id="triage">Triage</h4>
+
+<p>Use standard unix tools like <code>top</code> and <code>ps</code> to track down the offending process(es).</p>
+
+<h4 id="process_cpu_cores_utilized"><code>process_cpu_cores_utilized</code></h4>
+
+<p>Type: double gauge</p>
+
+<h4 id="description">Description</h4>
+
+<p>The current number of CPU cores in use by the JVM process. This should not exceed the number of
+logical CPU cores on the machine. Derived from
+<a href="http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html">OperatingSystemMXBean#getProcessCpuTime()</a></p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>A high sustained value indicates that the scheduler is overworked. Due to current internal design
+limitations, if this value is sustained at <code>1</code>, there is a good chance the scheduler is under water.</p>
+
+<h4 id="triage">Triage</h4>
+
+<p>There are two main inputs that tend to drive this figure: task scheduling attempts and status
+updates from Mesos.  You may see activity in the scheduler logs to give an indication of where
+time is being spent.  Beyond that, it really takes good familiarity with the code to effectively
+triage this.  We suggest engaging with an Aurora developer.</p>
+
+<h4 id="task_store_lost"><code>task_store_LOST</code></h4>
+
+<p>Type: integer gauge</p>
+
+<h4 id="description">Description</h4>
+
+<p>The number of tasks stored in the scheduler that are in the <code>LOST</code> state, and have been rescheduled.</p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>If this value is increasing at a high rate, it is a sign of trouble.</p>
+
+<h4 id="triage">Triage</h4>
+
+<p>There are many sources of <code>LOST</code> tasks in Mesos: the scheduler, master, slave, and executor can all
+trigger this.  The first step is to look in the scheduler logs for <code>LOST</code> to identify where the
+state changes are originating.</p>
+
+<h4 id="scheduler_resource_offers"><code>scheduler_resource_offers</code></h4>
+
+<p>Type: integer counter</p>
+
+<h4 id="description">Description</h4>
+
+<p>The number of resource offers that the scheduler has received.</p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>For a healthy scheduler, this value must be increasing over time.</p>
+
+<h5 id="triage">Triage</h5>
+
+<p>Assuming the scheduler is up and otherwise healthy, you will want to check if the master thinks it
+is sending offers. You should also look at the master&rsquo;s web interface to see if it has a large
+number of outstanding offers that it is waiting to be returned.</p>
+
+<h4 id="framework_registered"><code>framework_registered</code></h4>
+
+<p>Type: binary integer counter</p>
+
+<h4 id="description">Description</h4>
+
+<p>Will be <code>1</code> for the leading scheduler that is registered with the Mesos master, <code>0</code> for passive
+schedulers,</p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>A sustained period without a <code>1</code> (or where <code>sum() != 1</code>) warrants investigation.</p>
+
+<h4 id="triage">Triage</h4>
+
+<p>If there is no leading scheduler, look in the scheduler and master logs for why.  If there are
+multiple schedulers claiming leadership, this suggests a split brain and warrants filing a critical
+bug.</p>
+
+<h4 id="rate-scheduler_log_native_append_nanos_total-rate-scheduler_log_native_append_events"><code>rate(scheduler_log_native_append_nanos_total)/rate(scheduler_log_native_append_events)</code></h4>
+
+<p>Type: rate ratio of integer counters</p>
+
+<h4 id="description">Description</h4>
+
+<p>This composes two counters to compute a windowed figure for the latency of replicated log writes.</p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>A hike in this value suggests disk bandwidth contention.</p>
+
+<h4 id="triage">Triage</h4>
+
+<p>Look in scheduler logs for any reported oddness with saving to the replicated log. Also use
+standard tools like <code>vmstat</code> and <code>iotop</code> to identify whether the disk has become slow or
+over-utilized. We suggest using a dedicated disk for the replicated log to mitigate this.</p>
+
+<h4 id="timed_out_tasks"><code>timed_out_tasks</code></h4>
+
+<p>Type: integer counter</p>
+
+<h4 id="description">Description</h4>
+
+<p>Tracks the number of times the scheduler has given up while waiting
+(for <code>-transient_task_state_timeout</code>) to hear back about a task that is in a transient state
+(e.g. <code>ASSIGNED</code>, <code>KILLING</code>), and has moved to <code>LOST</code> before rescheduling.</p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>This value is currently known to increase occasionally when the scheduler fails over
+(<a href="https://issues.apache.org/jira/browse/AURORA-740">AURORA-740</a>). However, any large spike in this
+value warrants investigation.</p>
+
+<h4 id="triage">Triage</h4>
+
+<p>The scheduler will log when it times out a task. You should trace the task ID of the timed out
+task into the master, slave, and/or executors to determine where the message was dropped.</p>
+
+<h4 id="http_500_responses_events"><code>http_500_responses_events</code></h4>
+
+<p>Type: integer counter</p>
+
+<h4 id="description">Description</h4>
+
+<p>The total number of HTTP 500 status responses sent by the scheduler. Includes API and asset serving.</p>
+
+<h4 id="alerting">Alerting</h4>
+
+<p>An increase warrants investigation.</p>
+
+<h4 id="triage">Triage</h4>
+
+<p>Look in scheduler logs to identify why the scheduler returned a 500, there should be a stack trace.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

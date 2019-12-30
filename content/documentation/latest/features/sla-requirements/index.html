@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/sla-requirements/'"
+        value="latest">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="sla-requirements">SLA Requirements</h1>
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#default-sla">Default SLA</a></li>
+<li><a href="#custom-sla">Custom SLA</a>
+
+<ul>
+<li><a href="#count-based">Count-based</a></li>
+<li><a href="#percentage-based">Percentage-based</a></li>
+<li><a href="#coordinator-based">Coordinator-based</a></li>
+</ul></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<p>Aurora guarantees SLA requirements for jobs. These requirements limit the impact of cluster-wide
+maintenance operations on the jobs. For instance, when an operator upgrades
+the OS on all the Mesos agent machines, the tasks scheduled on them needs to be drained.
+By specifying the SLA requirements a job can make sure that it has enough instances to
+continue operating safely without incurring downtime.</p>
+
+<blockquote>
+<p>SLA is defined as minimum number of active tasks required for a job every duration window.
+A task is active if it was in <code>RUNNING</code> state during the last duration window.</p>
+</blockquote>
+
+<p>There is a <a href="#default-sla">default</a> SLA guarantee for
+<a href="../../features/multitenancy/#configuration-tiers">preferred</a> tier jobs and it is also possible to
+specify <a href="#custom-sla">custom</a> SLA requirements.</p>
+
+<h2 id="default-sla">Default SLA</h2>
+
+<p>Aurora guarantees a default SLA requirement for tasks in
+<a href="../../features/multitenancy/#configuration-tiers">preferred</a> tier.</p>
+
+<blockquote>
+<p>95% of tasks in a job will be <code>active</code> for every 30 mins.</p>
+</blockquote>
+
+<h2 id="custom-sla">Custom SLA</h2>
+
+<p>For jobs that require different SLA requirements, Aurora allows jobs to specify their own
+SLA requirements via the <code>SlaPolicies</code>. There are 3 different ways to express SLA requirements.</p>
+
+<h3 id="count-based"><a href="../../reference/configuration/#countslapolicy-objects">Count-based</a></h3>
+
+<p>For jobs that need a minimum <code>number</code> of instances to be running all the time,
+<a href="../../reference/configuration/#countslapolicy-objects"><code>CountSlaPolicy</code></a>
+provides the ability to express the minimum number of required active instances (i.e. number of
+tasks that are <code>RUNNING</code> for at least <code>duration_secs</code>). For instance, if we have a
+<code>replicated-service</code> that has 3 instances and needs at least 2 instances every 30 minutes to be
+treated healthy, the SLA requirement can be expressed with a
+<a href="../../reference/configuration/#countslapolicy-objects"><code>CountSlaPolicy</code></a> like below,</p>
+<pre class="highlight python"><code><span style="background-color: #f8f8f8">Job</span><span style="background-color: #f8f8f8">(</span>
+  <span style="background-color: #f8f8f8">name</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'replicated-service'</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">role</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'www-data'</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">instances</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">3</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">sla_policy</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">CountSlaPolicy</span><span style="background-color: #f8f8f8">(</span>
+    <span style="background-color: #f8f8f8">count</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">2</span><span style="background-color: #f8f8f8">,</span>
+    <span style="background-color: #f8f8f8">duration_secs</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">1800</span>
+  <span style="background-color: #f8f8f8">)</span>
+  <span style="color: #000000;font-weight: bold">...</span>
+<span style="background-color: #f8f8f8">)</span>
+</code></pre>
+
+<h3 id="percentage-based"><a href="../../reference/configuration/#percentageslapolicy-objects">Percentage-based</a></h3>
+
+<p>For jobs that need a minimum <code>percentage</code> of instances to be running all the time,
+<a href="../../reference/configuration/#percentageslapolicy-objects"><code>PercentageSlaPolicy</code></a> provides the
+ability to express the minimum percentage of required active instances (i.e. percentage of tasks
+that are <code>RUNNING</code> for at least <code>duration_secs</code>). For instance, if we have a <code>webservice</code> that
+has 10000 instances for handling peak load and cannot have more than 0.1% of the instances down
+for every 1 hr, the SLA requirement can be expressed with a
+<a href="../../reference/configuration/#percentageslapolicy-objects"><code>PercentageSlaPolicy</code></a> like below,</p>
+<pre class="highlight python"><code><span style="background-color: #f8f8f8">Job</span><span style="background-color: #f8f8f8">(</span>
+  <span style="background-color: #f8f8f8">name</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'frontend-service'</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">role</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'www-data'</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">instances</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">10000</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">sla_policy</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">PercentageSlaPolicy</span><span style="background-color: #f8f8f8">(</span>
+    <span style="background-color: #f8f8f8">percentage</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">99.9</span><span style="background-color: #f8f8f8">,</span>
+    <span style="background-color: #f8f8f8">duration_secs</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #009999">3600</span>
+  <span style="background-color: #f8f8f8">)</span>
+  <span style="color: #000000;font-weight: bold">...</span>
+<span style="background-color: #f8f8f8">)</span>
+</code></pre>
+
+<h3 id="coordinator-based"><a href="../../reference/configuration/#coordinatorslapolicy-objects">Coordinator-based</a></h3>
+
+<p>When none of the above methods are enough to describe the SLA requirements for a job, then the SLA
+calculation can be off-loaded to a custom service called the <code>Coordinator</code>. The <code>Coordinator</code> needs
+to expose an endpoint that will be called to check if removal of a task will affect the SLA
+requirements for the job. This is useful to control the number of tasks that undergoes maintenance
+at a time, without affected the SLA for the application.</p>
+
+<p>Consider the example, where we have a <code>storage-service</code> stores 2 replicas of an object. Each replica
+is distributed across the instances, such that replicas are stored on different hosts. In addition
+a consistent-hash is used for distributing the data across the instances.</p>
+
+<p>When an instance needs to be drained (say for host-maintenance), we have to make sure that at least 1 of
+the 2 replicas remains available. In such a case, a <code>Coordinator</code> service can be used to maintain
+the SLA guarantees required for the job.</p>
+
+<p>The job can be configured with a
+<a href="../../reference/configuration/#coordinatorslapolicy-objects"><code>CoordinatorSlaPolicy</code></a> to specify the
+coordinator endpoint and the field in the response JSON that indicates if the SLA will be affected
+or not affected, when the task is removed.</p>
+<pre class="highlight python"><code><span style="background-color: #f8f8f8">Job</span><span style="background-color: #f8f8f8">(</span>
+  <span style="background-color: #f8f8f8">name</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'storage-service'</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">role</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'www-data'</span><span style="background-color: #f8f8f8">,</span>
+  <span style="background-color: #f8f8f8">sla_policy</span> <span style="color: #000000;font-weight: bold">=</span> <span style="background-color: #f8f8f8">CoordinatorSlaPolicy</span><span style="background-color: #f8f8f8">(</span>
+    <span style="background-color: #f8f8f8">coordinator_url</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'http://coordinator.example.com'</span><span style="background-color: #f8f8f8">,</span>
+    <span style="background-color: #f8f8f8">status_key</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #d14">'drain'</span>
+  <span style="background-color: #f8f8f8">)</span>
+  <span style="color: #000000;font-weight: bold">...</span>
+<span style="background-color: #f8f8f8">)</span>
+</code></pre>
+
+<h4 id="coordinator-interface-experimental">Coordinator Interface [Experimental]</h4>
+
+<p>When a <a href="../../reference/configuration/#coordinatorslapolicy-objects"><code>CoordinatorSlaPolicy</code></a> is
+specified for a job, any action that requires removing a task
+(such as drains) will be required to get approval from the <code>Coordinator</code> before proceeding. The
+coordinator service needs to expose a HTTP endpoint, that can take a <code>task-key</code> param
+(<code>&lt;cluster&gt;/&lt;role&gt;/&lt;env&gt;/&lt;name&gt;/&lt;instance&gt;</code>) and a json body describing the task
+details, force maintenance countdown (ms) and other params and return a response json that will
+contain the boolean status for allowing or disallowing the task&rsquo;s removal.</p>
+
+<h5 id="request">Request:</h5>
+<pre class="highlight javascript"><code><span style="background-color: #f8f8f8">POST</span> <span style="color: #000000;font-weight: bold">/</span>
+  <span style="background-color: #f8f8f8">?</span><span style="background-color: #f8f8f8">task</span><span style="color: #000000;font-weight: bold">=&lt;</span><span style="background-color: #f8f8f8">cluster</span><span style="color: #000000;font-weight: bold">&gt;</span><span style="color: #009926">/&lt;role&gt;/</span><span style="color: #000000;font-weight: bold">&lt;</span><span style="background-color: #f8f8f8">env</span><span style="color: #000000;font-weight: bold">&gt;</span><span style="color: #009926">/&lt;name&gt;/</span><span style="color: #000000;font-weight: bold">&lt;</span><span style="background-color: #f8f8f8">instance</span><span style="color: #000000;font-weight: bold">&gt;</span>
+
+<span style="background-color: #f8f8f8">{</span>
+  <span style="color: #d14">"forceMaintenanceCountdownMs"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"604755646"</span><span style="background-color: #f8f8f8">,</span>
+  <span style="color: #d14">"task"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"cluster/role/devel/job/1"</span><span style="background-color: #f8f8f8">,</span>
+  <span style="color: #d14">"taskConfig"</span><span style="background-color: #f8f8f8">:</span> <span style="background-color: #f8f8f8">{</span>
+    <span style="color: #d14">"assignedTask"</span><span style="background-color: #f8f8f8">:</span> <span style="background-color: #f8f8f8">{</span>
+      <span style="color: #d14">"taskId"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"taskA"</span><span style="background-color: #f8f8f8">,</span>
+      <span style="color: #d14">"slaveHost"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"a"</span><span style="background-color: #f8f8f8">,</span>
+      <span style="color: #d14">"task"</span><span style="background-color: #f8f8f8">:</span> <span style="background-color: #f8f8f8">{</span>
+        <span style="color: #d14">"job"</span><span style="background-color: #f8f8f8">:</span> <span style="background-color: #f8f8f8">{</span>
+          <span style="color: #d14">"role"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"role"</span><span style="background-color: #f8f8f8">,</span>
+          <span style="color: #d14">"environment"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"devel"</span><span style="background-color: #f8f8f8">,</span>
+          <span style="color: #d14">"name"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #d14">"job"</span>
+        <span style="background-color: #f8f8f8">},</span>
+        <span style="background-color: #f8f8f8">...</span>
+      <span style="background-color: #f8f8f8">},</span>
+      <span style="color: #d14">"assignedPorts"</span><span style="background-color: #f8f8f8">:</span> <span style="background-color: #f8f8f8">{</span>
+        <span style="color: #d14">"http"</span><span style="background-color: #f8f8f8">:</span> <span style="color: #009999">1000</span>
+      <span style="background-color: #f8f8f8">},</span>
+      <span style="color: #d14">"instanceId"</span><span style="color: #a61717;background-color: #e3d2d2">:</span> <span style="color: #009999">1</span>
+      <span style="background-color: #f8f8f8">...</span>
+    <span style="background-color: #f8f8f8">},</span>
+    <span style="background-color: #f8f8f8">...</span>
+  <span style="background-color: #f8f8f8">}</span>
+<span style="background-color: #f8f8f8">}</span>
+</code></pre>
+
+<h5 id="response">Response:</h5>
+<pre class="highlight json"><code><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+  </span><span style="color: #000080">"drain"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="color: #bbbbbb">
+</span><span style="background-color: #f8f8f8">}</span><span style="color: #bbbbbb">
+</span></code></pre>
+
+<p>If Coordinator allows removal of the task, then the task’s
+<a href="../../reference/configuration/#httplifecycleconfig-objects">termination lifecycle</a>
+is triggered. If Coordinator does not allow removal, then the request will be retried again in the
+future.</p>
+
+<h4 id="coordinator-actions">Coordinator Actions</h4>
+
+<p>Coordinator endpoint get its own lock and this is used to serializes calls to the Coordinator.
+It guarantees that only one concurrent request is sent to a coordinator endpoint. This allows
+coordinators to simply look the current state of the tasks to determine its SLA (without having
+to worry about in-flight and pending requests). However if there are multiple coordinators,
+maintenance can be done in parallel across all the coordinators.</p>
+
+<p><em>Note: Single concurrent request to a coordinator endpoint does not translate as exactly-once
+guarantee. The coordinator must be able to handle duplicate drain
+requests for the same task.</em></p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

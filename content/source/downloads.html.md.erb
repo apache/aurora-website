@@ -1,0 +1,40 @@
+# Download Aurora
+
+If you're new, consider starting with the [Getting Started guide](/documentation/latest/getting-started/vagrant/).
+
+<!--
+  NOTE: current releases should use a mirrored URL (www.apache.org/dyn/...),
+  previous releases should live in the archive.
+  For details, see https://www.apache.org/dev/release.html#when-to-archive
+  Signature files are not propagated to mirrors, so we link directly to those.
+-->
+## Binary distributions
+Ubuntu 16.04 [ ![Download](https://api.bintray.com/packages/apache/aurora/ubuntu-xenial/images/download.svg) ](https://bintray.com/apache/aurora/ubuntu-xenial/_latestVersion)
+
+Ubuntu 14.04 [ ![Download](https://api.bintray.com/packages/apache/aurora/debian-ubuntu-trusty/images/download.svg) ](https://bintray.com/apache/aurora/debian-ubuntu-trusty/_latestVersion)
+
+Debian Jessie [ ![Download](https://api.bintray.com/packages/apache/aurora/debian-jessie/images/download.svg) ](https://bintray.com/apache/aurora/debian-jessie/_latestVersion)
+
+CentOS 7 [ ![Download](https://api.bintray.com/packages/apache/aurora/centos-7/images/download.svg) ](https://bintray.com/apache/aurora/centos-7/_latestVersion)
+
+Want packages for a different platform?  Let us [know](/community)!
+
+## Source distributions
+
+<% data.downloads.releases.each do |release| %>
+#### [<%= release.version %>](http://www.apache.org/dyn/closer.cgi?path=/aurora/<%= release.version %>/apache-aurora-<%= release.version %>.tar.gz)
+[signatures](https://www.apache.org/dist/aurora/<%= release.version %>/)
+| [commit log](https://gitbox.apache.org/repos/asf?p=aurora.git;a=log;h=refs/tags/rel/<%= release.version %>)
+<% if release.blog_post %>
+| [release notes](/blog/<%= release.blog_post %>/)
+<% end %>
+<% end %>
+
+### Git
+The latest code is available in git via:
+
+    git clone git://git.apache.org/aurora.git
+
+You can browse the repo on
+[Apache Git](https://gitbox.apache.org/repos/asf?p=aurora.git)
+and the [GitHub mirror](https://github.com/apache/aurora).

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/webhooks/'"
+        value="0.18.1">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    selected="selected">
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="webhooks">Webhooks</h1>
+
+<p>Aurora has an optional feature which allows operator to specify a file to configure a HTTP webhook
+to receive task state change events. It can be enabled with a scheduler flag eg
+<code>-webhook_config=/path/to/webhook.json</code>. At this point, webhooks are still considered <em>experimental</em>.</p>
+
+<p>Below is a sample configuration:</p>
+<pre class="highlight json"><code><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+  </span><span style="color: #000080">"headers"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+    </span><span style="color: #000080">"Content-Type"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"application/vnd.kafka.json.v1+json"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+    </span><span style="color: #000080">"Producer-Type"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"reliable"</span><span style="color: #bbbbbb">
+  </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+  </span><span style="color: #000080">"targetURL"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"http://localhost:5000/"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+  </span><span style="color: #000080">"timeoutMsec"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #009999">5</span><span style="color: #bbbbbb">
+</span><span style="background-color: #f8f8f8">}</span><span style="color: #bbbbbb">
+</span></code></pre>
+
+<p>And an example of a response that you will get back:</p>
+<pre class="highlight json"><code><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+    </span><span style="color: #000080">"task"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb">
+    </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+        </span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">0</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+        </span><span style="color: #000080">"assignedTask"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+            </span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">0</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+            </span><span style="color: #000080">"taskId"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"vagrant-test-http_example-8-a6cf7ec5-d793-49c7-b10f-0e14ab80bfff"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+            </span><span style="color: #000080">"task"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">-1819348376</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"job"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">803049425</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"role"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"vagrant"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"environment"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"test"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"http_example"</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"owner"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">226895216</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"user"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"vagrant"</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"isService"</span><span style="background-color: #f8f8f8">:</span><span style="color: #000000;font-weight: bold">true</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"numCpus"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">0.1</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"ramMb"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">16</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"diskMb"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">8</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"priority"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">0</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"maxTaskFailures"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">1</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"production"</span><span style="background-color: #f8f8f8">:</span><span style="color: #000000;font-weight: bold">false</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"resources"</span><span style="background-color: #f8f8f8">:[</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">{</span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">729800451</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"setField"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"NUM_CPUS"</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"value"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">0.1</span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">{</span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">552899914</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"setField"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"RAM_MB"</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"value"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">16</span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">{</span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">-1547868317</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"setField"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"DISK_MB"</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"value"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">8</span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">{</span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">1957328227</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"setField"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"NAMED_PORT"</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"value"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"http"</span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">{</span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">1954229436</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"setField"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"NAMED_PORT"</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"value"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"tcp"</span><span style="background-color: #f8f8f8">}</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">],</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"constraints"</span><span style="background-color: #f8f8f8">:[],</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"requestedPorts"</span><span style="background-color: #f8f8f8">:[</span><span style="color: #d14">"http"</span><span style="background-color: #f8f8f8">,</span><span style="color: #d14">"tcp"</span><span style="background-color: #f8f8f8">],</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"taskLinks"</span><span style="background-color: #f8f8f8">:{</span><span style="color: #000080">"http"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"http://%host%:%port:http%"</span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"contactEmail"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"vagrant@localhost"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                </span><span style="color: #000080">"executorConfig"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">-1194797325</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"AuroraExecutor"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"data"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"{\"environment\": \"test\", \"health_check_config\": {\"initial_interval_secs\": 5.0, \"health_checker\": { \"http\": {\"expected_response_code\": 0, \"endpoint\": \"/health\", \"expected_response\": \"ok\"}}, \"max_consecutive_failures\": 0, \"timeout_secs\": 1.0, \"interval_secs\": 1.0}, \"name\": \"http_example\", \"service\": true, \"max_task_failures\": 1, \"cron_collision_policy\": \"KILL_EXISTING\", \"enable_hooks\": false, \"cluster\": \"devcluster\", \"task\": {\"processes\": [{\"daemon\": false, \"name\": \"echo_ports\", \"ephemeral\": false, \"max_failures\": 1, \"min_duration\": 5, \"cmdline\": \"echo \\\"tcp port: {{thermos.ports[tcp]}}; http port: {{thermos.ports[http]}}; alias: {{thermos.ports[alias]}}\\\"\", \"final\": false}, {\"daemon\": false, \"name\": \"stage_server\", \"ephemeral\": false, \"max_failures\": 1, \"min_duration\": 5, \"cmdline\": \"cp /vagrant/src/test/sh/org/apache/aurora/e2e/http_example.py .\", \"final\": false}, {\"daemon\": false, \"name\": \"run_server\", \"ephemeral\": false, \"max_failures\": 1, \"min_duration\": 5, \"cmdline\": \"python http_example.py {{thermos.ports[http]}}\", \"final\": false}], \"name\": \"http_example\", \"finalization_wait\": 30, \"max_failures\": 1, \"max_concurrency\": 0, \"resources\": {\"disk\": 8388608, \"ram\": 16777216, \"cpu\": 0.1}, \"constraints\": [{\"order\": [\"echo_ports\", \"stage_server\", \"run_server\"]}]}, \"production\": false, \"role\": \"vagrant\", \"contact\": \"vagrant@localhost\", \"announce\": {\"primary_port\": \"http\", \"portmap\": {\"alias\": \"http\"}}, \"lifecycle\": {\"http\": {\"graceful_shutdown_endpoint\": \"/quitquitquit\", \"port\": \"health\", \"shutdown_endpoint\": \"/abortabortabort\"}}, \"priority\": 0}"</span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"metadata"</span><span style="background-color: #f8f8f8">:[],</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"container"</span><span style="background-color: #f8f8f8">:{</span><span style="color: #bbbbbb">
+                        </span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">-1955376216</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                        </span><span style="color: #000080">"setField"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"MESOS"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+                        </span><span style="color: #000080">"value"</span><span style="background-color: #f8f8f8">:{</span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">31</span><span style="background-color: #f8f8f8">}}</span><span style="color: #bbbbbb">
+                    </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"assignedPorts"</span><span style="background-color: #f8f8f8">:{},</span><span style="color: #bbbbbb">
+                    </span><span style="color: #000080">"instanceId"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">8</span><span style="color: #bbbbbb">
+        </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+        </span><span style="color: #000080">"status"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"PENDING"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+        </span><span style="color: #000080">"failureCount"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">0</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
+        </span><span style="color: #000080">"taskEvents"</span><span style="background-color: #f8f8f8">:[</span><span style="color: #bbbbbb">
+            </span><span style="background-color: #f8f8f8">{</span><span style="color: #000080">"cachedHashCode"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">0</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"timestamp"</span><span style="background-color: #f8f8f8">:</span><span style="color: #009999">1464992060258</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"status"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"PENDING"</span><span style="background-color: #f8f8f8">,</span><span style="color: #000080">"scheduler"</span><span style="background-color: #f8f8f8">:</span><span style="color: #d14">"aurora"</span><span style="background-color: #f8f8f8">}]</span><span style="color: #bbbbbb">
+        </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+        </span><span style="color: #000080">"oldState"</span><span style="background-color: #f8f8f8">:{}}</span><span style="color: #bbbbbb">
+</span></code></pre>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

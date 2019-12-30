@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/containers/'"
+        value="0.19.1">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    selected="selected">
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="containers">Containers</h1>
+
+<p>Aurora supports several containerizers, notably the Mesos containerizer and the Docker
+containerizer. The Mesos containerizer uses native OS features directly to provide isolation between
+containers, while the Docker containerizer delegates container management to the Docker engine.</p>
+
+<p>The support for launching container images via both containerizers has to be
+<a href="../../operations/configuration/#containers">enabled by a cluster operator</a>.</p>
+
+<h2 id="mesos-containerizer">Mesos Containerizer</h2>
+
+<p>The Mesos containerizer is the native Mesos containerizer solution. It allows tasks to be
+run with an array of <a href="../resource-isolation/">pluggable isolators</a> and can launch tasks using
+<a href="https://github.com/docker/docker/blob/master/image/spec/v1.md">Docker</a> images,
+<a href="https://github.com/appc/spec/blob/master/SPEC.md">AppC</a> images, or directly on the agent host
+filesystem.</p>
+
+<p>The following example (available in our <a href="../../getting-started/vagrant/">Vagrant environment</a>)
+launches a hello world example within a <code>debian/jessie</code> Docker image:</p>
+<pre class="highlight plaintext"><code>$ cat /vagrant/examples/jobs/hello_docker_image.aurora
+hello_loop = Process(
+  name = 'hello',
+  cmdline = """
+    while true; do
+      echo hello world
+      sleep 10
+    done
+  """)
+
+task = Task(
+  processes = [hello_loop],
+  resources = Resources(cpu=1, ram=1*MB, disk=8*MB)
+)
+
+jobs = [
+  Service(
+    cluster = 'devcluster',
+    environment = 'devel',
+    role = 'www-data',
+    name = 'hello_docker_image',
+    task = task,
+    container = Mesos(image=DockerImage(name='debian', tag='jessie'))
+  )
+]
+</code></pre>
+
+<p>Docker and Appc images are designated using an appropriate <code>image</code> property of the <code>Mesos</code>
+configuration object. If either <code>container</code> or <code>image</code> is left unspecified, the host filesystem
+will be used. Further details of how to specify images can be found in the
+<a href="../../reference/configuration/#mesos-object">Reference Documentation</a>.</p>
+
+<p>By default, Aurora launches processes as the Linux user named like the used role (e.g. <code>www-data</code>
+in the example above). This user has to exist on the host filesystem. If it does not exist within
+the container image, it will be created automatically. Otherwise, this user and its primary group
+has to exist in the image with matching uid/gid.</p>
+
+<p>For more information on the Mesos containerizer filesystem, namespace, and isolator features, visit
+<a href="http://mesos.apache.org/documentation/latest/mesos-containerizer/">Mesos Containerizer</a> and
+<a href="http://mesos.apache.org/documentation/latest/container-image/">Mesos Container Images</a>.</p>
+
+<h2 id="docker-containerizer">Docker Containerizer</h2>
+
+<p>The Docker containerizer launches container images using the Docker engine. It may often provide
+more advanced features than the native Mesos containerizer, but has to be installed separately to
+Mesos on each agent host.</p>
+
+<p>Starting with the 0.17.0 release, <code>image</code> can be specified with a <code>{{docker.image[name][tag]}}</code> binder so that
+the tag can be resolved to a concrete image digest. This ensures that the job always uses the same image
+across restarts, even if the version identified by the tag has been updated, guaranteeing that only job
+updates can mutate configuration.</p>
+
+<p>Example (available in the <a href="../../getting-started/vagrant/">Vagrant environment</a>):</p>
+<pre class="highlight plaintext"><code>$ cat /vagrant/examples/jobs/hello_docker_engine.aurora
+hello_loop = Process(
+  name = 'hello',
+  cmdline = """
+    while true; do
+      echo hello world
+      sleep 10
+    done
+  """)
+
+task = Task(
+  processes = [hello_loop],
+  resources = Resources(cpu=1, ram=1*MB, disk=8*MB)
+)
+
+jobs = [
+  Service(
+    cluster = 'devcluster',
+    environment = 'devel',
+    role = 'www-data',
+    name = 'hello_docker',
+    task = task,
+    container = Docker(image = 'python:2.7')
+  ), Service(
+    cluster = 'devcluster',
+    environment = 'devel',
+    role = 'www-data',
+    name = 'hello_docker_engine_binding',
+    task = task,
+    container = Docker(image = '{{docker.image[library/python][2.7]}}')
+  )
+]
+</code></pre>
+
+<p>Note, this feature requires a v2 Docker registry. If using a private Docker registry its url
+must be specified in the <code>clusters.json</code> configuration file under the key <code>docker_registry</code>.
+If not specified <code>docker_registry</code> defaults to <code>https://registry-1.docker.io</code> (Docker Hub).</p>
+
+<p>Example:
+    # clusters.json
+    [{
+      &ldquo;name&rdquo;: &ldquo;devcluster&rdquo;,
+      &hellip;
+      &ldquo;docker_registry&rdquo;: &ldquo;<a href="https://registry.example.com">https://registry.example.com</a>&rdquo;
+    }]</p>
+
+<p>Details of how to use Docker via the Docker engine can be found in the
+<a href="../../reference/configuration/#docker-object">Reference Documentation</a>. Please note that in order to
+correctly execute processes inside a job, the Docker container must have Python 2.7 and potentitally
+further Mesos dependencies installed. This limitation does not hold for Docker containers used via
+the Mesos containerizer.</p>
+
+<p>For more information on launching Docker containers through the Docker containerizer, visit
+<a href="http://mesos.apache.org/documentation/latest/docker-containerizer/">Docker Containerizer</a></p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

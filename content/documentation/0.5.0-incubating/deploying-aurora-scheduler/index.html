@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/deploying-aurora-scheduler/'"
+        value="0.5.0-incubating">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    selected="selected">
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<p>The Aurora scheduler is responsible for scheduling new jobs, rescheduling failed jobs, and killing
+old jobs.</p>
+
+<h1 id="installing-aurora">Installing Aurora</h1>
+
+<p>Aurora is a standalone Java server. As part of the build process it creates a bundle of all its
+dependencies, with the notable exceptions of the JVM and libmesos. Each target server should have
+a JVM (Java 7 or higher) and libmesos (0.18.0) installed.</p>
+
+<h2 id="creating-the-distribution-zip-file-optional">Creating the Distribution .zip File (Optional)</h2>
+
+<p>To create a distribution for installation you will need build tools installed. On Ubuntu this can be
+done with <code>sudo apt-get install build-essential default-jdk</code>.</p>
+<pre class="highlight plaintext"><code>git clone http://gitbox.apache.org/repos/asf/incubator-aurora.git
+cd incubator-aurora
+./gradlew distZip
+</code></pre>
+
+<p>Copy the generated <code>dist/distributions/aurora-scheduler-*.zip</code> to each node that will run a scheduler.</p>
+
+<h2 id="installing-aurora">Installing Aurora</h2>
+
+<p>Extract the aurora-scheduler zip file. The example configurations assume it is extracted to
+<code>/usr/local/aurora-scheduler</code>.</p>
+<pre class="highlight plaintext"><code>sudo unzip dist/distributions/aurora-scheduler-*.zip -d /usr/local
+sudo ln -nfs "$(ls -dt /usr/local/aurora-scheduler-* | head -1)" /usr/local/aurora-scheduler
+</code></pre>
+
+<h1 id="configuring-aurora">Configuring Aurora</h1>
+
+<h2 id="a-note-on-configuration">A Note on Configuration</h2>
+
+<p>Like Mesos, Aurora uses command-line flags for runtime configuration. As such the Aurora
+&ldquo;configuration file&rdquo; is typically a <code>scheduler.sh</code> shell script of the form.</p>
+<pre class="highlight shell"><code><span style="color: #999988;font-style: italic">#!/bin/bash</span>
+<span style="color: #008080">AURORA_HOME</span><span style="color: #000000;font-weight: bold">=</span>/usr/local/aurora-scheduler
+
+<span style="color: #999988;font-style: italic"># Flags controlling the JVM.</span>
+<span style="color: #008080">JAVA_OPTS</span><span style="color: #000000;font-weight: bold">=(</span>
+  -Xmx2g
+  -Xms2g
+  <span style="color: #999988;font-style: italic"># GC tuning, etc.</span>
+<span style="color: #000000;font-weight: bold">)</span>
+
+<span style="color: #999988;font-style: italic"># Flags controlling the scheduler.</span>
+<span style="color: #008080">AURORA_FLAGS</span><span style="color: #000000;font-weight: bold">=(</span>
+  -http_port<span style="color: #000000;font-weight: bold">=</span>8081
+  <span style="color: #999988;font-style: italic"># Log configuration, etc.</span>
+<span style="color: #000000;font-weight: bold">)</span>
+
+<span style="color: #999988;font-style: italic"># Environment variables controlling libmesos</span>
+<span style="color: #0086B3">export </span><span style="color: #008080">JAVA_HOME</span><span style="color: #000000;font-weight: bold">=</span>...
+<span style="color: #0086B3">export </span><span style="color: #008080">GLOG_v</span><span style="color: #000000;font-weight: bold">=</span>1
+<span style="color: #0086B3">export </span><span style="color: #008080">LIBPROCESS_PORT</span><span style="color: #000000;font-weight: bold">=</span>8083
+
+<span style="color: #008080">JAVA_OPTS</span><span style="color: #000000;font-weight: bold">=</span><span style="color: #d14">"</span><span style="color: #000000;font-weight: bold">${</span><span style="color: #008080">JAVA_OPTS</span><span style="background-color: #f8f8f8">[*]</span><span style="color: #000000;font-weight: bold">}</span><span style="color: #d14">"</span> <span style="color: #0086B3">exec</span> <span style="color: #d14">"</span><span style="color: #008080">$AURORA_HOME</span><span style="color: #d14">/bin/aurora-scheduler"</span> <span style="color: #d14">"</span><span style="color: #000000;font-weight: bold">${</span><span style="color: #008080">AURORA_FLAGS</span><span style="background-color: #f8f8f8">[@]</span><span style="color: #000000;font-weight: bold">}</span><span style="color: #d14">"</span>
+</code></pre>
+
+<p>That way Aurora&rsquo;s current flags are visible in <code>ps</code> and in the <code>/vars</code> admin endpoint.</p>
+
+<p>Examples are available under <code>examples/scheduler/</code>. For a list of available Aurora flags and their
+documentation run</p>
+<pre class="highlight plaintext"><code>/usr/local/aurora-scheduler/bin/aurora-scheduler -help
+</code></pre>
+
+<h2 id="replicated-log-configuration">Replicated Log Configuration</h2>
+
+<p>All Aurora state is persisted to a replicated log. This includes all jobs Aurora is running
+including where in the cluster they are being run and the configuration for running them, as
+well as other information such as metadata needed to reconnect to the Mesos master, resource
+quotas, and any other locks in place.</p>
+
+<p>Aurora schedulers use ZooKeeper to discover log replicas and elect a leader. Only one scheduler is
+leader at a given time - the other schedulers follow log writes and prepare to take over as leader
+but do not communicate with the Mesos master. Either 3 or 5 schedulers are recommended in a
+production deployment depending on failure tolerance and they must have persistent storage.</p>
+
+<p>In a cluster with <code>N</code> schedulers, the flag <code>-native_log_quorum_size</code> should be set to
+<code>floor(N/2) + 1</code>. So in a cluster with 1 scheduler it should be set to <code>1</code>, in a cluster with 3 it
+should be set to <code>2</code>, and in a cluster of 5 it should be set to <code>3</code>.</p>
+
+<table><thead>
+<tr>
+<th>Number of schedulers (N)</th>
+<th><code>-native_log_quorum_size</code> setting (<code>floor(N/2) + 1</code>)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3</td>
+</tr>
+<tr>
+<td>7</td>
+<td>4</td>
+</tr>
+</tbody></table>
+
+<p><em>Incorrectly setting this flag will cause data corruption to occur!</em></p>
+
+<h2 id="network-considerations">Network considerations</h2>
+
+<p>The Aurora scheduler listens on 2 ports - an HTTP port used for client RPCs and a web UI,
+and a libprocess (HTTP+Protobuf) port used to communicate with the Mesos master and for the log
+replication protocol. These can be left unconfigured (the scheduler publishes all selected ports
+to ZooKeeper) or explicitly set in the startup script as follows:</p>
+<pre class="highlight plaintext"><code># ...
+AURORA_FLAGS=(
+  # ...
+  -http_port=8081
+  # ...
+)
+# ...
+export LIBPROCESS_PORT=8083
+# ...
+</code></pre>
+
+<h1 id="running-aurora">Running Aurora</h1>
+
+<p>Configure a supervisor like <a href="http://mmonit.com/monit/">Monit</a> or
+<a href="http://supervisord.org/">supervisord</a> to run the created <code>scheduler.sh</code> file and restart it
+whenever it fails. Aurora expects to be restarted by an external process when it fails. Aurora
+supports an active health checking protocol on its admin HTTP interface - if a <code>GET /health</code> times
+out or returns anything other than <code>200 OK</code> the scheduler process is unhealthy and should be
+restarted.</p>
+
+<p>For example, monit can be configured with</p>
+<pre class="highlight plaintext"><code>if failed port 8081 send "GET /health HTTP/1.0\r\n" expect "OK\n" with timeout 2 seconds for 10 cycles then restart
+</code></pre>
+
+<p>assuming you set <code>-http_port=8081</code>.</p>
+
+<h1 id="maintaining-an-aurora-installation">Maintaining an Aurora Installation</h1>
+
+<h2 id="monitoring">Monitoring</h2>
+
+<p>Aurora exports performance metrics via its HTTP interface <code>/vars</code> and <code>/vars.json</code> contain lots of
+useful data to help debug performance and configuration problems. These are all made available via
+<a href="https://github.com/twitter/commons/tree/master/src/java/com/twitter/commons/http">twitter.common.http</a>.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/vagrant/'"
+        value="0.8.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    selected="selected">
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="getting-started">Getting Started</h1>
+
+<p>This document shows you how to configure a complete cluster using a virtual machine. This setup
+replicates a real cluster in your development machine as closely as possible. After you complete
+the steps outlined here, you will be ready to create and run your first Aurora job.</p>
+
+<p>The following sections describe these steps in detail:</p>
+
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#install-virtualbox-and-vagrant">Install VirtualBox and Vagrant</a></li>
+<li><a href="#clone-the-aurora-repository">Clone the Aurora repository</a></li>
+<li><a href="#start-the-local-cluster">Start the local cluster</a></li>
+<li><a href="#log-onto-the-vm">Log onto the VM</a></li>
+<li><a href="#run-your-first-job">Run your first job</a></li>
+<li><a href="#rebuild-components">Rebuild components</a></li>
+<li><a href="#shut-down-or-delete-your-local-cluster">Shut down or delete your local cluster</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ol>
+
+<h2 id="overview">Overview</h2>
+
+<p>The Aurora distribution includes a set of scripts that enable you to create a local cluster in
+your development machine. These scripts use <a href="https://www.vagrantup.com/">Vagrant</a> and
+<a href="https://www.virtualbox.org/">VirtualBox</a> to run and configure a virtual machine. Once the
+virtual machine is running, the scripts install and initialize Aurora and any required components
+to create the local cluster.</p>
+
+<h2 id="install-virtualbox-and-vagrant">Install VirtualBox and Vagrant</h2>
+
+<p>First, download and install <a href="https://www.virtualbox.org/">VirtualBox</a> on your development machine.</p>
+
+<p>Then download and install <a href="https://www.vagrantup.com/">Vagrant</a>. To verify that the installation
+was successful, open a terminal window and type the <code>vagrant</code> command. You should see a list of
+common commands for this tool.</p>
+
+<h2 id="clone-the-aurora-repository">Clone the Aurora repository</h2>
+
+<p>To obtain the Aurora source distribution, clone its Git repository using the following command:</p>
+<pre class="highlight plaintext"><code> git clone http://git.apache.org/aurora.git
+</code></pre>
+
+<h2 id="start-the-local-cluster">Start the local cluster</h2>
+
+<p>Now change into the <code>aurora/</code> directory, which contains the Aurora source code and
+other scripts and tools:</p>
+<pre class="highlight plaintext"><code> cd aurora/
+</code></pre>
+
+<p>To start the local cluster, type the following command:</p>
+<pre class="highlight plaintext"><code> vagrant up
+</code></pre>
+
+<p>This command uses the configuration scripts in the Aurora distribution to:</p>
+
+<ul>
+<li>Download a Linux system image.</li>
+<li>Start a virtual machine (VM) and configure it.</li>
+<li>Install the required build tools on the VM.</li>
+<li>Install Aurora&rsquo;s requirements (like <a href="http://mesos.apache.org/">Mesos</a> and
+<a href="http://zookeeper.apache.org/">Zookeeper</a>) on the VM.</li>
+<li>Build and install Aurora from source on the VM.</li>
+<li>Start Aurora&rsquo;s services on the VM.</li>
+</ul>
+
+<p>This process takes several minutes to complete.</p>
+
+<p>To verify that Aurora is running on the cluster, visit the following URLs:</p>
+
+<ul>
+<li>Scheduler - <a href="http://192.168.33.7:8081">http://192.168.33.7:8081</a></li>
+<li>Observer - <a href="http://192.168.33.7:1338">http://192.168.33.7:1338</a></li>
+<li>Mesos Master - <a href="http://192.168.33.7:5050">http://192.168.33.7:5050</a></li>
+<li>Mesos Slave - <a href="http://192.168.33.7:5051">http://192.168.33.7:5051</a></li>
+</ul>
+
+<h2 id="log-onto-the-vm">Log onto the VM</h2>
+
+<p>To SSH into the VM, run the following command in your development machine:</p>
+<pre class="highlight plaintext"><code> vagrant ssh
+</code></pre>
+
+<p>To verify that Aurora is installed in the VM, type the <code>aurora</code> command. You should see a list
+of arguments and possible commands.</p>
+
+<p>The <code>/vagrant</code> directory on the VM is mapped to the <code>aurora/</code> local directory
+from which you started the cluster. You can edit files inside this directory in your development
+machine and access them from the VM under <code>/vagrant</code>.</p>
+
+<p>A pre-installed <code>clusters.json</code> file refers to your local cluster as <code>devcluster</code>, which you
+will use in client commands.</p>
+
+<h2 id="run-your-first-job">Run your first job</h2>
+
+<p>Now that your cluster is up and running, you are ready to define and run your first job in Aurora.
+For more information, see the <a href="/documentation/0.8.0/tutorial/">Aurora Tutorial</a>.</p>
+
+<h2 id="rebuild-components">Rebuild components</h2>
+
+<p>If you are changing Aurora code and would like to rebuild a component, you can use the <code>aurorabuild</code>
+command on the VM to build and restart a component.  This is considerably faster than destroying
+and rebuilding your VM.</p>
+
+<p><code>aurorabuild</code> accepts a list of components to build and update. To get a list of supported
+components, invoke the <code>aurorabuild</code> command with no arguments:</p>
+<pre class="highlight plaintext"><code> vagrant ssh -c 'aurorabuild client'
+</code></pre>
+
+<h2 id="shut-down-or-delete-your-local-cluster">Shut down or delete your local cluster</h2>
+
+<p>To shut down your local cluster, run the <code>vagrant halt</code> command in your development machine. To
+start it again, run the <code>vagrant up</code> command.</p>
+
+<p>Once you are finished with your local cluster, or if you would otherwise like to start from scratch,
+you can use the command <code>vagrant destroy</code> to turn off and delete the virtual file system.</p>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<p>Most of the vagrant related problems can be fixed by the following steps:</p>
+
+<ul>
+<li>Destroying the vagrant environment with <code>vagrant destroy</code></li>
+<li>Killing any orphaned VMs (see AURORA-499) with <code>virtualbox</code> UI or <code>VBoxManage</code> command line tool</li>
+<li>Cleaning the repository of build artifacts and other intermediate output with <code>git clean -fdx</code></li>
+<li>Bringing up the vagrant environment with <code>vagrant up</code></li>
+</ul>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Santhosh Kumar Shanmugham</strong></p>
+			    <p><a href="http://twitter.com/santhk">@santhk</a></p>
+			</span>
+		</span>
+		<p><em>Posted June 20, 2017</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.18.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.18.0, is now available for
+<a href="http://aurora.apache.org/downloads/">download</a>. Here are some highlights in this release.</p>
+
+<p>Major new features:</p>
+
+<ul>
+<li>Added the <code>-mesos_driver</code> flag to the scheduler with three possible options:
+<code>SCHEDULER_DRIVER</code>, <code>V0_MESOS</code>, <code>V1_MESOS</code>. The first uses the original driver
+and the latter two use two new drivers from <code>libmesos</code>. <code>V0_MESOS</code> uses the
+<code>SCHEDULER_DRIVER</code> under the hood and <code>V1_MESOS</code> uses a new HTTP API aware
+driver. Users that want to use the HTTP API should use <code>V1_MESOS</code>.
+Performance sensitive users should stick with the <code>SCHEDULER_DRIVER</code> or
+<code>V0_MESOS</code> drivers.</li>
+<li>Add observer command line options to control the resource collection interval
+for observed tasks. See <a href="docs/reference/observer-configuration.md">here</a> for details.</li>
+<li>Added support for reserving agents during job updates, which can substantially reduce update times
+in clusters with high contention for resources. Disabled by default, but can be enabled with
+<code>enable_update_affinity</code> option, and the reservation timeout can be controlled via
+<code>update_affinity_reservation_hold_time</code>.</li>
+<li>Add <code>task scp</code> command to the CLI client for easy transferring of files to/from/between task
+instances. See <a href="docs/reference/client-commands.md#scping-with-task-machines">here</a> for details.
+Currently only fully supported for Mesos containers (you can copy files from the Docker container
+sandbox but you cannot send files to it).</li>
+<li>Added ability to inject your own scheduling logic, via a lazy Guice module binding. This is an
+alpha-level feature and not subject to backwards compatibility considerations. You can specify
+your custom modules using the <code>task_assigner_modules</code> and <code>preemption_slot_finder_modules</code> options.</li>
+<li>Added support for resource bin-packing via the <code>-offer_order</code> option. You can choose from <code>CPU</code>,
+<code>MEMORY</code>, <code>DISK</code>, <code>RANDOM</code> or <code>REVOCABLE_CPU</code>. You can also compose secondary sorts by combining
+orders together: e.g. to bin-pack by CPU and MEMORY you could supply <code>CPU,MEMORY</code>. The current
+default is <code>RANDOM</code>, which has the strong advantage that users can (usually) relocate their tasks
+due to noisy neighbors or machine issues with a task restart. When you have deterministic
+bin-packing, they may always end up on the same agent. So be careful enabling this without proper
+monitoring and remediation of host failures.</li>
+<li>Modified job update behavior to create new instances, then update existing instances, and then
+kill unwanted instances. Previously, a job update would modify each instance in the order of
+their instance ID.</li>
+<li>Added ability to whitelist TaskStateChanges in the webhook configuration file. You can specify
+a list of desired TaskStateChanges(represented by their task statuses) to be sent to a configured
+endpoint.</li>
+<li>Add message parameter to <code>killTasks</code> RPC.</li>
+<li>Add <code>prune_tasks</code> endpoint to <code>aurora_admin</code>. See <code>aurora_admin prune_tasks -h</code> for usage information.</li>
+<li>Add support for per-task volume mounts for Mesos containers to the Aurora config DSL.</li>
+</ul>
+
+<p>Additional changes:</p>
+
+<ul>
+<li>Update to Mesos 1.2.0. Please upgrade Aurora to 0.18 before upgrading Mesos to 1.2.0 if you rely
+on Mesos filesystem images.</li>
+</ul>
+
+<p><strong>NOTE: In this release, the Aurora client will need to be updated before the scheduler
+can be deployed.</strong></p>
+
+<p>Full release notes are available in the release
+<a href="https://gitbox.apache.org/repos/asf?p=aurora.git&amp;f=CHANGELOG&amp;hb=rel/0.18.0">CHANGELOG</a>.</p>
+
+<h2 id="getting-involved">Getting Involved</h2>
+
+<p>We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the <a href="https://aurora.apache.org/community/">user mailing list and IRC</a>.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 12 contributors who made Apache Aurora 0.18.0 possible:</p>
+
+<ul>
+<li>Abhishek Jain</li>
+<li>Charles Raimbert</li>
+<li>Cody Gibb</li>
+<li>David McLaughlin</li>
+<li>Kai Huang</li>
+<li>Mehrdad Nurolahzade</li>
+<li>Nicolás Donatucci</li>
+<li>Reza Motamedi</li>
+<li>Santhosh Kumar Shanmugham</li>
+<li>Stephan Erb</li>
+<li>Takuya Kuwahara</li>
+<li>Zameer Manji</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/reference/task-lifecycle/'"
+        value="0.18.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    selected="selected">
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="task-lifecycle">Task Lifecycle</h1>
+
+<p>When Aurora reads a configuration file and finds a <code>Job</code> definition, it:</p>
+
+<ol>
+<li> Evaluates the <code>Job</code> definition.</li>
+<li> Splits the <code>Job</code> into its constituent <code>Task</code>s.</li>
+<li> Sends those <code>Task</code>s to the scheduler.</li>
+<li> The scheduler puts the <code>Task</code>s into <code>PENDING</code> state, starting each
+<code>Task</code>&rsquo;s life cycle.</li>
+</ol>
+
+<p><img alt="Life of a task" src="../../images/lifeofatask.png" /></p>
+
+<p>Please note, a couple of task states described below are missing from
+this state diagram.</p>
+
+<h2 id="pending-to-running-states">PENDING to RUNNING states</h2>
+
+<p>When a <code>Task</code> is in the <code>PENDING</code> state, the scheduler constantly
+searches for machines satisfying that <code>Task</code>&rsquo;s resource request
+requirements (RAM, disk space, CPU time) while maintaining configuration
+constraints such as &ldquo;a <code>Task</code> must run on machines  dedicated  to a
+particular role&rdquo; or attribute limit constraints such as &ldquo;at most 2
+<code>Task</code>s from the same <code>Job</code> may run on each rack&rdquo;. When the scheduler
+finds a suitable match, it assigns the <code>Task</code> to a machine and puts the
+<code>Task</code> into the <code>ASSIGNED</code> state.</p>
+
+<p>From the <code>ASSIGNED</code> state, the scheduler sends an RPC to the agent
+machine containing <code>Task</code> configuration, which the agent uses to spawn
+an executor responsible for the <code>Task</code>&rsquo;s lifecycle. When the scheduler
+receives an acknowledgment that the machine has accepted the <code>Task</code>,
+the <code>Task</code> goes into <code>STARTING</code> state.</p>
+
+<p><code>STARTING</code> state initializes a <code>Task</code> sandbox. When the sandbox is fully
+initialized, Thermos begins to invoke <code>Process</code>es. Also, the agent
+machine sends an update to the scheduler that the <code>Task</code> is
+in <code>RUNNING</code> state, only after the task satisfies the liveness requirements.
+See <a href="../features/services#health-checking">Health Checking</a> for more details
+for how to configure health checks.</p>
+
+<h2 id="running-to-terminal-states">RUNNING to terminal states</h2>
+
+<p>There are various ways that an active <code>Task</code> can transition into a terminal
+state. By definition, it can never leave this state. However, depending on
+nature of the termination and the originating <code>Job</code> definition
+(e.g. <code>service</code>, <code>max_task_failures</code>), a replacement <code>Task</code> might be
+scheduled.</p>
+
+<h3 id="natural-termination-finished-failed">Natural Termination: FINISHED, FAILED</h3>
+
+<p>A <code>RUNNING</code> <code>Task</code> can terminate without direct user interaction. For
+example, it may be a finite computation that finishes, even something as
+simple as <code>echo hello world.</code>, or it could be an exceptional condition in
+a long-lived service. If the <code>Task</code> is successful (its underlying
+processes have succeeded with exit status <code>0</code> or finished without
+reaching failure limits) it moves into <code>FINISHED</code> state. If it finished
+after reaching a set of failure limits, it goes into <code>FAILED</code> state.</p>
+
+<p>A terminated <code>TASK</code> which is subject to rescheduling will be temporarily
+<code>THROTTLED</code>, if it is considered to be flapping. A task is flapping, if its
+previous invocation was terminated after less than 5 minutes (scheduler
+default). The time penalty a task has to remain in the <code>THROTTLED</code> state,
+before it is eligible for rescheduling, increases with each consecutive
+failure.</p>
+
+<h3 id="forceful-termination-killing-restarting">Forceful Termination: KILLING, RESTARTING</h3>
+
+<p>You can terminate a <code>Task</code> by issuing an <code>aurora job kill</code> command, which
+moves it into <code>KILLING</code> state. The scheduler then sends the agent a
+request to terminate the <code>Task</code>. If the scheduler receives a successful
+response, it moves the Task into <code>KILLED</code> state and never restarts it.</p>
+
+<p>If a <code>Task</code> is forced into the <code>RESTARTING</code> state via the <code>aurora job restart</code>
+command, the scheduler kills the underlying task but in parallel schedules
+an identical replacement for it.</p>
+
+<p>In any case, the responsible executor on the agent follows an escalation
+sequence when killing a running task:</p>
+
+<ol>
+<li>If a <code>HttpLifecycleConfig</code> is not present, skip to (4).</li>
+<li>Send a POST to the <code>graceful_shutdown_endpoint</code> and wait 5 seconds.</li>
+<li>Send a POST to the <code>shutdown_endpoint</code> and wait 5 seconds.</li>
+<li>Send SIGTERM (<code>kill</code>) and wait at most <code>finalization_wait</code> seconds.</li>
+<li>Send SIGKILL (<code>kill -9</code>).</li>
+</ol>
+
+<p>If the executor notices that all <code>Process</code>es in a <code>Task</code> have aborted
+during this sequence, it will not proceed with subsequent steps.
+Note that graceful shutdown is best-effort, and due to the many
+inevitable realities of distributed systems, it may not be performed.</p>
+
+<h3 id="unexpected-termination-lost">Unexpected Termination: LOST</h3>
+
+<p>If a <code>Task</code> stays in a transient task state for too long (such as <code>ASSIGNED</code>
+or <code>STARTING</code>), the scheduler forces it into <code>LOST</code> state, creating a new
+<code>Task</code> in its place that&rsquo;s sent into <code>PENDING</code> state.</p>
+
+<p>In addition, if the Mesos core tells the scheduler that a agent has
+become unhealthy (or outright disappeared), the <code>Task</code>s assigned to that
+agent go into <code>LOST</code> state and new <code>Task</code>s are created in their place.
+From <code>PENDING</code> state, there is no guarantee a <code>Task</code> will be reassigned
+to the same machine unless job constraints explicitly force it there.</p>
+
+<h3 id="giving-priority-to-production-tasks-preempting">Giving Priority to Production Tasks: PREEMPTING</h3>
+
+<p>Sometimes a Task needs to be interrupted, such as when a non-production
+Task&rsquo;s resources are needed by a higher priority production Task. This
+type of interruption is called a <em>pre-emption</em>. When this happens in
+Aurora, the non-production Task is killed and moved into
+the <code>PREEMPTING</code> state  when both the following are true:</p>
+
+<ul>
+<li>The task being killed is a non-production task.</li>
+<li>The other task is a <code>PENDING</code> production task that hasn&rsquo;t been
+scheduled due to a lack of resources.</li>
+</ul>
+
+<p>The scheduler UI shows the non-production task was preempted in favor of
+the production task. At some point, tasks in <code>PREEMPTING</code> move to <code>KILLED</code>.</p>
+
+<p>Note that non-production tasks consuming many resources are likely to be
+preempted in favor of production tasks.</p>
+
+<h3 id="making-room-for-maintenance-draining">Making Room for Maintenance: DRAINING</h3>
+
+<p>Cluster operators can set agent into maintenance mode. This will transition
+all <code>Task</code> running on this agent into <code>DRAINING</code> and eventually to <code>KILLED</code>.
+Drained <code>Task</code>s will be restarted on other agents for which no maintenance
+has been announced yet.</p>
+
+<h2 id="state-reconciliation">State Reconciliation</h2>
+
+<p>Due to the many inevitable realities of distributed systems, there might
+be a mismatch of perceived and actual cluster state (e.g. a machine returns
+from a <code>netsplit</code> but the scheduler has already marked all its <code>Task</code>s as
+<code>LOST</code> and rescheduled them).</p>
+
+<p>Aurora regularly runs a state reconciliation process in order to detect
+and correct such issues (e.g. by killing the errant <code>RUNNING</code> tasks).
+By default, the proper detection of all failure scenarios and inconsistencies
+may take up to an hour.</p>
+
+<p>To emphasize this point: there is no uniqueness guarantee for a single
+instance of a job in the presence of network partitions. If the <code>Task</code>
+requires that, it should be baked in at the application level using a
+distributed coordination service such as Zookeeper.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

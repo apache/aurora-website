@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'middleman', '3.2.0'
-gem 'middleman-livereload', '3.1.0'
-gem 'middleman-syntax', '1.2.1'
-gem 'therubyracer', '0.12.1'
-gem 'middleman-blog', '3.5.1'
-gem "htmlentities"
-gem 'redcarpet', github: 'vmg/redcarpet'
-gem 'rake', '10.3.1'
+gem 'middleman', '3.4.1'
+gem 'middleman-livereload', '3.4.4'
+gem 'middleman-syntax', '2.0.0'
+gem 'therubyracer', '0.12.2'
+gem 'middleman-blog', '3.5.3'
+gem 'htmlentities', '4.3.4'
+gem 'redcarpet', '3.3.3'
+gem 'rake', '10.4.2'

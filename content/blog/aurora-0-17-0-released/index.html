@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Stephan Erb</strong></p>
+			    <p><a href="http://twitter.com/ErbStephan">@ErbStephan</a></p>
+			</span>
+		</span>
+		<p><em>Posted February  6, 2017</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.17.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.17.0, is now available for
+<a href="http://aurora.apache.org/downloads/">download</a>. Here are some highlights in this release.</p>
+
+<p>Major new features:</p>
+
+<ul>
+<li>Use the <code>RUNNING</code> state of a task to indicate it is healthy and behaving as expected.
+A service will remain in <code>STARTING</code> state until a configurable amount of consecutive health checks
+have passed. Job updates can therefore rely purely on health checks rather than <code>watch_secs</code>
+timeout when deciding an individial instance update state, by setting <code>watch_secs</code> to 0.</li>
+<li>The Aurora Scheduler API supports volume mounts per task for the Mesos
+Containerizer if the scheduler is running with the <code>-allow_container_volumes</code>
+flag.</li>
+<li>Resolve docker tags to concrete identifiers for DockerContainerizer, so that job configuration
+is immutable across restarts. The feature introduces a new <code>{{docker.image[name][tag]}}</code> binder that
+can be used in the Aurora job configuration to resolve a docker image specified by its <code>name:tag</code>
+to a concrete identifier specified by its <code>registry/name@digest</code>. It requires version 2 of the
+Docker Registry.</li>
+</ul>
+
+<p>Performance improvements:</p>
+
+<ul>
+<li>Scheduling performance has been improved by scheduling multiple tasks per scheduling round.</li>
+<li>Preemption slot search logic is modified to improve its performance.
+
+<ul>
+<li>Multiple reservations are made per task group per round.</li>
+<li>Multiple reservations are evaluated per round.</li>
+</ul></li>
+<li>The default logging output has been changed to remove line numbers and inner class information in
+exchange for faster logging.</li>
+<li>The Aurora client is now using the Thrift binary protocol to communicate with the scheduler.</li>
+<li>Added a new flag <code>--snapshot_hydrate_stores</code> that controls which H2-backed stores to write fully
+hydrated into the Scheduler snapshot. Can lead to significantly lower snapshot times for large
+clusters if you set this flag to an empty list. Old behavior is preserved by default, but see
+org.apache.aurora.scheduler.storage.log.SnapshotStoreImpl for which stores we currently have
+duplicate writes for.</li>
+<li>New scheduler metrics are added to facilitate monitoring and performance studies (AURORA-1832).</li>
+</ul>
+
+<p>Additional changes:</p>
+
+<ul>
+<li>Upgraded Mesos to 1.1.0.</li>
+<li>A task&rsquo;s tier is now mapped to a label on the Mesos <code>TaskInfo</code> proto.</li>
+<li>Introduce a new <code>--ip</code> option to bind the Thermos observer to a specific rather than all
+interfaces.</li>
+<li>Fix error that prevents the scheduler from being launched with <code>-enable_revocable_ram</code>.</li>
+<li>The executor will send SIGTERM to processes that self daemonize via double forking.</li>
+<li>Support the deployment of the Aurora scheduler behind HTTPS-enabled reverse proxies: By launching
+scheduler via <code>-serverset_endpoint_name=https</code> you can ensure the Aurora client will correctly
+discover HTTPS support via the ZooKeeper-based discovery mechanism.</li>
+</ul>
+
+<p>Full release notes are available in the release
+<a href="https://gitbox.apache.org/repos/asf?p=aurora.git&amp;f=CHANGELOG&amp;hb=rel/0.17.0">CHANGELOG</a>.</p>
+
+<h2 id="getting-involved">Getting Involved</h2>
+
+<p>We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the <a href="https://aurora.apache.org/community/">user mailing list and IRC</a>.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 22 contributors who made Apache Aurora 0.17.0 possible:</p>
+
+<ul>
+<li>Andrew Jorgensen</li>
+<li>Bing-Qian Luan</li>
+<li>David McLaughlin</li>
+<li>Dmitriy Shirchenko</li>
+<li>Jake Smullin</li>
+<li>Jing Chen</li>
+<li>John Sirois</li>
+<li>Joshua Cohen</li>
+<li>Justin Pinkul</li>
+<li>Kai Huang</li>
+<li>Maxim Khutornenko</li>
+<li>Mehrdad Nurolahzade</li>
+<li>Nicolás Donatucci</li>
+<li>Pierre Cheynier</li>
+<li>Pradyumna Kaushik</li>
+<li>Renan DelValle</li>
+<li>Reza Motamedi</li>
+<li>Rogier Dikkes</li>
+<li>Santhosh Kumar Shanmugham</li>
+<li>Stephan Erb</li>
+<li>Steve Niemitz</li>
+<li>Zameer Manji</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

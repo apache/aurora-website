@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/custom-executors/'"
+        value="0.16.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    selected="selected">
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="custom-executors">Custom Executors</h1>
+
+<p>If the need arises to use a Mesos executor other than the Thermos executor, the scheduler can be
+configured to utilize a custom executor by specifying the <code>-custom_executor_config</code> flag.
+The flag must be set to the path of a valid executor configuration file.</p>
+
+<p>The configuration file must be a valid <strong>JSON array</strong> and contain, at minimum,
+one executor configuration including the name, command and resources fields and
+must be pointed to by the <code>-custom_executor_config</code> flag when the scheduler is
+started.</p>
+
+<h3 id="array-entry">Array Entry</h3>
+
+<table><thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>executor (required)</td>
+<td>Description of executor.</td>
+</tr>
+<tr>
+<td>task_prefix (required) )</td>
+<td>Prefix given to tasks launched with this executor&rsquo;s configuration.</td>
+</tr>
+<tr>
+<td>volume_mounts (optional)</td>
+<td>Volumes to be mounted in container running executor.</td>
+</tr>
+</tbody></table>
+
+<h4 id="executor">executor</h4>
+
+<table><thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name (required)</td>
+<td>Name of the executor.</td>
+</tr>
+<tr>
+<td>command (required)</td>
+<td>How to run the executor.</td>
+</tr>
+<tr>
+<td>resources (required)</td>
+<td>Overhead to use for each executor instance.</td>
+</tr>
+</tbody></table>
+
+<h4 id="command">command</h4>
+
+<table><thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value (required)</td>
+<td>The command to execute.</td>
+</tr>
+<tr>
+<td>arguments (optional)</td>
+<td>A list of arguments to pass to the command.</td>
+</tr>
+<tr>
+<td>uris (optional)</td>
+<td>List of resources to download into the task sandbox.</td>
+</tr>
+<tr>
+<td>shell (optional)</td>
+<td>Run executor via shell.</td>
+</tr>
+</tbody></table>
+
+<p>A note on the command property (from <a href="https://github.com/apache/mesos/blob/master/include/mesos/mesos.proto">mesos.proto</a>):
+<code>
+1) If &#39;shell == true&#39;, the command will be launched via shell
+   (i.e., /bin/sh -c &#39;value&#39;). The &#39;value&#39; specified will be
+   treated as the shell command. The &#39;arguments&#39; will be ignored.
+2) If &#39;shell == false&#39;, the command will be launched by passing
+   arguments to an executable. The &#39;value&#39; specified will be
+   treated as the filename of the executable. The &#39;arguments&#39;
+   will be treated as the arguments to the executable. This is
+   similar to how POSIX exec families launch processes (i.e.,
+   execlp(value, arguments(0), arguments(1), ...)).
+</code></p>
+
+<h5 id="uris-list">uris (list)</h5>
+
+<ul>
+<li>Follows the <a href="http://mesos.apache.org/documentation/latest/fetcher/">Mesos Fetcher schema</a></li>
+</ul>
+
+<table><thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value (required)</td>
+<td>Path to the resource needed in the sandbox.</td>
+</tr>
+<tr>
+<td>executable (optional)</td>
+<td>Change resource to be executable via chmod.</td>
+</tr>
+<tr>
+<td>extract (optional)</td>
+<td>Extract files from packed or compressed archives into the sandbox.</td>
+</tr>
+<tr>
+<td>cache (optional)</td>
+<td>Use caching mechanism provided by Mesos for resources.</td>
+</tr>
+</tbody></table>
+
+<h4 id="resources-list">resources (list)</h4>
+
+<table><thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name (required)</td>
+<td>Name of the resource: cpus or mem.</td>
+</tr>
+<tr>
+<td>type (required)</td>
+<td>Type of resource. Should always be SCALAR.</td>
+</tr>
+<tr>
+<td>scalar (required)</td>
+<td>Value in float for cpus or int for mem (in MBs)</td>
+</tr>
+</tbody></table>
+
+<h3 id="volume_mounts-list">volume_mounts (list)</h3>
+
+<table><thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>host_path (required)</td>
+<td>Host path to mount inside the container.</td>
+</tr>
+<tr>
+<td>container_path (required)</td>
+<td>Path inside the container where <code>host_path</code> will be mounted.</td>
+</tr>
+<tr>
+<td>mode (required)</td>
+<td>Mode in which to mount the volume, Read-Write (RW) or Read-Only (RO).</td>
+</tr>
+</tbody></table>
+
+<p>A sample configuration is as follows:
+&ldquo;`
+[
+    {
+      &quot;executor&rdquo;: {
+        &ldquo;name&rdquo;: &ldquo;myExecutor&rdquo;,
+        &ldquo;command&rdquo;: {
+          &ldquo;value&rdquo;: &ldquo;myExecutor.a&rdquo;,
+          &ldquo;shell&rdquo;: &ldquo;false&rdquo;,
+          &ldquo;arguments&rdquo;: [
+            &ldquo;localhost:2181&rdquo;,
+            &ldquo;-verbose&rdquo;,
+            &ldquo;-config myConfiguration.config&rdquo;
+          ],
+          &ldquo;uris&rdquo;: [
+            {
+              &ldquo;value&rdquo;: &ldquo;/dist/myExecutor.a&rdquo;,
+              &ldquo;executable&rdquo;: true,
+              &ldquo;extract&rdquo;: false,
+              &ldquo;cache&rdquo;: true
+            },
+            {
+              &ldquo;value&rdquo;: &ldquo;/home/user/myConfiguration.config&rdquo;,
+              &ldquo;executable&rdquo;: false,
+              &ldquo;extract&rdquo;: false,
+              &ldquo;cache&rdquo;: false
+            }
+          ]
+        },
+        &ldquo;resources&rdquo;: [
+          {
+            &ldquo;name&rdquo;: &ldquo;cpus&rdquo;,
+            &ldquo;type&rdquo;: &ldquo;SCALAR&rdquo;,
+            &ldquo;scalar&rdquo;: {
+              &ldquo;value&rdquo;: 1.00
+            }
+          },
+          {
+            &ldquo;name&rdquo;: &ldquo;mem&rdquo;,
+            &ldquo;type&rdquo;: &ldquo;SCALAR&rdquo;,
+            &ldquo;scalar&rdquo;: {
+              &ldquo;value&rdquo;: 512
+            }
+          }
+        ]
+      },
+      &ldquo;volume<em>mounts&rdquo;: [
+        {
+          &ldquo;mode&rdquo;: &ldquo;RO&rdquo;,
+          &ldquo;container</em>path&rdquo;: &ldquo;/path/on/container&rdquo;,
+          &ldquo;host<em>path&rdquo;: &ldquo;/path/to/host/directory&rdquo;
+        },
+        {
+          &ldquo;mode&rdquo;: &ldquo;RW&rdquo;,
+          &ldquo;container</em>path&rdquo;: &ldquo;/container&rdquo;,
+          &ldquo;host<em>path&rdquo;: &ldquo;/host&rdquo;
+        }
+      ],
+      &ldquo;task</em>prefix&rdquo;: &ldquo;my-executor-&rdquo;
+    }
+]</p>
+<pre class="highlight plaintext"><code>
+It should be noted that if you do not use Thermos or a Thermos based executor, links in the scheduler's
+Web UI for tasks will not work (at least for the time being).
+Some information about launched tasks can still be accessed via the Mesos Web UI or via the Aurora Client.
+
+### Using a custom executor
+
+At this time, it is not currently possible create a job that runs on a custom executor using the default
+Aurora client. To allow the scheduler to pick the correct executor, the `JobConfiguration.TaskConfig.ExecutorConfig.name`
+field must be set to match the name used in the custom executor configuration blob. (e.g. to run a job using myExecutor,
+`JobConfiguration.TaskConfig.ExecutorConfig.name` must be set to `myExecutor`). While support for modifying
+this field in Pystachio created, the easiest way to launch jobs with custom executors is to use
+an existing custom Client such as [gorealis](https://github.com/rdelval/gorealis).
+</code></pre>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

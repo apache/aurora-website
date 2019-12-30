@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/multitenancy/'"
+        value="0.17.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    selected="selected">
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="multitenancy">Multitenancy</h1>
+
+<p>Aurora is a multi-tenant system that can run jobs of multiple clients/tenants.
+Going beyond the <a href="../resource-isolation/">resource isolation on an individual host</a>, it is
+crucial to prevent those jobs from stepping on each others toes.</p>
+
+<h2 id="job-namespaces">Job Namespaces</h2>
+
+<p>The namespace for jobs in Aurora follows a hierarchical structure. This is meant to make it easier
+to differentiate between different jobs. A job key consists of four parts. The four parts are
+<code>&lt;cluster&gt;/&lt;role&gt;/&lt;environment&gt;/&lt;jobname&gt;</code> in that order:</p>
+
+<ul>
+<li>Cluster refers to the name of a particular Aurora installation.</li>
+<li>Role names are user accounts.</li>
+<li>Environment names are namespaces.</li>
+<li>Jobname is the custom name of your job.</li>
+</ul>
+
+<p>Role names correspond to user accounts. They are used for
+<a href="../../operations/security/">authentication</a>, as the linux user used to run jobs, and for the
+assignment of <a href="#preemption">quota</a>. If you don&rsquo;t know what accounts are available, contact your
+sysadmin.</p>
+
+<p>The environment component in the job key, serves as a namespace. The values for
+environment are validated in the client and the scheduler so as to allow any of <code>devel</code>, <code>test</code>,
+<code>production</code>, and any value matching the regular expression <code>staging[0-9]*</code>.</p>
+
+<p>None of the values imply any difference in the scheduling behavior. Conventionally, the
+&ldquo;environment&rdquo; is set so as to indicate a certain level of stability in the behavior of the job
+by ensuring that an appropriate level of testing has been performed on the application code. e.g.
+in the case of a typical Job, releases may progress through the following phases in order of
+increasing level of stability: <code>devel</code>, <code>test</code>, <code>staging</code>, <code>production</code>.</p>
+
+<h2 id="configuration-tiers">Configuration Tiers</h2>
+
+<p>Tier is a predefined bundle of task configuration options. Aurora schedules tasks and assigns them
+resources based on their tier assignment. The default scheduler tier configuration allows for
+3 tiers:</p>
+
+<ul>
+<li><code>revocable</code>: The <code>revocable</code> tier requires the task to run with <a href="../resource-isolation/#oversubscription">revocable</a>
+resources.</li>
+<li><code>preemptible</code>: Setting the task’s tier to <code>preemptible</code> allows for the possibility of that task
+being <a href="#preemption">preempted</a> by other tasks when cluster is running low on resources.</li>
+<li><code>preferred</code>: The <code>preferred</code> tier prevents the task from using <a href="../resource-isolation/#oversubscription">revocable</a>
+resources and from being <a href="#preemption">preempted</a>.</li>
+</ul>
+
+<p>Since it is possible that a cluster is configured with a custom tier configuration, users should
+consult their cluster administrator to be informed of the tiers supported by the cluster. Attempts
+to schedule jobs with an unsupported tier will be rejected by the scheduler.</p>
+
+<h2 id="preemption">Preemption</h2>
+
+<p>In order to guarantee that important production jobs are always running, Aurora supports
+preemption.</p>
+
+<p>Let&rsquo;s consider we have a pending job that is candidate for scheduling but resource shortage pressure
+prevents this. Active tasks can become the victim of preemption, if:</p>
+
+<ul>
+<li>both candidate and victim are owned by the same role and the
+<a href="../../reference/configuration/#job-objects">priority</a> of a victim is lower than the
+<a href="../../reference/configuration/#job-objects">priority</a> of the candidate.</li>
+<li>OR a victim is a <code>preemptible</code> or <code>revocable</code> <a href="#configuration-tiers">tier</a> task and the candidate
+is a <code>preferred</code> <a href="#configuration-tiers">tier</a> task.</li>
+</ul>
+
+<p>In other words, tasks from <code>preferred</code> <a href="../../reference/configuration/#job-objects">tier</a> jobs may
+preempt tasks from any <code>preemptible</code> or <code>revocable</code> job. However, a <code>preferred</code> task may only be
+preempted by tasks from <code>preferred</code> jobs in the same role with higher <a href="../../reference/configuration/#job-objects">priority</a>.</p>
+
+<p>Aurora requires resource quotas for <a href="../../reference/configuration/#job-objects">production non-dedicated jobs</a>.
+Quota is enforced at the job role level and when set, defines a non-preemptible pool of compute resources within
+that role. All job types (service, adhoc or cron) require role resource quota unless a job has
+<a href="../constraints/#dedicated-attribute">dedicated constraint set</a>.</p>
+
+<p>To grant quota to a particular role in production, an operator can use the command
+<code>aurora_admin set_quota</code>.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

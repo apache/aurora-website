@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/reference/client-commands/'"
+        value="0.18.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    selected="selected">
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="aurora-client-commands">Aurora Client Commands</h1>
+
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#cluster-configuration">Cluster Configuration</a></li>
+<li><a href="#job-keys">Job Keys</a></li>
+<li><a href="#modifying-aurora-client-commands">Modifying Aurora Client Commands</a></li>
+<li><a href="#regular-jobs">Regular Jobs</a>
+
+<ul>
+<li><a href="#creating-and-running-a-job">Creating and Running a Job</a></li>
+<li><a href="#running-a-command-on-a-running-job">Running a Command On a Running Job</a></li>
+<li><a href="#killing-a-job">Killing a Job</a></li>
+<li><a href="#adding-instances">Adding Instances</a></li>
+<li><a href="#updating-a-job">Updating a Job</a>
+
+<ul>
+<li><a href="#coordinated-job-updates">Coordinated job updates</a></li>
+</ul></li>
+<li><a href="#renaming-a-job">Renaming a Job</a></li>
+<li><a href="#restarting-jobs">Restarting Jobs</a></li>
+</ul></li>
+<li><a href="#cron-jobs">Cron Jobs</a></li>
+<li><a href="#comparing-jobs">Comparing Jobs</a></li>
+<li><a href="#viewingexamining-jobs">Viewing/Examining Jobs</a>
+
+<ul>
+<li><a href="#listing-jobs">Listing Jobs</a></li>
+<li><a href="#inspecting-a-job">Inspecting a Job</a></li>
+<li><a href="#versions">Versions</a></li>
+<li><a href="#checking-your-quota">Checking Your Quota</a></li>
+<li><a href="#finding-a-job-on-web-ui">Finding a Job on Web UI</a></li>
+<li><a href="#getting-job-status">Getting Job Status</a></li>
+<li><a href="#opening-the-web-ui">Opening the Web UI</a></li>
+<li><a href="#sshing-to-a-specific-task-machine">SSHing to a Specific Task Machine</a></li>
+<li><a href="#scping-with-specific-task-machines">SCPing with Specific Task Machines</a></li>
+<li><a href="#templating-command-arguments">Templating Command Arguments</a></li>
+</ul></li>
+</ul>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Once you have written an <code>.aurora</code> configuration file that describes
+your Job and its parameters and functionality, you interact with Aurora
+using Aurora Client commands. This document describes all of these commands
+and how and when to use them. All Aurora Client commands start with
+<code>aurora</code>, followed by the name of the specific command and its
+arguments.</p>
+
+<p><em>Job keys</em> are a very common argument to Aurora commands, as well as the
+gateway to useful information about a Job. Before using Aurora, you
+should read the next section which describes them in detail. The section
+after that briefly describes how you can modify the behavior of certain
+Aurora Client commands, linking to a detailed document about how to do
+that.</p>
+
+<p>This is followed by the Regular Jobs section, which describes the basic
+Client commands for creating, running, and manipulating Aurora Jobs.
+After that are sections on Comparing Jobs and Viewing/Examining Jobs. In
+other words, various commands for getting information and metadata about
+Aurora Jobs.</p>
+
+<h2 id="cluster-configuration">Cluster Configuration</h2>
+
+<p>The client must be able to find a configuration file that specifies available clusters. This file
+declares shorthand names for clusters, which are in turn referenced by job configuration files
+and client commands.</p>
+
+<p>The client will load at most two configuration files, making both of their defined clusters
+available. The first is intended to be a system-installed cluster, using the path specified in
+the environment variable <code>AURORA_CONFIG_ROOT</code>, defaulting to <code>/etc/aurora/clusters.json</code> if the
+environment variable is not set. The second is a user-installed file, located at
+<code>~/.aurora/clusters.json</code>.</p>
+
+<p>For more details on cluster configuration see the
+<a href="../client-cluster-configuration/">Client Cluster Configuration</a> documentation.</p>
+
+<h2 id="job-keys">Job Keys</h2>
+
+<p>A job key is a unique system-wide identifier for an Aurora-managed
+Job, for example <code>cluster1/web-team/test/experiment204</code>. It is a 4-tuple
+consisting of, in order, <em>cluster</em>, <em>role</em>, <em>environment</em>, and
+<em>jobname</em>, separated by /s. Cluster is the name of an Aurora
+cluster. Role is the Unix service account under which the Job
+runs. Environment is a namespace component like <code>devel</code>, <code>test</code>,
+<code>prod</code>, or <code>stagingN.</code> Jobname is the Job&rsquo;s name.</p>
+
+<p>The combination of all four values uniquely specifies the Job. If any
+one value is different from that of another job key, the two job keys
+refer to different Jobs. For example, job key
+<code>cluster1/tyg/prod/workhorse</code> is different from
+<code>cluster1/tyg/prod/workcamel</code> is different from
+<code>cluster2/tyg/prod/workhorse</code> is different from
+<code>cluster2/foo/prod/workhorse</code> is different from
+<code>cluster1/tyg/test/workhorse.</code></p>
+
+<p>Role names are user accounts existing on the agent machines. If you don&rsquo;t know what accounts
+are available, contact your sysadmin.</p>
+
+<p>Environment names are namespaces; you can count on <code>prod</code>, <code>devel</code> and <code>test</code> existing.</p>
+
+<h2 id="modifying-aurora-client-commands">Modifying Aurora Client Commands</h2>
+
+<p>For certain Aurora Client commands, you can define hook methods that run
+either before or after an action that takes place during the command&rsquo;s
+execution, as well as based on whether the action finished successfully or failed
+during execution. Basically, a hook is code that lets you extend the
+command&rsquo;s actions. The hook executes on the client side, specifically on
+the machine executing Aurora commands.</p>
+
+<p>Hooks can be associated with these Aurora Client commands.</p>
+
+<ul>
+<li><code>job create</code></li>
+<li><code>job kill</code></li>
+<li><code>job restart</code></li>
+</ul>
+
+<p>The process for writing and activating them is complex enough
+that we explain it in a devoted document, <a href="../client-hooks/">Hooks for Aurora Client API</a>.</p>
+
+<h2 id="regular-jobs">Regular Jobs</h2>
+
+<p>This section covers Aurora commands related to running, killing,
+renaming, updating, and restarting a basic Aurora Job.</p>
+
+<h3 id="creating-and-running-a-job">Creating and Running a Job</h3>
+<pre class="highlight plaintext"><code>aurora job create &lt;job key&gt; &lt;configuration file&gt;
+</code></pre>
+
+<p>Creates and then runs a Job with the specified job key based on a <code>.aurora</code> configuration file.
+The configuration file may also contain and activate hook definitions.</p>
+
+<h3 id="running-a-command-on-a-running-job">Running a Command On a Running Job</h3>
+<pre class="highlight plaintext"><code>aurora task run CLUSTER/ROLE/ENV/NAME[/INSTANCES] &lt;cmd&gt;
+</code></pre>
+
+<p>Runs a shell command on all machines currently hosting shards of a
+single Job.</p>
+
+<p><code>run</code> supports the same command line wildcards used to populate a Job&rsquo;s
+commands; i.e. anything in the <code>{{mesos.*}}</code> and <code>{{thermos.*}}</code>
+namespaces.</p>
+
+<h3 id="killing-a-job">Killing a Job</h3>
+<pre class="highlight plaintext"><code>aurora job killall CLUSTER/ROLE/ENV/NAME
+</code></pre>
+
+<p>Kills all Tasks associated with the specified Job, blocking until all
+are terminated. Defaults to killing all instances in the Job.</p>
+
+<p>The <code>&lt;configuration file&gt;</code> argument for <code>kill</code> is optional. Use it only
+if it contains hook definitions and activations that affect the
+kill command.</p>
+
+<h3 id="adding-instances">Adding Instances</h3>
+<pre class="highlight plaintext"><code>aurora job add CLUSTER/ROLE/ENV/NAME/INSTANCE &lt;count&gt;
+</code></pre>
+
+<p>Adds <code>&lt;count&gt;</code> instances to the existing job. The configuration of the new instances is derived from
+an active job instance pointed by the <code>/INSTANCE</code> part of the job specification. This command is
+a simpler way to scale out an existing job when an instance with desired task configuration
+already exists. Use <code>aurora update start</code> to add instances with a new (updated) configuration.</p>
+
+<h3 id="updating-a-job">Updating a Job</h3>
+
+<p>You can manage job updates using the <code>aurora update</code> command.  Please see
+<a href="../../features/job-updates/">the Job Update documentation</a> for more details.</p>
+
+<h3 id="renaming-a-job">Renaming a Job</h3>
+
+<p>Renaming is a tricky operation as downstream clients must be informed of
+the new name. A conservative approach
+to renaming suitable for production services is:</p>
+
+<ol>
+<li> Modify the Aurora configuration file to change the role,
+environment, and/or name as appropriate to the standardized naming
+scheme.</li>
+<li><p>Check that only these naming components have changed
+with <code>aurora diff</code>.</p>
+<pre class="highlight plaintext"><code>aurora job diff CLUSTER/ROLE/ENV/NAME &lt;job_configuration&gt;
+</code></pre></li>
+<li><p>Create the (identical) job at the new key. You may need to request a
+temporary quota increase.</p>
+<pre class="highlight plaintext"><code>aurora job create CLUSTER/ROLE/ENV/NEW_NAME &lt;job_configuration&gt;
+</code></pre></li>
+<li><p>Migrate all clients over to the new job key. Update all links and
+dashboards. Ensure that both job keys run identical versions of the
+code while in this state.</p></li>
+<li><p>After verifying that all clients have successfully moved over, kill
+the old job.</p>
+<pre class="highlight plaintext"><code>aurora job killall CLUSTER/ROLE/ENV/NAME
+</code></pre></li>
+<li><p>If you received a temporary quota increase, be sure to let the
+powers that be know you no longer need the additional capacity.</p></li>
+</ol>
+
+<h3 id="restarting-jobs">Restarting Jobs</h3>
+
+<p><code>restart</code> restarts all of a job key identified Job&rsquo;s shards:</p>
+<pre class="highlight plaintext"><code>aurora job restart CLUSTER/ROLE/ENV/NAME[/INSTANCES]
+</code></pre>
+
+<p>Restarts are controlled on the client side, so aborting
+the <code>job restart</code> command halts the restart operation.</p>
+
+<p><strong>Note</strong>: <code>job restart</code> only applies its command line arguments and does not
+use or is affected by <code>update.config</code>. Restarting
+does <strong><em>not</em></strong> involve a configuration change. To update the
+configuration, use <code>update.config</code>.</p>
+
+<p>The <code>--config</code> argument for restart is optional. Use it only
+if it contains hook definitions and activations that affect the
+<code>job restart</code> command.</p>
+
+<h2 id="cron-jobs">Cron Jobs</h2>
+
+<p>You can manage cron jobs using the <code>aurora cron</code> command.  Please see
+<a href="../../features/cron-jobs/">the Cron Jobs Feature</a> for more details.</p>
+
+<h2 id="comparing-jobs">Comparing Jobs</h2>
+<pre class="highlight plaintext"><code>aurora job diff CLUSTER/ROLE/ENV/NAME &lt;job configuration&gt;
+</code></pre>
+
+<p>Compares a job configuration against a running job. By default the diff
+is determined using <code>diff</code>, though you may choose an alternate
+ diff program by specifying the <code>DIFF_VIEWER</code> environment variable.</p>
+
+<h2 id="viewing-examining-jobs">Viewing/Examining Jobs</h2>
+
+<p>Above we discussed creating, killing, and updating Jobs. Here we discuss
+how to view and examine Jobs.</p>
+
+<h3 id="listing-jobs">Listing Jobs</h3>
+<pre class="highlight plaintext"><code>aurora config list &lt;job configuration&gt;
+</code></pre>
+
+<p>Lists all Jobs registered with the Aurora scheduler in the named cluster for the named role.</p>
+
+<h3 id="inspecting-a-job">Inspecting a Job</h3>
+<pre class="highlight plaintext"><code>aurora job inspect CLUSTER/ROLE/ENV/NAME &lt;job configuration&gt;
+</code></pre>
+
+<p><code>inspect</code> verifies that its specified job can be parsed from a
+configuration file, and displays the parsed configuration.</p>
+
+<h3 id="checking-your-quota">Checking Your Quota</h3>
+<pre class="highlight plaintext"><code>aurora quota get CLUSTER/ROLE
+</code></pre>
+
+<p>Prints the production quota allocated to the role&rsquo;s value at the given
+cluster. Only non-<a href="../../features/constraints/#dedicated-attribute">dedicated</a>
+<a href="../configuration/#job-objects">production</a> jobs consume quota.</p>
+
+<h3 id="finding-a-job-on-web-ui">Finding a Job on Web UI</h3>
+
+<p>When you create a job, part of the output response contains a URL that goes
+to the job&rsquo;s scheduler UI page. For example:</p>
+<pre class="highlight plaintext"><code>vagrant@precise64:~$ aurora job create devcluster/www-data/prod/hello /vagrant/examples/jobs/hello_world.aurora
+INFO] Creating job hello
+INFO] Response from scheduler: OK (message: 1 new tasks pending for job www-data/prod/hello)
+INFO] Job url: http://precise64:8081/scheduler/www-data/prod/hello
+</code></pre>
+
+<p>You can go to the scheduler UI page for this job via <code>http://precise64:8081/scheduler/www-data/prod/hello</code>
+You can go to the overall scheduler UI page by going to the part of that URL that ends at <code>scheduler</code>; <code>http://precise64:8081/scheduler</code></p>
+
+<p>Once you click through to a role page, you see Jobs arranged
+separately by pending jobs, active jobs and finished jobs.
+Jobs are arranged by role, typically a service account for
+production jobs and user accounts for test or development jobs.</p>
+
+<h3 id="getting-job-status">Getting Job Status</h3>
+<pre class="highlight plaintext"><code>aurora job status &lt;job_key&gt;
+</code></pre>
+
+<p>Returns the status of recent tasks associated with the
+<code>job_key</code> specified Job in its supplied cluster. Typically this includes
+a mix of active tasks (running or assigned) and inactive tasks
+(successful, failed, and lost.)</p>
+
+<h3 id="opening-the-web-ui">Opening the Web UI</h3>
+
+<p>Use the Job&rsquo;s web UI scheduler URL or the <code>aurora status</code> command to find out on which
+machines individual tasks are scheduled. You can open the web UI via the
+<code>open</code> command line command if invoked from your machine:</p>
+<pre class="highlight plaintext"><code>aurora job open [&lt;cluster&gt;[/&lt;role&gt;[/&lt;env&gt;/&lt;job_name&gt;]]]
+</code></pre>
+
+<p>If only the cluster is specified, it goes directly to that cluster&rsquo;s
+scheduler main page. If the role is specified, it goes to the top-level
+role page. If the full job key is specified, it goes directly to the job
+page where you can inspect individual tasks.</p>
+
+<h3 id="sshing-to-a-specific-task-machine">SSHing to a Specific Task Machine</h3>
+<pre class="highlight plaintext"><code>aurora task ssh &lt;job_key&gt; &lt;shard number&gt;
+</code></pre>
+
+<p>You can have the Aurora client ssh directly to the machine that has been
+assigned a particular Job/shard number. This may be useful for quickly
+diagnosing issues such as performance issues or abnormal behavior on a
+particular machine.</p>
+
+<h3 id="scping-with-specific-task-machines">SCPing with Specific Task Machines</h3>
+<pre class="highlight plaintext"><code>aurora task scp [&lt;cluster&gt;/&lt;role&gt;/&lt;env&gt;/&lt;job_name&gt;/&lt;instance_id&gt;]:source [&lt;cluster&gt;/&lt;role&gt;/&lt;env&gt;/&lt;job_name&gt;/&lt;instance_id&gt;]:dest
+</code></pre>
+
+<p>You can have the Aurora client copy file(s)/folder(s) to, from, and between
+individual tasks. The sandbox folder serves as the relative root and is the
+same folder you see when you browse <code>chroot</code> from the Scheduler task UI. You
+can also use absolute paths (like for <code>/tmp</code>), but tilde expansion is not
+supported. Currently, this command is only fully supported for Mesos
+containers. Users may use this to copy files from Docker containers but they
+cannot copy files to them.</p>
+
+<h3 id="templating-command-arguments">Templating Command Arguments</h3>
+<pre class="highlight plaintext"><code>aurora task run [-e] [-t THREADS] &lt;job_key&gt; -- &lt;&lt;command-line&gt;&gt;
+</code></pre>
+
+<p>Given a job specification, run the supplied command on all hosts and
+return the output. You may use the standard Mustache templating rules:</p>
+
+<ul>
+<li><code>{{thermos.ports[name]}}</code> substitutes the specific named port of the
+task assigned to this machine</li>
+<li><code>{{mesos.instance}}</code> substitutes the shard id of the job&rsquo;s task
+assigned to this machine</li>
+<li><code>{{thermos.task_id}}</code> substitutes the task id of the job&rsquo;s task
+assigned to this machine</li>
+</ul>
+
+<p>For example, the following type of pattern can be a powerful diagnostic
+tool:</p>
+<pre class="highlight plaintext"><code>aurora task run -t5 cluster1/tyg/devel/seizure -- \
+  'curl -s -m1 localhost:{{thermos.ports[http]}}/vars | grep uptime'
+</code></pre>
+
+<p>By default, the command runs in the Task&rsquo;s sandbox. The <code>-e</code> option can
+run the command in the executor&rsquo;s sandbox. This is mostly useful for
+Aurora administrators.</p>
+
+<p>You can parallelize the runs by using the <code>-t</code> option.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

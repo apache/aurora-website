@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/operations/troubleshooting/'"
+        value="0.18.1">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    selected="selected">
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="troubleshooting">Troubleshooting</h1>
+
+<p>So you&rsquo;ve started your first cluster and are running into some issues? We&rsquo;ve collected some common
+stumbling blocks and solutions here to help get you moving.</p>
+
+<h2 id="replicated-log-not-initialized">Replicated log not initialized</h2>
+
+<h3 id="symptoms">Symptoms</h3>
+
+<ul>
+<li>Scheduler RPCs and web interface claim <code>Storage is not READY</code></li>
+<li>Scheduler log repeatedly prints messages like</li>
+</ul>
+<pre class="highlight plaintext"><code>  I1016 16:12:27.234133 26081 replica.cpp:638] Replica in EMPTY status
+  received a broadcasted recover request
+  I1016 16:12:27.234256 26084 recover.cpp:188] Received a recover response
+  from a replica in EMPTY status
+</code></pre>
+
+<h3 id="solution">Solution</h3>
+
+<p>When you create a new cluster, you need to inform a quorum of schedulers that they are safe to
+consider their database to be empty by <a href="../installation/#finalizing">initializing</a> the
+replicated log. This is done to prevent the scheduler from modifying the cluster state in the event
+of multiple simultaneous disk failures or, more likely, misconfiguration of the replicated log path.</p>
+
+<h2 id="no-distinct-leader-elected">No distinct leader elected</h2>
+
+<h3 id="symptoms">Symptoms</h3>
+
+<p>Either no scheduler or multiple scheduler believe to be leading.</p>
+
+<h3 id="solution">Solution</h3>
+
+<p>Verify the <a href="../configuration/#network-configuration">network configuration</a> of the Aurora
+scheduler is correct:</p>
+
+<ul>
+<li>The <code>LIBPROCESS_IP:LIBPROCESS_PORT</code> endpoints must be reachable from all coordinator nodes running
+a scheduler or a Mesos master.</li>
+<li>Hostname lookups have to resolve to public ips rather than local ones that cannot be reached
+from another node.</li>
+</ul>
+
+<p>In addition, double-check the <a href="../configuration/#replicated-log-configuration">quota settings</a> of the
+replicated log.</p>
+
+<h2 id="scheduler-not-registered">Scheduler not registered</h2>
+
+<h3 id="symptoms">Symptoms</h3>
+
+<p>Scheduler log contains</p>
+<pre class="highlight plaintext"><code>Framework has not been registered within the tolerated delay.
+</code></pre>
+
+<h3 id="solution">Solution</h3>
+
+<p>Double-check that the scheduler is configured correctly to reach the Mesos master. If you are registering
+the master in ZooKeeper, make sure command line argument to the master:</p>
+<pre class="highlight plaintext"><code>--zk=zk://$ZK_HOST:2181/mesos/master
+</code></pre>
+
+<p>is the same as the one on the scheduler:</p>
+<pre class="highlight plaintext"><code>-mesos_master_address=zk://$ZK_HOST:2181/mesos/master
+</code></pre>
+
+<h2 id="scheduler-not-running">Scheduler not running</h2>
+
+<h3 id="symptoms">Symptoms</h3>
+
+<p>The scheduler process commits suicide regularly. This happens under error conditions, but
+also on purpose in regular intervals.</p>
+
+<h3 id="solution">Solution</h3>
+
+<p>Aurora is meant to be run under supervision. You have to configure a supervisor like
+<a href="http://mmonit.com/monit/">Monit</a>, <a href="http://supervisord.org/">supervisord</a>, or systemd to run the
+scheduler and restart it whenever it fails or exists on purpose.</p>
+
+<p>Aurora supports an active health checking protocol on its admin HTTP interface - if a <code>GET /health</code>
+times out or returns anything other than <code>200 OK</code> the scheduler process is unhealthy and should be
+restarted.</p>
+
+<p>For example, monit can be configured with</p>
+<pre class="highlight plaintext"><code>if failed port 8081 send "GET /health HTTP/1.0\r\n" expect "OK\n" with timeout 2 seconds for 10 cycles then restart
+</code></pre>
+
+<p>assuming you set <code>-http_port=8081</code>.</p>
+
+<h2 id="executor-crashing-or-hanging">Executor crashing or hanging</h2>
+
+<h3 id="symptoms">Symptoms</h3>
+
+<p>Launched task instances never transition to <code>STARTING</code> or <code>RUNNING</code> but immediately transition
+to <code>FAILED</code> or <code>LOST</code>.</p>
+
+<h3 id="solution">Solution</h3>
+
+<p>The executor might be failing due to unknown internal errors such as a missing native dependency
+of the Mesos executor library. Open the Mesos UI and navigate to the failing
+task in question. Inspect the various log files in order to learn about what is going on.</p>
+
+<h2 id="observer-does-not-discover-tasks">Observer does not discover tasks</h2>
+
+<h3 id="symptoms">Symptoms</h3>
+
+<p>The observer UI does not list any tasks. When navigating from the scheduler UI to the state of
+a particular task instance the observer returns <code>Error: 404 Not Found</code>.</p>
+
+<h3 id="solution">Solution</h3>
+
+<p>The observer is refreshing its internal state every couple of seconds. If waiting a few seconds
+does not resolve the issue, check that the <code>--mesos-root</code> setting of the observer and the
+<code>--work_dir</code> option of the Mesos agent are in sync. For details, see our
+<a href="../installation/#worker-configuration">Install instructions</a>.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

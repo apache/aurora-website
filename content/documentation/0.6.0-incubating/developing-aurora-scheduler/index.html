@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/developing-aurora-scheduler/'"
+        value="0.6.0-incubating">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    selected="selected">
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<p>Java code in the aurora repo is built with <a href="http://gradle.org">Gradle</a>.</p>
+
+<h1 id="getting-started">Getting Started</h1>
+
+<p>You will need Java 7 installed and on your <code>PATH</code> or unzipped somewhere with <code>JAVA_HOME</code> set. Then</p>
+<pre class="highlight plaintext"><code>./gradlew tasks
+</code></pre>
+
+<p>will bootstrap the build system and show available tasks. This can take a while the first time you
+run it but subsequent runs will be much faster due to cached artifacts.</p>
+
+<h2 id="running-the-tests">Running the Tests</h2>
+
+<p>Aurora has a comprehensive unit test suite. To run the tests use</p>
+<pre class="highlight plaintext"><code>./gradlew build
+</code></pre>
+
+<p>Gradle will only re-run tests when dependencies of them have changed. To force a re-run of all
+tests use</p>
+<pre class="highlight plaintext"><code>./gradlew clean build
+</code></pre>
+
+<h2 id="running-the-build-with-code-quality-checks">Running the build with code quality checks</h2>
+
+<p>To speed up development iteration, the plain gradle commands will not run static analysis tools.
+However, you should run these before posting a review diff, and <strong>always</strong> run this before pushing a
+commit to origin/master.</p>
+<pre class="highlight plaintext"><code>./gradlew build -Pq
+</code></pre>
+
+<h2 id="creating-a-bundle-for-deployment">Creating a bundle for deployment</h2>
+
+<p>Gradle can create a zip file containing Aurora, all of its dependencies, and a launch script with</p>
+<pre class="highlight plaintext"><code>./gradlew distZip
+</code></pre>
+
+<p>or a tar file containing the same files with</p>
+<pre class="highlight plaintext"><code>./gradlew distTar
+</code></pre>
+
+<p>The output file will be written to <code>dist/distributions/aurora-scheduler.zip</code> or
+<code>dist/distributions/aurora-scheduler.tar</code>.</p>
+
+<h1 id="developing-aurora-java-code">Developing Aurora Java code</h1>
+
+<h2 id="setting-up-an-ide">Setting up an IDE</h2>
+
+<p>Gradle can generate project files for your IDE. To generate an IntelliJ IDEA project run</p>
+<pre class="highlight plaintext"><code>./gradlew idea
+</code></pre>
+
+<p>and import the generated <code>aurora.ipr</code> file.</p>
+
+<h2 id="adding-or-upgrading-a-dependency">Adding or Upgrading a Dependency</h2>
+
+<p>New dependencies can be added from Maven central by adding a <code>compile</code> dependency to <code>build.gradle</code>.
+For example, to add a dependency on <code>com.example</code>&rsquo;s <code>example-lib</code> 1.0 add this block:</p>
+<pre class="highlight plaintext"><code>compile 'com.example:example-lib:1.0'
+</code></pre>
+
+<p>NOTE: Anyone thinking about adding a new dependency should first familiarize themself with the
+Apache Foundation&rsquo;s third-party licensing
+<a href="http://www.apache.org/legal/resolved.html#category-x">policy</a>.</p>
+
+<h1 id="developing-aurora-ui">Developing Aurora UI</h1>
+
+<h2 id="installing-bower-optional">Installing bower (optional)</h2>
+
+<p>Third party JS libraries used in Aurora (located at 3rdparty/javascript/bower_components) are
+managed by bower, a JS dependency manager. Bower is only required if you plan to add, remove or
+update JS libraries. Bower can be installed using the following command:</p>
+<pre class="highlight plaintext"><code>npm install -g bower
+</code></pre>
+
+<p>Bower depends on node.js and npm. The easiest way to install node on a mac is via brew:</p>
+<pre class="highlight plaintext"><code>brew install node
+</code></pre>
+
+<p>For more node.js installation options refer to <a href="https://github.com/joyent/node/wiki/Installation">https://github.com/joyent/node/wiki/Installation</a>.</p>
+
+<p>More info on installing and using bower can be found at: <a href="http://bower.io/">http://bower.io/</a>. Once installed, you can
+use the following commands to view and modify the bower repo at
+3rdparty/javascript/bower_components</p>
+<pre class="highlight plaintext"><code>bower list
+bower install &lt;library name&gt;
+bower remove &lt;library name&gt;
+bower update &lt;library name&gt;
+bower help
+</code></pre>
+
+<h1 id="developing-the-aurora-build-system">Developing the Aurora Build System</h1>
+
+<h2 id="bootstrapping-gradle">Bootstrapping Gradle</h2>
+
+<p>The following files were autogenerated by <code>gradle wrapper</code> using gradle 1.8&rsquo;s
+<a href="http://www.gradle.org/docs/1.8/dsl/org.gradle.api.tasks.wrapper.Wrapper.html">Wrapper</a> plugin and
+should not be modified directly:</p>
+<pre class="highlight plaintext"><code>./gradlew
+./gradlew.bat
+./gradle/wrapper/gradle-wrapper.jar
+./gradle/wrapper/gradle-wrapper.properties
+</code></pre>
+
+<p>To upgrade Gradle unpack the new version somewhere, run <code>/path/to/new/gradle wrapper</code> in the
+repository root and commit the changed files.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

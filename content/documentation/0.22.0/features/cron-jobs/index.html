@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/features/cron-jobs/'"
+        value="0.22.0">
+  <option value="0.22.0"
+    selected="selected">
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="cron-jobs">Cron Jobs</h1>
+
+<p>Aurora supports execution of scheduled jobs on a Mesos cluster using cron-style syntax.</p>
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#collision-policies">Collision Policies</a></li>
+<li><a href="#failure-recovery">Failure recovery</a></li>
+<li><a href="#interacting-with-cron-jobs-via-the-aurora-cli">Interacting with cron jobs via the Aurora CLI</a>
+
+<ul>
+<li><a href="#cron-schedule">cron schedule</a></li>
+<li><a href="#cron-deschedule">cron deschedule</a></li>
+<li><a href="#cron-start">cron start</a></li>
+<li><a href="#job-killall-job-restart-job-kill">job killall, job restart, job kill</a></li>
+</ul></li>
+<li><a href="#technical-note-about-syntax">Technical Note About Syntax</a></li>
+<li><a href="#caveats">Caveats</a>
+
+<ul>
+<li><a href="#failovers">Failovers</a></li>
+<li><a href="#collision-policy-is-best-effort">Collision policy is best-effort</a></li>
+<li><a href="#timezone-configuration">Timezone Configuration</a></li>
+</ul></li>
+</ul>
+
+<h2 id="overview">Overview</h2>
+
+<p>A job is identified as a cron job by the presence of a
+<code>cron_schedule</code> attribute containing a cron-style schedule in the
+<a href="../../reference/configuration/#job-objects"><code>Job</code></a> object. Examples of cron schedules
+include &ldquo;every 5 minutes&rdquo; (<code>*/5 * * * *</code>), &ldquo;Fridays at 17:00&rdquo; (<code>* 17 * * FRI</code>), and
+&ldquo;the 1st and 15th day of the month at 03:00&rdquo; (<code>0 3 1,15 *</code>).</p>
+
+<p>Example (available in the <a href="../../getting-started/vagrant/">Vagrant environment</a>):</p>
+<pre class="highlight plaintext"><code>$ cat /vagrant/examples/jobs/cron_hello_world.aurora
+# A cron job that runs every 5 minutes.
+jobs = [
+  Job(
+    cluster = 'devcluster',
+    role = 'www-data',
+    environment = 'test',
+    name = 'cron_hello_world',
+    cron_schedule = '*/5 * * * *',
+    task = SimpleTask(
+      'cron_hello_world',
+      'echo "Hello world from cron, the time is now $(date --rfc-822)"'),
+  ),
+]
+</code></pre>
+
+<h2 id="collision-policies">Collision Policies</h2>
+
+<p>The <code>cron_collision_policy</code> field specifies the scheduler&rsquo;s behavior when a new cron job is
+triggered while an older run hasn&rsquo;t finished. The scheduler has two policies available:</p>
+
+<ul>
+<li><code>KILL_EXISTING</code>: The default policy - on a collision the old instances are killed and a instances with the current
+configuration are started.</li>
+<li><code>CANCEL_NEW</code>: On a collision the new run is cancelled.</li>
+</ul>
+
+<p>Note that the use of <code>CANCEL_NEW</code> is likely a code smell - interrupted cron jobs should be able
+to recover their progress on a subsequent invocation, otherwise they risk having their work queue
+grow faster than they can process it.</p>
+
+<h2 id="failure-recovery">Failure recovery</h2>
+
+<p>Unlike with services, which aurora will always re-execute regardless of exit status, instances of
+cron jobs retry according to the <code>max_task_failures</code> attribute of the
+<a href="../../reference/configuration/#task-object">Task</a> object. To get &ldquo;run-until-success&rdquo; semantics,
+set <code>max_task_failures</code> to <code>-1</code>.</p>
+
+<h2 id="interacting-with-cron-jobs-via-the-aurora-cli">Interacting with cron jobs via the Aurora CLI</h2>
+
+<p>Most interaction with cron jobs takes place using the <code>cron</code> subcommand. See <code>aurora cron -h</code>
+for up-to-date usage instructions.</p>
+
+<h3 id="cron-schedule">cron schedule</h3>
+
+<p>Schedules a new cron job on the Aurora cluster for later runs or replaces the existing cron template
+with a new one. Only future runs will be affected, any existing active tasks are left intact.</p>
+<pre class="highlight plaintext"><code>$ aurora cron schedule devcluster/www-data/test/cron_hello_world /vagrant/examples/jobs/cron_hello_world.aurora
+</code></pre>
+
+<h3 id="cron-deschedule">cron deschedule</h3>
+
+<p>Deschedules a cron job, preventing future runs but allowing current runs to complete.</p>
+<pre class="highlight plaintext"><code>$ aurora cron deschedule devcluster/www-data/test/cron_hello_world
+</code></pre>
+
+<h3 id="cron-start">cron start</h3>
+
+<p>Start a cron job immediately, outside of its normal cron schedule.</p>
+<pre class="highlight plaintext"><code>$ aurora cron start devcluster/www-data/test/cron_hello_world
+</code></pre>
+
+<h3 id="job-killall-job-restart-job-kill">job killall, job restart, job kill</h3>
+
+<p>Cron jobs create instances running on the cluster that you can interact with like normal Aurora
+tasks with <code>job kill</code> and <code>job restart</code>.</p>
+
+<h2 id="technical-note-about-syntax">Technical Note About Syntax</h2>
+
+<p><code>cron_schedule</code> uses a restricted subset of BSD crontab syntax. While the
+execution engine currently uses Quartz, the schedule parsing is custom, a subset of FreeBSD
+<a href="http://www.freebsd.org/cgi/man.cgi?crontab(5)">crontab(5)</a> syntax. See
+<a href="https://github.com/apache/aurora/blob/master/src/main/java/org/apache/aurora/scheduler/cron/CrontabEntry.java#L106-L124">the source</a>
+for details.</p>
+
+<h2 id="caveats">Caveats</h2>
+
+<h3 id="failovers">Failovers</h3>
+
+<p>No failover recovery. Aurora does not record the latest minute it fired
+triggers for across failovers. Therefore it&rsquo;s possible to miss triggers
+on failover. Note that this behavior may change in the future.</p>
+
+<p>It&rsquo;s necessary to sync time between schedulers with something like <code>ntpd</code>.
+Clock skew could cause double or missed triggers in the case of a failover.</p>
+
+<h3 id="collision-policy-is-best-effort">Collision policy is best-effort</h3>
+
+<p>Aurora aims to always have <em>at least one copy</em> of a given instance running at a time - it&rsquo;s
+an AP system, meaning it chooses Availability and Partition Tolerance at the expense of
+Consistency.</p>
+
+<p>If your collision policy was <code>CANCEL_NEW</code> and a task has terminated but
+Aurora has not noticed this Aurora will go ahead and create your new
+task.</p>
+
+<p>If your collision policy was <code>KILL_EXISTING</code> and a task was marked <code>LOST</code>
+but not yet GCed Aurora will go ahead and create your new task without
+attempting to kill the old one (outside the GC interval).</p>
+
+<h3 id="timezone-configuration">Timezone Configuration</h3>
+
+<p>Cron timezone is configured indepdendently of JVM timezone with the <code>-cron_timezone</code> flag and
+defaults to UTC.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

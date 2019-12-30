@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/configuration-reference/'"
+        value="0.12.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    >
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    selected="selected">
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="aurora-thermos-configuration-reference">Aurora + Thermos Configuration Reference</h1>
+
+<ul>
+<li><a href="#aurora--thermos-configuration-reference">Aurora + Thermos Configuration Reference</a></li>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#process-schema">Process Schema</a>
+
+<ul>
+<li><a href="#process-objects">Process Objects</a>
+
+<ul>
+<li><a href="#name">name</a></li>
+<li><a href="#cmdline">cmdline</a></li>
+<li><a href="#max_failures">max_failures</a></li>
+<li><a href="#daemon">daemon</a></li>
+<li><a href="#ephemeral">ephemeral</a></li>
+<li><a href="#min_duration">min_duration</a></li>
+<li><a href="#final">final</a></li>
+<li><a href="#logger">logger</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#task-schema">Task Schema</a>
+
+<ul>
+<li><a href="#task-object">Task Object</a>
+
+<ul>
+<li><a href="#name-1">name</a></li>
+<li><a href="#processes">processes</a></li>
+<li><a href="#constraints">constraints</a></li>
+<li><a href="#resources">resources</a></li>
+<li><a href="#max_failures-1">max_failures</a></li>
+<li><a href="#max_concurrency">max_concurrency</a></li>
+<li><a href="#finalization_wait">finalization_wait</a></li>
+</ul></li>
+<li><a href="#constraint-object">Constraint Object</a></li>
+<li><a href="#resource-object">Resource Object</a></li>
+</ul></li>
+<li><a href="#job-schema">Job Schema</a>
+
+<ul>
+<li><a href="#job-objects">Job Objects</a></li>
+<li><a href="#services">Services</a></li>
+<li><a href="#revocable-jobs">Revocable Jobs</a></li>
+<li><a href="#updateconfig-objects">UpdateConfig Objects</a></li>
+<li><a href="#healthcheckconfig-objects">HealthCheckConfig Objects</a></li>
+<li><a href="#announcer-objects">Announcer Objects</a></li>
+<li><a href="#container">Container Objects</a></li>
+<li><a href="#lifecycleconfig-objects">LifecycleConfig Objects</a></li>
+</ul></li>
+<li><a href="#specifying-scheduling-constraints">Specifying Scheduling Constraints</a></li>
+<li><a href="#template-namespaces">Template Namespaces</a>
+
+<ul>
+<li><a href="#mesos-namespace">mesos Namespace</a></li>
+<li><a href="#thermos-namespace">thermos Namespace</a></li>
+</ul></li>
+<li><a href="#basic-examples">Basic Examples</a>
+
+<ul>
+<li><a href="#hello_worldaurora">hello_world.aurora</a></li>
+<li><a href="#environment-tailoring">Environment Tailoring</a>
+
+<ul>
+<li><a href="#hello_world_productionizedaurora">hello<em>world</em>productionized.aurora</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>Don&rsquo;t know where to start? The Aurora configuration schema is very
+powerful, and configurations can become quite complex for advanced use
+cases.</p>
+
+<p>For examples of simple configurations to get something up and running
+quickly, check out the <a href="/documentation/0.12.0/tutorial/">Tutorial</a>. When you feel comfortable with the basics, move
+on to the <a href="/documentation/0.12.0/configuration-tutorial/">Configuration Tutorial</a> for more in-depth coverage of
+configuration design.</p>
+
+<p>For additional basic configuration examples, see <a href="#BasicExamples">the end of this document</a>.</p>
+
+<h1 id="process-schema">Process Schema</h1>
+
+<p>Process objects consist of required <code>name</code> and <code>cmdline</code> attributes. You can customize Process
+behavior with its optional attributes. Remember, Processes are handled by Thermos.</p>
+
+<h3 id="process-objects">Process Objects</h3>
+
+<table><thead>
+<tr>
+<th><strong>Attribute Name</strong></th>
+<th style="text-align: center"><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>name</strong></td>
+<td style="text-align: center">String</td>
+<td>Process name (Required)</td>
+</tr>
+<tr>
+<td><strong>cmdline</strong></td>
+<td style="text-align: center">String</td>
+<td>Command line (Required)</td>
+</tr>
+<tr>
+<td><strong>max_failures</strong></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum process failures (Default: 1)</td>
+</tr>
+<tr>
+<td><strong>daemon</strong></td>
+<td style="text-align: center">Boolean</td>
+<td>When True, this is a daemon process. (Default: False)</td>
+</tr>
+<tr>
+<td><strong>ephemeral</strong></td>
+<td style="text-align: center">Boolean</td>
+<td>When True, this is an ephemeral process. (Default: False)</td>
+</tr>
+<tr>
+<td><strong>min_duration</strong></td>
+<td style="text-align: center">Integer</td>
+<td>Minimum duration between process restarts in seconds. (Default: 15)</td>
+</tr>
+<tr>
+<td><strong>final</strong></td>
+<td style="text-align: center">Boolean</td>
+<td>When True, this process is a finalizing one that should run last. (Default: False)</td>
+</tr>
+<tr>
+<td><strong>logger</strong></td>
+<td style="text-align: center">Logger</td>
+<td>Struct defining the log behavior for the process. (Default: Empty)</td>
+</tr>
+</tbody></table>
+
+<h4 id="name">name</h4>
+
+<p>The name is any valid UNIX filename string (specifically no
+slashes, NULLs or leading periods). Within a Task object, each Process name
+must be unique.</p>
+
+<h4 id="cmdline">cmdline</h4>
+
+<p>The command line run by the process. The command line is invoked in a bash
+subshell, so can involve fully-blown bash scripts. However, nothing is
+supplied for command-line arguments so <code>$*</code> is unspecified.</p>
+
+<h4 id="max_failures">max_failures</h4>
+
+<p>The maximum number of failures (non-zero exit statuses) this process can
+have before being marked permanently failed and not retried. If a
+process permanently fails, Thermos looks at the failure limit of the task
+containing the process (usually 1) to determine if the task has
+failed as well.</p>
+
+<p>Setting <code>max_failures</code> to 0 makes the process retry
+indefinitely until it achieves a successful (zero) exit status.
+It retries at most once every <code>min_duration</code> seconds to prevent
+an effective denial of service attack on the coordinating Thermos scheduler.</p>
+
+<h4 id="daemon">daemon</h4>
+
+<p>By default, Thermos processes are non-daemon. If <code>daemon</code> is set to True, a
+successful (zero) exit status does not prevent future process runs.
+Instead, the process reinvokes after <code>min_duration</code> seconds.
+However, the maximum failure limit still applies. A combination of
+<code>daemon=True</code> and <code>max_failures=0</code> causes a process to retry
+indefinitely regardless of exit status. This should be avoided
+for very short-lived processes because of the accumulation of
+checkpointed state for each process run. When running in Mesos
+specifically, <code>max_failures</code> is capped at 100.</p>
+
+<h4 id="ephemeral">ephemeral</h4>
+
+<p>By default, Thermos processes are non-ephemeral. If <code>ephemeral</code> is set to
+True, the process&rsquo; status is not used to determine if its containing task
+has completed. For example, consider a task with a non-ephemeral
+webserver process and an ephemeral logsaver process
+that periodically checkpoints its log files to a centralized data store.
+The task is considered finished once the webserver process has
+completed, regardless of the logsaver&rsquo;s current status.</p>
+
+<h4 id="min_duration">min_duration</h4>
+
+<p>Processes may succeed or fail multiple times during a single task&rsquo;s
+duration. Each of these is called a <em>process run</em>. <code>min_duration</code> is
+the minimum number of seconds the scheduler waits before running the
+same process.</p>
+
+<h4 id="final">final</h4>
+
+<p>Processes can be grouped into two classes: ordinary processes and
+finalizing processes. By default, Thermos processes are ordinary. They
+run as long as the task is considered healthy (i.e., no failure
+limits have been reached.) But once all regular Thermos processes
+finish or the task reaches a certain failure threshold, it
+moves into a &ldquo;finalization&rdquo; stage and runs all finalizing
+processes. These are typically processes necessary for cleaning up the
+task, such as log checkpointers, or perhaps e-mail notifications that
+the task completed.</p>
+
+<p>Finalizing processes may not depend upon ordinary processes or
+vice-versa, however finalizing processes may depend upon other
+finalizing processes and otherwise run as a typical process
+schedule.</p>
+
+<h4 id="logger">logger</h4>
+
+<p>The default behavior of Thermos is to store  stderr/stdout logs in files which grow unbounded.
+In the event that you have large log volume, you may want to configure Thermos to automatically rotate logs
+after they grow to a certain size, which can prevent your job from using more than its allocated
+disk space.</p>
+
+<p>A Logger union consists of a destination enum, a mode enum and a rotation policy.
+It&rsquo;s to set where the process logs should be sent using <code>destination</code>. Default
+option is <code>file</code>. Its also possible to specify <code>console</code> to get logs output
+to stdout/stderr, <code>none</code> to suppress any logs output or <code>both</code> to send logs to files and
+console output. In case of using <code>none</code> or <code>console</code> rotation attributes are ignored.
+Rotation policies only apply to loggers whose mode is <code>rotate</code>. The acceptable values
+for the LoggerMode enum are <code>standard</code> and <code>rotate</code>. The rotation policy applies to both
+stderr and stdout.</p>
+
+<p>By default, all processes use the <code>standard</code> LoggerMode.</p>
+
+<table><thead>
+<tr>
+<th><strong>Attribute Name</strong></th>
+<th style="text-align: center"><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>destination</strong></td>
+<td style="text-align: center">LoggerDestination</td>
+<td>Destination of logs. (Default: <code>file</code>)</td>
+</tr>
+<tr>
+<td><strong>mode</strong></td>
+<td style="text-align: center">LoggerMode</td>
+<td>Mode of the logger. (Default: <code>standard</code>)</td>
+</tr>
+<tr>
+<td><strong>rotate</strong></td>
+<td style="text-align: center">RotatePolicy</td>
+<td>An optional rotation policy.</td>
+</tr>
+</tbody></table>
+
+<p>A RotatePolicy describes log rotation behavior for when <code>mode</code> is set to <code>rotate</code>. It is ignored
+otherwise.</p>
+
+<table><thead>
+<tr>
+<th><strong>Attribute Name</strong></th>
+<th style="text-align: center"><strong>Type</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>log_size</strong></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum size (in bytes) of an individual log file. (Default: 100 MiB)</td>
+</tr>
+<tr>
+<td><strong>backups</strong></td>
+<td style="text-align: center">Integer</td>
+<td>The maximum number of backups to retain. (Default: 5)</td>
+</tr>
+</tbody></table>
+
+<p>An example process configuration is as follows:</p>
+<pre class="highlight plaintext"><code>    process = Process(
+      name='process',
+      logger=Logger(
+        destination=LoggerDestination('both'),
+        mode=LoggerMode('rotate'),
+        rotate=RotatePolicy(log_size=5*MB, backups=5)
+      )
+    )
+</code></pre>
+
+<h1 id="task-schema">Task Schema</h1>
+
+<p>Tasks fundamentally consist of a <code>name</code> and a list of Process objects stored as the
+value of the <code>processes</code> attribute. Processes can be further constrained with
+<code>constraints</code>. By default, <code>name</code>&rsquo;s value inherits from the first Process in the
+<code>processes</code> list, so for simple <code>Task</code> objects with one Process, <code>name</code>
+can be omitted. In Mesos, <code>resources</code> is also required.</p>
+
+<h3 id="task-object">Task Object</h3>
+
+<table><thead>
+<tr>
+<th><strong>param</strong></th>
+<th style="text-align: center"><strong>type</strong></th>
+<th><strong>description</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>name</code></td>
+<td style="text-align: center">String</td>
+<td>Process name (Required) (Default: <code>processes0.name</code>)</td>
+</tr>
+<tr>
+<td><code>processes</code></td>
+<td style="text-align: center">List of <code>Process</code> objects</td>
+<td>List of <code>Process</code> objects bound to this task. (Required)</td>
+</tr>
+<tr>
+<td><code>constraints</code></td>
+<td style="text-align: center">List of <code>Constraint</code> objects</td>
+<td>List of <code>Constraint</code> objects constraining processes.</td>
+</tr>
+<tr>
+<td><code>resources</code></td>
+<td style="text-align: center"><code>Resource</code> object</td>
+<td>Resource footprint. (Required)</td>
+</tr>
+<tr>
+<td><code>max_failures</code></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum process failures before being considered failed (Default: 1)</td>
+</tr>
+<tr>
+<td><code>max_concurrency</code></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum number of concurrent processes (Default: 0, unlimited concurrency.)</td>
+</tr>
+<tr>
+<td><code>finalization_wait</code></td>
+<td style="text-align: center">Integer</td>
+<td>Amount of time allocated for finalizing processes, in seconds. (Default: 30)</td>
+</tr>
+</tbody></table>
+
+<h4 id="name">name</h4>
+
+<p><code>name</code> is a string denoting the name of this task. It defaults to the name of the first Process in
+the list of Processes associated with the <code>processes</code> attribute.</p>
+
+<h4 id="processes">processes</h4>
+
+<p><code>processes</code> is an unordered list of <code>Process</code> objects. To constrain the order
+in which they run, use <code>constraints</code>.</p>
+
+<h5 id="constraints">constraints</h5>
+
+<p>A list of <code>Constraint</code> objects. Currently it supports only one type,
+the <code>order</code> constraint. <code>order</code> is a list of process names
+that should run in the order given. For example,</p>
+<pre class="highlight plaintext"><code>    process = Process(cmdline = "echo hello {{name}}")
+    task = Task(name = "echoes",
+                processes = [process(name = "jim"), process(name = "bob")],
+                constraints = [Constraint(order = ["jim", "bob"]))
+</code></pre>
+
+<p>Constraints can be supplied ad-hoc and in duplicate. Not all
+Processes need be constrained, however Tasks with cycles are
+rejected by the Thermos scheduler.</p>
+
+<p>Use the <code>order</code> function as shorthand to generate <code>Constraint</code> lists.
+The following:</p>
+<pre class="highlight plaintext"><code>    order(process1, process2)
+</code></pre>
+
+<p>is shorthand for</p>
+<pre class="highlight plaintext"><code>    [Constraint(order = [process1.name(), process2.name()])]
+</code></pre>
+
+<p>The <code>order</code> function accepts Process name strings <code>(&#39;foo&#39;, &#39;bar&#39;)</code> or the processes
+themselves, e.g. <code>foo=Process(name=&#39;foo&#39;, ...)</code>, <code>bar=Process(name=&#39;bar&#39;, ...)</code>,
+<code>constraints=order(foo, bar)</code>.</p>
+
+<h4 id="resources">resources</h4>
+
+<p>Takes a <code>Resource</code> object, which specifies the amounts of CPU, memory, and disk space resources
+to allocate to the Task.</p>
+
+<h4 id="max_failures">max_failures</h4>
+
+<p><code>max_failures</code> is the number of failed processes needed for the <code>Task</code> to be
+marked as failed.</p>
+
+<p>For example, assume a Task has two Processes and a <code>max_failures</code> value of <code>2</code>:</p>
+<pre class="highlight plaintext"><code>    template = Process(max_failures=10)
+    task = Task(
+      name = "fail",
+      processes = [
+         template(name = "failing", cmdline = "exit 1"),
+         template(name = "succeeding", cmdline = "exit 0")
+      ],
+      max_failures=2)
+</code></pre>
+
+<p>The <code>failing</code> Process could fail 10 times before being marked as permanently
+failed, and the <code>succeeding</code> Process could succeed on the first run. However,
+the task would succeed despite only allowing for two failed processes. To be more
+specific, there would be 10 failed process runs yet 1 failed process. Both processes
+would have to fail for the Task to fail.</p>
+
+<h4 id="max_concurrency">max_concurrency</h4>
+
+<p>For Tasks with a number of expensive but otherwise independent
+processes, you may want to limit the amount of concurrency
+the Thermos scheduler provides rather than artificially constraining
+it via <code>order</code> constraints. For example, a test framework may
+generate a task with 100 test run processes, but wants to run it on
+a machine with only 4 cores. You can limit the amount of parallelism to
+4 by setting <code>max_concurrency=4</code> in your task configuration.</p>
+
+<p>For example, the following task spawns 180 Processes (&ldquo;mappers&rdquo;)
+to compute individual elements of a 180 degree sine table, all dependent
+upon one final Process (&ldquo;reducer&rdquo;) to tabulate the results:</p>
+<pre class="highlight plaintext"><code>def make_mapper(id):
+  return Process(
+    name = "mapper%03d" % id,
+    cmdline = "echo 'scale=50;s(%d\*4\*a(1)/180)' | bc -l &gt;
+               temp.sine_table.%03d" % (id, id))
+
+def make_reducer():
+  return Process(name = "reducer", cmdline = "cat temp.\* | nl \&gt; sine\_table.txt
+                 &amp;&amp; rm -f temp.\*")
+
+processes = map(make_mapper, range(180))
+
+task = Task(
+  name = "mapreduce",
+  processes = processes + [make\_reducer()],
+  constraints = [Constraint(order = [mapper.name(), 'reducer']) for mapper
+                 in processes],
+  max_concurrency = 8)
+</code></pre>
+
+<h4 id="finalization_wait">finalization_wait</h4>
+
+<p>Tasks have three active stages: <code>ACTIVE</code>, <code>CLEANING</code>, and <code>FINALIZING</code>. The
+<code>ACTIVE</code> stage is when ordinary processes run. This stage lasts as
+long as Processes are running and the Task is healthy. The moment either
+all Processes have finished successfully or the Task has reached a
+maximum Process failure limit, it goes into <code>CLEANING</code> stage and send
+SIGTERMs to all currently running Processes and their process trees.
+Once all Processes have terminated, the Task goes into <code>FINALIZING</code> stage
+and invokes the schedule of all Processes with the &ldquo;final&rdquo; attribute set to True.</p>
+
+<p>This whole process from the end of <code>ACTIVE</code> stage to the end of <code>FINALIZING</code>
+must happen within <code>finalization_wait</code> seconds. If it does not
+finish during that time, all remaining Processes are sent SIGKILLs
+(or if they depend upon uncompleted Processes, are
+never invoked.)</p>
+
+<p>Client applications with higher priority may force a shorter
+finalization wait (e.g. through parameters to <code>thermos kill</code>), so this
+is mostly a best-effort signal.</p>
+
+<h3 id="constraint-object">Constraint Object</h3>
+
+<p>Current constraint objects only support a single ordering constraint, <code>order</code>,
+which specifies its processes run sequentially in the order given. By
+default, all processes run in parallel when bound to a <code>Task</code> without
+ordering constraints.</p>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>order</td>
+<td style="text-align: center">List of String</td>
+<td>List of processes by name (String) that should be run serially.</td>
+</tr>
+</tbody></table>
+
+<h3 id="resource-object">Resource Object</h3>
+
+<p>Specifies the amount of CPU, Ram, and disk resources the task needs. See the
+<a href="/documentation/0.12.0/resources/">Resource Isolation document</a> for suggested values and to understand how
+resources are allocated.</p>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>cpu</code></td>
+<td style="text-align: center">Float</td>
+<td>Fractional number of cores required by the task.</td>
+</tr>
+<tr>
+<td><code>ram</code></td>
+<td style="text-align: center">Integer</td>
+<td>Bytes of RAM required by the task.</td>
+</tr>
+<tr>
+<td><code>disk</code></td>
+<td style="text-align: center">Integer</td>
+<td>Bytes of disk required by the task.</td>
+</tr>
+</tbody></table>
+
+<h1 id="job-schema">Job Schema</h1>
+
+<h3 id="job-objects">Job Objects</h3>
+
+<table><thead>
+<tr>
+<th>name</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>task</code></td>
+<td style="text-align: center">Task</td>
+<td>The Task object to bind to this job. Required.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td style="text-align: center">String</td>
+<td>Job name. (Default: inherited from the task attribute&rsquo;s name)</td>
+</tr>
+<tr>
+<td><code>role</code></td>
+<td style="text-align: center">String</td>
+<td>Job role account. Required.</td>
+</tr>
+<tr>
+<td><code>cluster</code></td>
+<td style="text-align: center">String</td>
+<td>Cluster in which this job is scheduled. Required.</td>
+</tr>
+<tr>
+<td><code>environment</code></td>
+<td style="text-align: center">String</td>
+<td>Job environment, default <code>devel</code>. Must be one of <code>prod</code>, <code>devel</code>, <code>test</code> or <code>staging&lt;number&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>contact</code></td>
+<td style="text-align: center">String</td>
+<td>Best email address to reach the owner of the job. For production jobs, this is usually a team mailing list.</td>
+</tr>
+<tr>
+<td><code>instances</code></td>
+<td style="text-align: center">Integer</td>
+<td>Number of instances (sometimes referred to as replicas or shards) of the task to create. (Default: 1)</td>
+</tr>
+<tr>
+<td><code>cron_schedule</code></td>
+<td style="text-align: center">String</td>
+<td>Cron schedule in cron format. May only be used with non-service jobs. See <a href="/documentation/0.12.0/cron-jobs/">Cron Jobs</a> for more information. Default: None (not a cron job.)</td>
+</tr>
+<tr>
+<td><code>cron_collision_policy</code></td>
+<td style="text-align: center">String</td>
+<td>Policy to use when a cron job is triggered while a previous run is still active. KILL<em>EXISTING Kill the previous run, and schedule the new run CANCEL</em>NEW Let the previous run continue, and cancel the new run. (Default: KILL_EXISTING)</td>
+</tr>
+<tr>
+<td><code>update_config</code></td>
+<td style="text-align: center"><code>UpdateConfig</code> object</td>
+<td>Parameters for controlling the rate and policy of rolling updates.</td>
+</tr>
+<tr>
+<td><code>constraints</code></td>
+<td style="text-align: center">dict</td>
+<td>Scheduling constraints for the tasks. See the section on the <a href="#Specifying-Scheduling-Constraints">constraint specification language</a></td>
+</tr>
+<tr>
+<td><code>service</code></td>
+<td style="text-align: center">Boolean</td>
+<td>If True, restart tasks regardless of success or failure. (Default: False)</td>
+</tr>
+<tr>
+<td><code>max_task_failures</code></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum number of failures after which the task is considered to have failed (Default: 1) Set to -1 to allow for infinite failures</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td style="text-align: center">Integer</td>
+<td>Preemption priority to give the task (Default 0). Tasks with higher priorities may preempt tasks at lower priorities.</td>
+</tr>
+<tr>
+<td><code>production</code></td>
+<td style="text-align: center">Boolean</td>
+<td>Whether or not this is a production task that may <a href="/documentation/0.12.0/resources/#task-preemption">preempt</a> other tasks (Default: False). Production job role must have the appropriate <a href="/documentation/0.12.0/resources/#resource-quota">quota</a>.</td>
+</tr>
+<tr>
+<td><code>health_check_config</code></td>
+<td style="text-align: center"><code>HealthCheckConfig</code> object</td>
+<td>Parameters for controlling a task&rsquo;s health checks. HTTP health check is only used if a  health port was assigned with a command line wildcard.</td>
+</tr>
+<tr>
+<td><code>container</code></td>
+<td style="text-align: center"><code>Container</code> object</td>
+<td>An optional container to run all processes inside of.</td>
+</tr>
+<tr>
+<td><code>lifecycle</code></td>
+<td style="text-align: center"><code>LifecycleConfig</code> object</td>
+<td>An optional task lifecycle configuration that dictates commands to be executed on startup/teardown.  HTTP lifecycle is enabled by default if the &ldquo;health&rdquo; port is requested.  See <a href="#lifecycleconfig-objects">LifecycleConfig Objects</a> for more information.</td>
+</tr>
+<tr>
+<td><code>tier</code></td>
+<td style="text-align: center">String</td>
+<td>Task tier type. When set to <code>revocable</code> requires the task to run with Mesos revocable resources. This is work <a href="https://issues.apache.org/jira/browse/AURORA-1343">in progress</a> and is currently only supported for the revocable tasks. The ultimate goal is to simplify task configuration by hiding various configuration knobs behind a task tier definition. See AURORA-1343 and AURORA-1443 for more details.</td>
+</tr>
+</tbody></table>
+
+<h3 id="services">Services</h3>
+
+<p>Jobs with the <code>service</code> flag set to True are called Services. The <code>Service</code>
+alias can be used as shorthand for <code>Job</code> with <code>service=True</code>.
+Services are differentiated from non-service Jobs in that tasks
+always restart on completion, whether successful or unsuccessful.
+Jobs without the service bit set only restart up to
+<code>max_task_failures</code> times and only if they terminated unsuccessfully
+either due to human error or machine failure.</p>
+
+<h3 id="revocable-jobs">Revocable Jobs</h3>
+
+<p><strong>WARNING</strong>: This feature is currently in alpha status. Do not use it in production clusters!</p>
+
+<p>Mesos <a href="http://mesos.apache.org/documentation/latest/oversubscription/">supports a concept of revocable tasks</a>
+by oversubscribing machine resources by the amount deemed safe to not affect the existing
+non-revocable tasks. Aurora now supports revocable jobs via a <code>tier</code> setting set to <code>revocable</code>
+value.</p>
+
+<p>More implementation details in this <a href="https://issues.apache.org/jira/browse/AURORA-1343">ticket</a>.</p>
+
+<p>Scheduler must be <a href="/documentation/0.12.0/deploying-aurora-scheduler/#configuring-resource-oversubscription">configured</a>
+to receive revocable offers from Mesos and accept revocable jobs. If not configured properly
+revocable tasks will never get assigned to hosts and will stay in PENDING.</p>
+
+<h3 id="updateconfig-objects">UpdateConfig Objects</h3>
+
+<p>Parameters for controlling the rate and policy of rolling updates.</p>
+
+<table><thead>
+<tr>
+<th>object</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>batch_size</code></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum number of shards to be updated in one iteration (Default: 1)</td>
+</tr>
+<tr>
+<td><code>watch_secs</code></td>
+<td style="text-align: center">Integer</td>
+<td>Minimum number of seconds a shard must remain in <code>RUNNING</code> state before considered a success (Default: 45)</td>
+</tr>
+<tr>
+<td><code>max_per_shard_failures</code></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum number of restarts per shard during update. Increments total failure count when this limit is exceeded. (Default: 0)</td>
+</tr>
+<tr>
+<td><code>max_total_failures</code></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum number of shard failures to be tolerated in total during an update. Cannot be greater than or equal to the total number of tasks in a job. (Default: 0)</td>
+</tr>
+<tr>
+<td><code>rollback_on_failure</code></td>
+<td style="text-align: center">boolean</td>
+<td>When False, prevents auto rollback of a failed update (Default: True)</td>
+</tr>
+<tr>
+<td><code>wait_for_batch_completion</code></td>
+<td style="text-align: center">boolean</td>
+<td>When True, all threads from a given batch will be blocked from picking up new instances until the entire batch is updated. This essentially simulates the legacy sequential updater algorithm. (Default: False)</td>
+</tr>
+<tr>
+<td><code>pulse_interval_secs</code></td>
+<td style="text-align: center">Integer</td>
+<td>Indicates a <a href="/documentation/0.12.0/client-commands/#coordinated-job-updates">coordinated update</a>. If no pulses are received within the provided interval the update will be blocked. Beta-updater only. Will fail on submission when used with client updater. (Default: None)</td>
+</tr>
+</tbody></table>
+
+<h3 id="healthcheckconfig-objects">HealthCheckConfig Objects</h3>
+
+<p><em>Note: <code>endpoint</code>, <code>expected_response</code> and <code>expected_response_code</code> are deprecated from <code>HealthCheckConfig</code> and must be definied in <code>HttpHealthChecker</code>.</em></p>
+
+<p>Parameters for controlling a task&rsquo;s health checks via HTTP or a shell command.</p>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>health_checker</code></td>
+<td style="text-align: center">HealthCheckerConfig</td>
+<td>Configure what kind of health check to use.</td>
+</tr>
+<tr>
+<td><code>initial_interval_secs</code></td>
+<td style="text-align: center">Integer</td>
+<td>Initial delay for performing a health check. (Default: 15)</td>
+</tr>
+<tr>
+<td><code>interval_secs</code></td>
+<td style="text-align: center">Integer</td>
+<td>Interval on which to check the task&rsquo;s health. (Default: 10)</td>
+</tr>
+<tr>
+<td><code>max_consecutive_failures</code></td>
+<td style="text-align: center">Integer</td>
+<td>Maximum number of consecutive failures that will be tolerated before considering a task unhealthy (Default: 0)</td>
+</tr>
+<tr>
+<td><code>timeout_secs</code></td>
+<td style="text-align: center">Integer</td>
+<td>Health check timeout. (Default: 1)</td>
+</tr>
+</tbody></table>
+
+<h3 id="healthcheckerconfig-objects">HealthCheckerConfig Objects</h3>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>http</code></td>
+<td style="text-align: center">HttpHealthChecker</td>
+<td>Configure health check to use HTTP. (Default)</td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td style="text-align: center">ShellHealthChecker</td>
+<td>Configure health check via a shell command.</td>
+</tr>
+</tbody></table>
+
+<h3 id="httphealthchecker-objects">HttpHealthChecker Objects</h3>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>endpoint</code></td>
+<td style="text-align: center">String</td>
+<td>HTTP endpoint to check (Default: /health)</td>
+</tr>
+<tr>
+<td><code>expected_response</code></td>
+<td style="text-align: center">String</td>
+<td>If not empty, fail the HTTP health check if the response differs. Case insensitive. (Default: ok)</td>
+</tr>
+<tr>
+<td><code>expected_response_code</code></td>
+<td style="text-align: center">Integer</td>
+<td>If not zero, fail the HTTP health check if the response code differs. (Default: 0)</td>
+</tr>
+</tbody></table>
+
+<h3 id="shellhealthchecker-objects">ShellHealthChecker Objects</h3>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>shell_command</code></td>
+<td style="text-align: center">String</td>
+<td>An alternative to HTTP health checking. Specifies a shell command that will be executed. Any non-zero exit status will be interpreted as a health check failure.</td>
+</tr>
+</tbody></table>
+
+<h3 id="announcer-objects">Announcer Objects</h3>
+
+<p>If the <code>announce</code> field in the Job configuration is set, each task will be
+registered in the ServerSet <code>/aurora/role/environment/jobname</code> in the
+zookeeper ensemble configured by the executor (which can be optionally overriden by specifying
+zk_path parameter).  If no Announcer object is specified,
+no announcement will take place.  For more information about ServerSets, see the <a href="/documentation/0.12.0/user-guide/">User Guide</a>.</p>
+
+<table><thead>
+<tr>
+<th>object</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>primary_port</code></td>
+<td style="text-align: center">String</td>
+<td>Which named port to register as the primary endpoint in the ServerSet (Default: <code>http</code>)</td>
+</tr>
+<tr>
+<td><code>portmap</code></td>
+<td style="text-align: center">dict</td>
+<td>A mapping of additional endpoints to announced in the ServerSet (Default: <code>{ &#39;aurora&#39;: &#39;{{primary_port}}&#39; }</code>)</td>
+</tr>
+<tr>
+<td><code>zk_path</code></td>
+<td style="text-align: center">String</td>
+<td>Zookeeper serverset path override (executor must be started with the &ndash;announcer-allow-custom-serverset-path parameter)</td>
+</tr>
+</tbody></table>
+
+<h3 id="port-aliasing-with-the-announcer-portmap">Port aliasing with the Announcer <code>portmap</code></h3>
+
+<p>The primary endpoint registered in the ServerSet is the one allocated to the port
+specified by the <code>primary_port</code> in the <code>Announcer</code> object, by default
+the <code>http</code> port.  This port can be referenced from anywhere within a configuration
+as <code>{{thermos.ports[http]}}</code>.</p>
+
+<p>Without the port map, each named port would be allocated a unique port number.
+The <code>portmap</code> allows two different named ports to be aliased together.  The default
+<code>portmap</code> aliases the <code>aurora</code> port (i.e. <code>{{thermos.ports[aurora]}}</code>) to
+the <code>http</code> port.  Even though the two ports can be referenced independently,
+only one port is allocated by Mesos.  Any port referenced in a <code>Process</code> object
+but which is not in the portmap will be allocated dynamically by Mesos and announced as well.</p>
+
+<p>It is possible to use the portmap to alias names to static port numbers, e.g.
+<code>{&#39;http&#39;: 80, &#39;https&#39;: 443, &#39;aurora&#39;: &#39;http&#39;}</code>.  In this case, referencing
+<code>{{thermos.ports[aurora]}}</code> would look up <code>{{thermos.ports[http]}}</code> then
+find a static port 80.  No port would be requested of or allocated by Mesos.</p>
+
+<p>Static ports should be used cautiously as Aurora does nothing to prevent two
+tasks with the same static port allocations from being co-scheduled.
+External constraints such as slave attributes should be used to enforce such
+guarantees should they be needed.</p>
+
+<h3 id="container-objects">Container Objects</h3>
+
+<p><em>Note: The only container type currently supported is &ldquo;docker&rdquo;.  Docker support is currently EXPERIMENTAL.</em>
+<em>Note: In order to correctly execute processes inside a job, the Docker container must have python 2.7 installed.</em></p>
+
+<p>Describes the container the job&rsquo;s processes will run inside.</p>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>docker</code></td>
+<td style="text-align: center">Docker</td>
+<td>A docker container to use.</td>
+</tr>
+</tbody></table>
+
+<h3 id="docker-object">Docker Object</h3>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>image</code></td>
+<td style="text-align: center">String</td>
+<td>The name of the docker image to execute.  If the image does not exist locally it will be pulled with <code>docker pull</code>.</td>
+</tr>
+<tr>
+<td><code>parameters</code></td>
+<td style="text-align: center">List(Parameter)</td>
+<td>Additional parameters to pass to the docker containerizer.</td>
+</tr>
+</tbody></table>
+
+<h3 id="docker-parameter-object">Docker Parameter Object</h3>
+
+<p>Docker CLI parameters. This needs to be enabled by the scheduler <code>enable_docker_parameters</code> option.
+See <a href="https://docs.docker.com/reference/commandline/run/">Docker Command Line Reference</a> for valid parameters. </p>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>name</code></td>
+<td style="text-align: center">String</td>
+<td>The name of the docker parameter. E.g. volume</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td style="text-align: center">String</td>
+<td>The value of the parameter. E.g. /usr/local/bin:/usr/bin:rw</td>
+</tr>
+</tbody></table>
+
+<h3 id="lifecycleconfig-objects">LifecycleConfig Objects</h3>
+
+<p><em>Note: The only lifecycle configuration supported is the HTTP lifecycle via the HTTPLifecycleConfig.</em></p>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>http</code></td>
+<td style="text-align: center">HTTPLifecycleConfig</td>
+<td>Configure the lifecycle manager to send lifecycle commands to the task via HTTP.</td>
+</tr>
+</tbody></table>
+
+<h3 id="httplifecycleconfig-objects">HTTPLifecycleConfig Objects</h3>
+
+<table><thead>
+<tr>
+<th>param</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>port</code></td>
+<td style="text-align: center">String</td>
+<td>The named port to send POST commands (Default: health)</td>
+</tr>
+<tr>
+<td><code>graceful_shutdown_endpoint</code></td>
+<td style="text-align: center">String</td>
+<td>Endpoint to hit to indicate that a task should gracefully shutdown. (Default: /quitquitquit)</td>
+</tr>
+<tr>
+<td><code>shutdown_endpoint</code></td>
+<td style="text-align: center">String</td>
+<td>Endpoint to hit to give a task its final warning before being killed. (Default: /abortabortabort)</td>
+</tr>
+</tbody></table>
+
+<h4 id="gracefulshutdownendpoint">graceful<em>shutdown</em>endpoint</h4>
+
+<p>If the Job is listening on the port as specified by the HTTPLifecycleConfig
+(default: <code>health</code>), a HTTP POST request will be sent over localhost to this
+endpoint to request that the task gracefully shut itself down.  This is a
+courtesy call before the <code>shutdown_endpoint</code> is invoked a fixed amount of
+time later.</p>
+
+<h4 id="shutdown_endpoint">shutdown_endpoint</h4>
+
+<p>If the Job is listening on the port as specified by the HTTPLifecycleConfig
+(default: <code>health</code>), a HTTP POST request will be sent over localhost to this
+endpoint to request as a final warning before being shut down.  If the task
+does not shut down on its own after this, it will be forcefully killed</p>
+
+<h1 id="specifying-scheduling-constraints">Specifying Scheduling Constraints</h1>
+
+<p>In the <code>Job</code> object there is a map <code>constraints</code> from String to String
+allowing the user to tailor the schedulability of tasks within the job.</p>
+
+<p>Each slave in the cluster is assigned a set of string-valued
+key/value pairs called attributes. For example, consider the host
+<code>cluster1-aaa-03-sr2</code> and its following attributes (given in key:value
+format): <code>host:cluster1-aaa-03-sr2</code> and <code>rack:aaa</code>.</p>
+
+<p>The constraint map&rsquo;s key value is the attribute name in which we
+constrain Tasks within our Job. The value is how we constrain them.
+There are two types of constraints: <em>limit constraints</em> and <em>value
+constraints</em>.</p>
+
+<table><thead>
+<tr>
+<th>constraint</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Limit</td>
+<td>A string that specifies a limit for a constraint. Starts with <code>&#39;limit:</code> followed by an Integer and closing single quote, such as <code>&#39;limit:1&#39;</code>.</td>
+</tr>
+<tr>
+<td>Value</td>
+<td>A string that specifies a value for a constraint. To include a list of values, separate the values using commas. To negate the values of a constraint, start with a <code>!</code> <code>.</code></td>
+</tr>
+</tbody></table>
+
+<p>You can also control machine diversity using constraints. The below
+constraint ensures that no more than two instances of your job may run
+on a single host. Think of this as a &ldquo;group by&rdquo; limit.</p>
+<pre class="highlight plaintext"><code>constraints = {
+  'host': 'limit:2',
+}
+</code></pre>
+
+<p>Likewise, you can use constraints to control rack diversity, e.g. at
+most one task per rack:</p>
+<pre class="highlight plaintext"><code>constraints = {
+  'rack': 'limit:1',
+}
+</code></pre>
+
+<p>Use these constraints sparingly as they can dramatically reduce Tasks&rsquo; schedulability.</p>
+
+<h1 id="template-namespaces">Template Namespaces</h1>
+
+<p>Currently, a few Pystachio namespaces have special semantics. Using them
+in your configuration allow you to tailor application behavior
+through environment introspection or interact in special ways with the
+Aurora client or Aurora-provided services.</p>
+
+<h3 id="mesos-namespace">mesos Namespace</h3>
+
+<p>The <code>mesos</code> namespace contains variables which relate to the <code>mesos</code> slave
+which launched the task. The <code>instance</code> variable can be used
+to distinguish between Task replicas.</p>
+
+<table><thead>
+<tr>
+<th>variable name</th>
+<th style="text-align: center">type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>instance</code></td>
+<td style="text-align: center">Integer</td>
+<td>The instance number of the created task. A job with 5 replicas has instance numbers 0, 1, 2, 3, and 4.</td>
+</tr>
+<tr>
+<td><code>hostname</code></td>
+<td style="text-align: center">String</td>
+<td>The instance hostname that the task was launched on.</td>
+</tr>
+</tbody></table>
+
+<h3 id="thermos-namespace">thermos Namespace</h3>
+
+<p>The <code>thermos</code> namespace contains variables that work directly on the
+Thermos platform in addition to Aurora. This namespace is fully
+compatible with Tasks invoked via the <code>thermos</code> CLI.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">variable</th>
+<th>type</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>ports</code></td>
+<td>map of string to Integer</td>
+<td>A map of names to port numbers</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>task_id</code></td>
+<td>string</td>
+<td>The task ID assigned to this task.</td>
+</tr>
+</tbody></table>
+
+<p>The <code>thermos.ports</code> namespace is automatically populated by Aurora when
+invoking tasks on Mesos. When running the <code>thermos</code> command directly,
+these ports must be explicitly mapped with the <code>-P</code> option.</p>
+
+<p>For example, if &rsquo;{{<code>thermos.ports[http]</code>}}&rsquo; is specified in a <code>Process</code>
+configuration, it is automatically extracted and auto-populated by
+Aurora, but must be specified with, for example, <code>thermos -P http:12345</code>
+to map <code>http</code> to port 12345 when running via the CLI.</p>
+
+<h1 id="basic-examples">Basic Examples</h1>
+
+<p>These are provided to give a basic understanding of simple Aurora jobs.</p>
+
+<h3 id="hello_world-aurora">hello_world.aurora</h3>
+
+<p>Put the following in a file named <code>hello_world.aurora</code>, substituting your own values
+for values such as <code>cluster</code>s.</p>
+<pre class="highlight plaintext"><code>import os
+hello_world_process = Process(name = 'hello_world', cmdline = 'echo hello world')
+
+hello_world_task = Task(
+  resources = Resources(cpu = 0.1, ram = 16 * MB, disk = 16 * MB),
+  processes = [hello_world_process])
+
+hello_world_job = Job(
+  cluster = 'cluster1',
+  role = os.getenv('USER'),
+  task = hello_world_task)
+
+jobs = [hello_world_job]
+</code></pre>
+
+<p>Then issue the following commands to create and kill the job, using your own values for the job key.</p>
+<pre class="highlight plaintext"><code>aurora job create cluster1/$USER/test/hello_world hello_world.aurora
+
+aurora job kill cluster1/$USER/test/hello_world
+</code></pre>
+
+<h3 id="environment-tailoring">Environment Tailoring</h3>
+
+<h4 id="helloworldproductionized-aurora">hello<em>world</em>productionized.aurora</h4>
+
+<p>Put the following in a file named <code>hello_world_productionized.aurora</code>, substituting your own values
+for values such as <code>cluster</code>s.</p>
+<pre class="highlight plaintext"><code>include('hello_world.aurora')
+
+production_resources = Resources(cpu = 1.0, ram = 512 * MB, disk = 2 * GB)
+staging_resources = Resources(cpu = 0.1, ram = 32 * MB, disk = 512 * MB)
+hello_world_template = hello_world(
+    name = "hello_world-{{cluster}}"
+    task = hello_world(resources=production_resources))
+
+jobs = [
+  # production jobs
+  hello_world_template(cluster = 'cluster1', instances = 25),
+  hello_world_template(cluster = 'cluster2', instances = 15),
+
+  # staging jobs
+  hello_world_template(
+    cluster = 'local',
+    instances = 1,
+    task = hello_world(resources=staging_resources)),
+]
+</code></pre>
+
+<p>Then issue the following commands to create and kill the job, using your own values for the job key</p>
+<pre class="highlight plaintext"><code>aurora job create cluster1/$USER/test/hello_world-cluster1 hello_world_productionized.aurora
+
+aurora job kill cluster1/$USER/test/hello_world-cluster1
+</code></pre>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

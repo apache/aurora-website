@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="col-md-12 documentation">
+<h5 class="page-header text-uppercase">Documentation
+<select onChange="window.location.href='/documentation/' + this.value + '/reference/client-cluster-configuration/'"
+        value="0.19.0">
+  <option value="0.22.0"
+    >
+    0.22.0
+      (latest)
+  </option>
+  <option value="0.21.0"
+    >
+    0.21.0
+  </option>
+  <option value="0.20.0"
+    >
+    0.20.0
+  </option>
+  <option value="0.19.1"
+    >
+    0.19.1
+  </option>
+  <option value="0.19.0"
+    selected="selected">
+    0.19.0
+  </option>
+  <option value="0.18.1"
+    >
+    0.18.1
+  </option>
+  <option value="0.18.0"
+    >
+    0.18.0
+  </option>
+  <option value="0.17.0"
+    >
+    0.17.0
+  </option>
+  <option value="0.16.0"
+    >
+    0.16.0
+  </option>
+  <option value="0.15.0"
+    >
+    0.15.0
+  </option>
+  <option value="0.14.0"
+    >
+    0.14.0
+  </option>
+  <option value="0.13.0"
+    >
+    0.13.0
+  </option>
+  <option value="0.12.0"
+    >
+    0.12.0
+  </option>
+  <option value="0.11.0"
+    >
+    0.11.0
+  </option>
+  <option value="0.10.0"
+    >
+    0.10.0
+  </option>
+  <option value="0.9.0"
+    >
+    0.9.0
+  </option>
+  <option value="0.8.0"
+    >
+    0.8.0
+  </option>
+  <option value="0.7.0-incubating"
+    >
+    0.7.0-incubating
+  </option>
+  <option value="0.6.0-incubating"
+    >
+    0.6.0-incubating
+  </option>
+  <option value="0.5.0-incubating"
+    >
+    0.5.0-incubating
+  </option>
+</select>
+</h5>
+<h1 id="client-cluster-configuration">Client Cluster Configuration</h1>
+
+<p>A cluster configuration file is used by the Aurora client to describe the Aurora clusters with
+which it can communicate. Ultimately this allows client users to reference clusters with short names
+like us-east and eu.</p>
+
+<p>A cluster configuration is formatted as JSON.  The simplest cluster configuration is one that
+communicates with a single (non-leader-elected) scheduler.  For example:</p>
+<pre class="highlight plaintext"><code>[{
+  "name": "example",
+  "scheduler_uri": "http://localhost:55555",
+}]
+</code></pre>
+
+<p>A configuration for a leader-elected scheduler would contain something like:</p>
+<pre class="highlight plaintext"><code>[{
+  "name": "example",
+  "zk": "192.168.33.7",
+  "scheduler_zk_path": "/aurora/scheduler"
+}]
+</code></pre>
+
+<p>The following properties may be set:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left"><strong>Property</strong></th>
+<th style="text-align: left"><strong>Type</strong></th>
+<th style="text-align: left"><strong>Description</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><strong>name</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Cluster name (Required)</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>slave_root</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Path to Mesos agent work dir (Required)</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>slave<em>run</em>directory</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Name of Mesos agent run dir (Required)</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>zk</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Hostname of ZooKeeper instance used to resolve Aurora schedulers.</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>zk_port</strong></td>
+<td style="text-align: left">Integer</td>
+<td style="text-align: left">Port of ZooKeeper instance used to locate Aurora schedulers (Default: 2181)</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>scheduler<em>zk</em>path</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">ZooKeeper path under which scheduler instances are registered.</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>scheduler_uri</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">URI of Aurora scheduler instance.</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>proxy_url</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Used by the client to format URLs for display.</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>auth_mechanism</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">The authentication mechanism to use when communicating with the scheduler. (Default: UNAUTHENTICATED)</td>
+</tr>
+<tr>
+<td style="text-align: left"><strong>docker_registry</strong></td>
+<td style="text-align: left">String</td>
+<td style="text-align: left">Used by the client to resolve docker tags.</td>
+</tr>
+</tbody></table>
+
+<h2 id="details">Details</h2>
+
+<h3 id="name"><code>name</code></h3>
+
+<p>The name of the Aurora cluster represented by this entry. This name will be the <code>cluster</code> portion of
+any job keys identifying jobs running within the cluster.</p>
+
+<h3 id="slave_root"><code>slave_root</code></h3>
+
+<p>The path on the Mesos agents where executing tasks can be found. It is used in combination with the
+<code>slave_run_directory</code> property by <code>aurora task run</code> and <code>aurora task ssh</code> to change into the sandbox
+directory after connecting to the host. This value should match the value passed to <code>mesos-slave</code>
+as <code>-work_dir</code>.</p>
+
+<h3 id="slave_run_directory"><code>slave_run_directory</code></h3>
+
+<p>The name of the directory where the task run can be found. This is used in combination with the
+<code>slave_root</code> property by <code>aurora task run</code> and <code>aurora task ssh</code> to change into the sandbox
+directory after connecting to the host. This should almost always be set to <code>latest</code>.</p>
+
+<h3 id="zk"><code>zk</code></h3>
+
+<p>The hostname of the ZooKeeper instance used to resolve the Aurora scheduler. Aurora uses ZooKeeper
+to elect a leader. The client will connect to this ZooKeeper instance to determine the current
+leader. This host should match the host passed to the scheduler as <code>-zk_endpoints</code>.</p>
+
+<h3 id="zk_port"><code>zk_port</code></h3>
+
+<p>The port on which the ZooKeeper instance is running. If not set this will default to the standard
+ZooKeeper port of 2181. This port should match the port in the host passed to the scheduler as
+<code>-zk_endpoints</code>.</p>
+
+<h3 id="scheduler_zk_path"><code>scheduler_zk_path</code></h3>
+
+<p>The path on the ZooKeeper instance under which the Aurora serverset is registered. This value should
+match the value passed to the scheduler as <code>-serverset_path</code>.</p>
+
+<h3 id="scheduler_uri"><code>scheduler_uri</code></h3>
+
+<p>The URI of the scheduler. This would be used in place of the ZooKeeper related configuration above
+in circumstances where direct communication with a single scheduler is needed (e.g. testing
+environments). It is strongly advised to <strong>never</strong> use this property for production deploys.</p>
+
+<h3 id="proxy_url"><code>proxy_url</code></h3>
+
+<p>Instead of using the hostname of the leading scheduler as the base url, if <code>proxy_url</code> is set, its
+value will be used instead. In that scenario the value for <code>proxy_url</code> would be, for example, the
+URL of your VIP in a loadbalancer or a roundrobin DNS name.</p>
+
+<h3 id="auth_mechanism"><code>auth_mechanism</code></h3>
+
+<p>The identifier of an authentication mechanism that the client should use when communicating with the
+scheduler. Support for values other than <code>UNAUTHENTICATED</code> requires a matching scheduler-side
+<a href="../../operations/security/">security configuration</a>.</p>
+
+<h3 id="docker_registry"><code>docker_registry</code></h3>
+
+<p>The URI of the Docker Registry that will be used by the Aurora client to resolve docker tags to concrete
+image ids, when using the docker binding helper, like <code>{{docker.image[name][tag]}}</code>.</p>
+
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

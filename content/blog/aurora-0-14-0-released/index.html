@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Apache Aurora</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="/assets/css/main.css" rel="stylesheet">
+	<!-- Analytics -->
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-45879646-1']);
+		  _gaq.push(['_setDomainName', 'apache.org']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	</script>
+  </head>
+  <body>
+    <div class="container-fluid section-header">
+  <div class="container">
+    <div class="nav nav-bar">
+    <a href="/"><img src="/assets/img/aurora_logo_dkbkg.svg" width="300" alt="Transparent Apache Aurora logo with dark background"/></a>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/documentation/latest/">Documentation</a></li>
+      <li><a href="/community/">Community</a></li>
+      <li><a href="/downloads/">Downloads</a></li>
+      <li><a href="/blog/">Blog</a></li>
+    </ul>
+    </div>
+  </div>
+</div>
+	
+    <div class="container-fluid">
+      <div class="container content">
+        <div class="container-fluid">
+
+<div class="row">
+<div class="col-md-3 buffer">
+	<div class="meta">
+		<span class="author">
+			<span class="author_contact">
+			  <p><strong>Stephan Erb</strong></p>
+			    <p><a href="http://twitter.com/ErbStephan">@ErbStephan</a></p>
+			</span>
+		</span>
+		<p><em>Posted June 14, 2016</em></p>
+	</div>
+	
+	<div class="share">
+		<span class="social-share-button"><a href="https://twitter.com/share" class="twitter-share-button" data-via="ApacheAurora">Tweet</a></span>
+		
+		<span><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></span>
+		
+		<script src="//platform.linkedin.com/in.js" type="text/javascript">
+		 lang: en_US
+		</script>
+		<script type="IN/Share" data-counter="right"></script>
+	</div>
+</div>
+
+<div class="post col-md-9">
+	<h1>0.14.0 Released</h1>
+	
+	<p>The latest Apache Aurora release, 0.14.0, is now available for
+<a href="http://aurora.apache.org/downloads/">download</a>. Here are some highlights in this release:</p>
+
+<ul>
+<li>Upgraded Mesos to 0.27.2</li>
+<li>Added a new optional <a href="https://curator.apache.org/">Apache Curator</a> backend for performing
+scheduler leader election. You can enable this with the new <code>-zk_use_curator</code> scheduler argument.</li>
+<li>Adding &ndash;nosetuid-health-checks flag to control whether the executor runs health checks as the
+job&rsquo;s role&rsquo;s user.</li>
+<li>New scheduler command line argument <code>-offer_filter_duration</code> to control the time after which we
+expect Mesos to re-offer unused resources. A short duration improves scheduling performance in
+smaller clusters, but might lead to resource starvation for other frameworks if you run multiple
+ones in your cluster. Uses the Mesos default of 5s.</li>
+<li>New scheduler command line option <code>-framework_name</code>  to change the name used for registering
+the Aurora framework with Mesos. The current default value is &lsquo;TwitterScheduler&rsquo;.</li>
+<li>Added experimental support for launching tasks using filesystem images and the Mesos <a href="https://github.com/apache/mesos/blob/master/docs/container-image.md">unified
+containerizer</a>. See that
+linked documentation for details on configuring Mesos to use the unified containerizer. Note that
+earlier versions of Mesos do not fully support the unified containerizer. Mesos 0.28.x or later is
+recommended for anyone adopting task images via the Mesos containerizer.</li>
+<li>Upgraded to pystachio 0.8.1 to pick up support for the new <a href="https://github.com/wickman/pystachio/blob/v0.8.1/README.md#choices">Choice type</a>.</li>
+<li>The <code>container</code> property of a <code>Job</code> is now a Choice of either a <code>Container</code> holder, or a direct
+reference to either a <code>Docker</code> or <code>Mesos</code> container.</li>
+<li>New scheduler command line argument <code>-ip</code> to control what ip address to bind the schedulers http
+server to.</li>
+<li>Added experimental support for Mesos GPU resource. This feature will be available in Mesos 1.0
+and is disabled by default. Use <code>-allow_gpu_resource</code> flag to enable it. Once this feature is
+enabled, creating jobs with GPU resource will make scheduler snapshot backwards incompatible.
+For further further details, please see the full release notes.</li>
+<li>Experimental support for a webhook feature which POSTs all task state changes to a user defined
+endpoint.</li>
+<li>Added support for specifying the default tier name in tier configuration file (<code>tiers.json</code>). The
+<code>default</code> property is required and is initialized with the <code>preemptible</code> tier (<code>preemptible</code> tier
+tasks can be preempted but their resources cannot be revoked).</li>
+</ul>
+
+<p>Deprecations and removals:</p>
+
+<ul>
+<li>Deprecated <code>--restart-threshold</code> option in the <code>aurora job restart</code> command to match the job
+updater behavior. This option has no effect now and will be removed in the future release.</li>
+<li>Deprecated <code>-framework_name</code> default argument &#39;TwitterScheduler&rsquo;. In a future release this
+will change to &#39;aurora&rsquo;. Please be aware that depending on your usage of Mesos, this will
+be a backward incompatible change. For details, see MESOS-703.</li>
+<li>The <code>-thermos_observer_root</code> command line arg has been removed from the scheduler. This was a
+relic from the time when executor checkpoints were written globally, rather than into a task&rsquo;s
+sandbox.</li>
+<li>Setting the <code>container</code> property of a <code>Job</code> to a <code>Container</code> holder is deprecated in favor of
+setting it directly to the appropriate (i.e. <code>Docker</code> or <code>Mesos</code>) container type.</li>
+<li>Deprecated <code>numCpus</code>, <code>ramMb</code> and <code>diskMb</code> fields in <code>TaskConfig</code> and <code>ResourceAggregate</code> thrift
+structs. Use <code>set&lt;Resource&gt; resources</code> to specify task resources or quota values.</li>
+<li>The endpoint <code>/slaves</code> is deprecated. Please use <code>/agents</code> instead.</li>
+<li>Deprecated <code>production</code> field in <code>TaskConfig</code> thrift struct. Use <code>tier</code> field to specify task
+scheduling and resource handling behavior.</li>
+<li>The scheduler <code>resources_*_ram_gb</code> and <code>resources_*_disk_gb</code> metrics have been renamed to
+<code>resources_*_ram_mb</code> and <code>resources_*_disk_mb</code> respectively. Note the unit change: GB -&gt; MB.</li>
+</ul>
+
+<p>Full release notes are available in the release
+<a href="https://gitbox.apache.org/repos/asf?p=aurora.git&amp;f=CHANGELOG&amp;hb=rel/0.14.0">CHANGELOG</a>.</p>
+
+<h2 id="getting-involved">Getting Involved</h2>
+
+<p>We encourage you to try out this release and let us know what you think. If you run into any issues,
+please let us know on the <a href="https://aurora.apache.org/community/">user mailing list and IRC</a>. The
+community also holds weekly IRC meetings at 11AM Pacific every Monday that you are welcome to join.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>Thanks to the 11 contributors who made Apache Aurora 0.14.0 possible:</p>
+
+<ul>
+<li>Chris Bannister</li>
+<li>Dmitriy Shirchenko</li>
+<li>John Sirois</li>
+<li>Joshua Cohen</li>
+<li>Maxim Khutornenko</li>
+<li>Mehrdad Nurolahzade</li>
+<li>Raymond Khalife</li>
+<li>Renan DelValle</li>
+<li>Stephan Erb</li>
+<li>Zameer Manji</li>
+<li>se choi</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+    </div>
+  	<div class="container-fluid section-footer buffer">
+      <div class="container">
+        <div class="row">
+		  <div class="col-md-2 col-md-offset-1"><h3>Quick Links</h3>
+		  <ul>
+		    <li><a href="/downloads/">Downloads</a></li>
+            <li><a href="/community/">Mailing Lists</a></li>
+			<li><a href="http://issues.apache.org/jira/browse/AURORA">Issue Tracking</a></li>
+			<li><a href="/documentation/latest/contributing/">How To Contribute</a></li>     
+		  </ul>
+	      </div>
+		  <div class="col-md-2"><h3>The ASF</h3>
+          <ul>
+            <li><a href="http://www.apache.org/licenses/">License</a></li>
+            <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>  
+            <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
+            <li><a href="http://www.apache.org/security/">Security</a></li>
+          </ul>
+		  </div>
+		  <div class="col-md-6">
+			<p class="disclaimer">&copy; 2014-2017 <a href="http://www.apache.org/">Apache Software Foundation</a>. Licensed under the <a href="http://www.apache.org/licenses/">Apache License v2.0</a>. The <a href="https://www.flickr.com/photos/trondk/12706051375/">Aurora Borealis IX photo</a> displayed on the homepage is available under a <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Creative Commons BY-NC-ND 2.0 license</a>. Apache, Apache Aurora, and the Apache feather logo are trademarks of The Apache Software Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
