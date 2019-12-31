@@ -4,3 +4,15 @@ staging:
  
 publish:
   whoami:  asf-site
+
+github:
+  description: "Apache Aurora's website"
+  homepage: https://aurora.apache.org/
+  labels:
+    - mesos
+    - aurora
+    - apache
+  enabled_merge_buttons:
+    squash:  true
+    merge:   false
+    rebase:  false
